@@ -30,6 +30,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - AI: OpenAI (ChatGPT) API — ใช้ Function Calling และ Structured Outputs (JSON Schema)
 - Local fuzzy search: `Fuse.js` (ฝั่ง JS) / `RapidFuzz` (ฝั่ง Python)
 
+## โครงสร้างโฟลเดอร์ (ข้อเสนอ — ปรับได้)
+
+| Path | เนื้อหา |
+|---|---|
+| `web/` | Next.js — UI + API routes (เรียก OpenAI ฝั่ง server เท่านั้น) |
+| `ingest/` | Python — Extractor / Matcher / Edition Disambiguator, script นำเข้าประกาศ |
+| `data/` | `catalog.json`, `user_shelf.json`, `review_queue.json` (ข้อมูล MVP) |
+| `schemas/` | JSON Schema ของข้อมูลทั้งหมด — **สัญญากลาง** ที่ Python และ TypeScript ต้องตรงกัน |
+
+ถ้าเปลี่ยนโครงสร้างนี้ ให้แก้ `paths:` ใน `.claude/rules/*.md` และ regex ใน `.claude/hooks/protect_files.py` ตามด้วย
+
 ## สถาปัตยกรรม: 3 LLM Hubs
 
 ทุกการเรียก LLM ต้องอยู่ใน 1 ใน 3 hub นี้เท่านั้น อย่าเพิ่มจุดเรียก LLM ใหม่โดยไม่จำเป็น
@@ -65,7 +76,43 @@ Trigger: แอดมินวางข้อความประกาศจ�
 - **Confirmation Modal** ยืนยันชื่อเรื่อง–เลขเล่ม–ฉบับพิมพ์ ทุกครั้งก่อนพาผู้ใช้ออกไปหน้าร้านค้า
 - งานที่โค้ดทำได้แบบ deterministic (นับเล่มขาด, ตรวจ threshold, ปุ่มลัด) ต้องทำด้วยโค้ด ไม่ใช่ LLM
 - เมื่อไม่มั่นใจว่าเป็นเล่มเดียวกัน → `needs_review` แทนการเดา (ความถูกต้องของแค็ตตาล็อกสำคัญกว่าความอัตโนมัติ)
+- **`schemas/` คือสัญญากลาง** — แก้ shape ของข้อมูลเมื่อไหร่ ต้องแก้ schema, ฝั่ง Python และ type ฝั่ง TypeScript ใน commit เดียวกัน
+
+## กฎแยกตามหัวข้อ (`.claude/rules/`)
+
+โหลดอัตโนมัติเมื่อทำงานกับไฟล์ใน path ที่ระบุ
+
+| Rule file | ครอบคลุม |
+|---|---|
+| `data-contract.md` | `book_id`/`source_id`, `sources[]`, enum `edition`, `match_status`, threshold, JSON Schema |
+| `ingest.md` | Python pipeline: Extractor → Matcher → Disambiguator, RapidFuzz, fixtures 3 เคสหลัก |
+| `web.md` | Next.js: เรียก OpenAI ฝั่ง server, hydrate ID, Approval Gate, Confirmation Modal, 0-Token Fast Path |
+| `llm.md` | การเรียก OpenAI ทุกจุด: payload pruning, Structured Outputs, cache, โมเดลที่ใช้ |
 
 ## คำสั่งที่ใช้บ่อย
 
 _ยังไม่มี — เพิ่มเมื่อสร้างโปรเจกต์ Next.js / Python แล้ว (dev server, build, lint, test, และวิธีรัน test เดี่ยว)_
+
+| งาน | คำสั่ง |
+|---|---|
+| Dev (web) | _TBD_ |
+| รัน ingest | _TBD_ |
+| Test (Python) | _TBD_ |
+| Test เดี่ยว | _TBD_ |
+| Lint / typecheck | _TBD_ |
+
+## ถามก่อนทำ (Ask first)
+
+- เพิ่ม dependency ใหม่ (npm / pip) — hook จะถามให้อัตโนมัติ
+- เปลี่ยนค่าใน enum `edition` หรือ `match_status`, หรือเปลี่ยน threshold 0.8
+- แก้ไฟล์ใน `schemas/` หรือข้อมูลจริงใน `data/*.json` ด้วยมือ
+- เลือก database (Supabase / MongoDB) หรือ hosting — ยังเป็นการตัดสินใจของทีม
+- เพิ่มจุดเรียก LLM ที่อยู่นอก 3 hub
+
+## ห้ามทำ (Never)
+
+- ใส่ OpenAI key ในโค้ด, ใน `NEXT_PUBLIC_*`, หรือเรียก OpenAI จาก browser (`dangerouslyAllowBrowser`) — hook บล็อกไว้แล้ว
+- แต่งข้อมูลหนังสือ / ประกาศขึ้นเองใน catalog — ใช้เฉพาะประกาศ สนพ. ที่ได้รับอนุญาต
+- ให้ LLM ตัดสิน threshold, นับเล่มขาด หรือเขียนลง `user_shelf.json` โดยไม่ผ่าน Approval Gate
+- ปิด / ข้าม test หรือ hook เพื่อให้ผ่าน (`--no-verify`)
+- `print()` / `console.log()` ที่ debug ค้างไว้ใน commit
