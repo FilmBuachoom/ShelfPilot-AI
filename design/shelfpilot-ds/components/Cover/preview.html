@@ -1,0 +1,70 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ShelfPilot AI</title>
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--surface); color:var(--ink); font-family:var(--font-sans); overflow:hidden; }
+  .cover { position:relative; height:288px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:288px; overflow:hidden; }
+  .art svg { display:block; width:480px; height:288px; }
+  .brand { fill:var(--accent); }
+  .deep { fill:var(--ink); }
+  .tint { fill:var(--accent-soft); }
+  .proof { fill:var(--verified-ink); }
+  .blk { rx:var(--radius-md); }
+  .chip { rx:var(--radius-sm); }
+  .spine { rx:var(--radius-sm); }
+  .missing { fill:none; stroke:var(--ink-muted); stroke-width:1.5; stroke-dasharray:4 3; }
+  .cell { fill:var(--surface); rx:var(--radius-sm); }
+  .cell.gap { fill:none; stroke:var(--surface); stroke-width:1.5; stroke-dasharray:3 3; }
+  .cell.next { fill:var(--accent); }
+  .shelf { stroke:var(--line-strong); stroke-width:1.5; }
+  .words { position:absolute; left:var(--space-6); bottom:var(--space-6); max-width:440px; }
+  .name { margin:0; font-size:72px; line-height:.95; font-weight:700; letter-spacing:-.02em; color:var(--ink); }
+  .tag { margin:var(--space-2) 0 0 2px; font-size:14px; line-height:20px; color:var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 288" width="480" height="288">
+<!--
+  blocks      accent 176×180 bled off the top (identity, largest) · ink 264×128 bleeding off the right · accent-soft 176×80 tint · verified-ink 64×24 once (it only ever means "has a source") — ≈33% of 960×288
+  arrangement one tall accent slab with an ink slab and satellites, bottoms on the shelf line at y=264, space-4 gutters
+  pattern     literal motif from the README's signature VolumeStrip: book spines standing on one shelf hairline (one dashed = a missing volume), plus a strip of volume cells cut into the ink slab (owned solid, missing dashed, the upcoming one in accent)
+  scales      sides in space-1/space-2 multiples; gutters space-4; cell pitch 24 = 20 + space-1; corners radius-md (blocks), radius-sm (chip, spines, cells); shelf = line-strong
+-->
+<rect class="brand blk" x="24" y="-12" width="176" height="180" rx="12"/>
+<rect class="deep blk" x="216" y="40" width="280" height="128" rx="12"/>
+<rect class="tint blk" x="24" y="184" width="176" height="80" rx="12"/>
+<rect class="proof chip" x="216" y="184" width="64" height="24" rx="6"/>
+<rect class="cell" x="232" y="124" width="20" height="22" rx="6"/>
+<rect class="cell" x="256" y="124" width="20" height="22" rx="6"/>
+<rect class="cell" x="280" y="124" width="20" height="22" rx="6"/>
+<rect class="cell" x="304" y="124" width="20" height="22" rx="6"/>
+<rect class="cell" x="328" y="124" width="20" height="22" rx="6"/>
+<rect class="cell" x="352" y="124" width="20" height="22" rx="6"/>
+<rect class="cell gap" x="376.75" y="124.75" width="18.5" height="20.5" rx="6"/>
+<rect class="cell" x="400" y="124" width="20" height="22" rx="6"/>
+<rect class="cell" x="424" y="124" width="20" height="22" rx="6"/>
+<rect class="cell next" x="448" y="124" width="20" height="22" rx="6"/>
+<rect class="deep spine" x="296" y="192" width="20" height="72" rx="6"/>
+<rect class="brand spine" x="324" y="208" width="16" height="56" rx="6"/>
+<rect class="deep spine" x="348" y="184" width="24" height="80" rx="6"/>
+<rect class="missing spine" x="380.75" y="200.75" width="14.5" height="62.5" rx="6"/>
+<rect class="brand spine" x="404" y="192" width="20" height="72" rx="6"/>
+<rect class="deep spine" x="432" y="216" width="16" height="48" rx="6"/>
+<rect class="brand spine" x="456" y="200" width="24" height="64" rx="6"/>
+<line class="shelf" x1="288" y1="264.75" x2="480" y2="264.75"/>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">ShelfPilot<br>AI</h1>
+<p class="tag">คลังมังงะและไลท์โนเวลของคุณ มี AI ช่วยที่ตรวจสอบที่มาได้</p>
+</div>
+</div>
+</body>
+</html>
