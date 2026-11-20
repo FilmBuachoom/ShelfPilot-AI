@@ -18,7 +18,7 @@ description: >
 
 ## 2. รัน 3 เคสหลัก (ingest)
 
-รัน test ของ `ingest/tests/` ที่ใช้ fixtures ใน `ingest/tests/fixtures/` (ไม่รวม test ที่ mark `llm`)
+รัน test ของ `web/lib/ingest/__tests__/` ที่ใช้ fixtures ใน `web/lib/ingest/__tests__/fixtures/` (ไม่รวม `*.llm.test.ts` ที่เรียก LLM จริง)
 
 | เคส | ผ่านเมื่อ |
 |---|---|

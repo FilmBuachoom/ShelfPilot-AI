@@ -10,7 +10,7 @@ This file provides guidance to Codex (and other agents that read `.github/copilo
 
 ## สถานะ Repository
 
-ณ ตอนสร้างไฟล์นี้ repo ยังว่าง (ยังไม่มีโค้ด, `package.json`, `pyproject.toml` หรือคำสั่ง build/test) — เมื่อเพิ่มโครงสร้างโปรเจกต์แล้วให้อัปเดตส่วน "คำสั่งที่ใช้บ่อย" ด้านล่างด้วยคำสั่งจริง อย่าเดาคำสั่งที่ยังไม่มีอยู่
+ณ ตอนสร้างไฟล์นี้ repo ยังว่าง (ยังไม่มีโค้ด, `package.json` หรือคำสั่ง build/test) — เมื่อเพิ่มโครงสร้างโปรเจกต์แล้วให้อัปเดตส่วน "คำสั่งที่ใช้บ่อย" ด้านล่างด้วยคำสั่งจริง อย่าเดาคำสั่งที่ยังไม่มีอยู่
 
 ## ภาพรวมผลิตภัณฑ์
 
@@ -23,22 +23,23 @@ This file provides guidance to Codex (and other agents that read `.github/copilo
 
 ## Tech Stack
 
-ทีมถนัด Python เป็นหลัก
+ทีมตกลงใช้ **Next.js (TypeScript) ทั้ง Frontend และ Backend** — แอปเดียวใน `web/` ไม่มี service Python (Python ใช้แค่ tooling ใน `.codex/` และ `.agents/scripts/`)
 
-- Frontend + API routes: Next.js · Data/ingestion: Python
+- Frontend + Backend: Next.js — UI, API routes และ Ingestion pipeline (Extractor / Matcher / Disambiguator) เป็น TypeScript ทั้งหมด
 - Database: Supabase หรือ MongoDB Atlas (ยังไม่ได้ตัดสินใจ) — ช่วง MVP ใช้ไฟล์ `catalog.json` / `user_shelf.json`
 - Deployment: **Vercel** (API route เรียก LLM ฝั่ง server — ห้ามฝัง API key ฝั่ง client)
 - AI: OpenAI (ChatGPT) API — Function Calling + Structured Outputs (JSON Schema)
-- Local fuzzy search: `Fuse.js` (JS) / `RapidFuzz` (Python)
+- Local fuzzy search: `Fuse.js`
 
 ## โครงสร้างโฟลเดอร์ (ข้อเสนอ — ปรับได้)
 
 | Path | เนื้อหา |
 |---|---|
 | `web/` | Next.js — UI + API routes (เรียก OpenAI ฝั่ง server เท่านั้น) |
-| `ingest/` | Python — Extractor / Matcher / Edition Disambiguator, script นำเข้าประกาศ |
+| `web/lib/ingest/` | Ingestion pipeline — Extractor / Matcher / Edition Disambiguator (เรียกจาก API route ของหน้า Admin "Import / Extract") |
 | `data/` | `catalog.json`, `user_shelf.json`, `review_queue.json` (ข้อมูล MVP) |
-| `schemas/` | JSON Schema ของข้อมูลทั้งหมด — **สัญญากลาง** ที่ Python และ TypeScript ต้องตรงกัน |
+| `schemas/` | JSON Schema ของข้อมูลทั้งหมด — **สัญญากลาง** ของไฟล์ใน `data/`, TypeScript types และ Structured Outputs ต้องตรงกัน |
+| `design/` | สำเนาอ้างอิง (read-only snapshot) ของ Design System "ShelfPilot AI" (`shelfpilot-ds/`: tokens, README และ preview ของ component) + ไฟล์ Figma wireframe (`figma/`) — ไม่ใช่โค้ดที่ build; ที่มาและกติกาอยู่ใน `design/README.md` |
 
 ถ้าเปลี่ยนโครงสร้างนี้ ให้แก้ `paths:` ใน `.github/instructions/*.instructions.md`, ตาราง "อ่านก่อนแก้" ด้านล่าง และ regex ใน `.codex/hooks/protect_files.py` ตามด้วย
 
@@ -48,8 +49,9 @@ Codex ไม่โหลด rule file ให้อัตโนมัติ — *
 
 | เมื่อแตะ | อ่าน |
 |---|---|
-| `ingest/**` | `.github/instructions/ingest.instructions.md`, `.github/instructions/llm.instructions.md`, `.github/instructions/data-contract.instructions.md` |
-| `web/**` | `.github/instructions/web.instructions.md` (+ `.github/instructions/llm.instructions.md` ถ้าแตะ `api/`, `server/`, `lib/`; + `.github/instructions/data-contract.instructions.md` ถ้าแตะ `types/`, `lib/`) |
+| `web/**/ingest/**` | `.github/instructions/ingest.instructions.md`, `.github/instructions/llm.instructions.md`, `.github/instructions/data-contract.instructions.md` (+ `.github/instructions/web.instructions.md`) |
+| `web/**` | `.github/instructions/web.instructions.md` (+ `.github/instructions/llm.instructions.md` ถ้าแตะ `api/`, `server/`, `lib/`; + `.github/instructions/data-contract.instructions.md` ถ้าแตะ `types/`, `lib/`; + `design/shelfpilot-ds/README.md` และ `components/<ชื่อ>/README.md` ของ component ที่จะสร้าง ถ้าแตะ UI) |
+| `design/**` | `design/README.md` (ห้ามแก้เนื้อหา — นำเข้าใหม่ทับทั้งโฟลเดอร์เท่านั้น) |
 | `schemas/**`, `data/**` | `.github/instructions/data-contract.instructions.md` |
 | `**/prompts/**` | `.github/instructions/llm.instructions.md` |
 
@@ -73,17 +75,18 @@ Skills ของโปรเจกต์อยู่ใน `.agents/skills/` (Co
 - **Confirmation Modal** ยืนยันชื่อเรื่อง–เลขเล่ม–ฉบับพิมพ์ ก่อนพาไปหน้าร้านค้า
 - งาน deterministic (นับเล่มขาด, ตรวจ threshold, ปุ่มลัด) ทำด้วยโค้ด ไม่ใช่ LLM
 - ไม่มั่นใจว่าเป็นเล่มเดียวกัน → `needs_review` แทนการเดา
-- **`schemas/` คือสัญญากลาง** — แก้ shape ต้องแก้ schema + Python + TypeScript ใน commit เดียวกัน
+- **`schemas/` คือสัญญากลาง** — แก้ shape ต้องแก้ schema + TypeScript types ใน commit เดียวกัน
+- **UI ตาม Design System ใน `design/shelfpilot-ds/`** — คลังต้องใช้งานครบได้โดยไม่ต้องพึ่ง AI, ปุ่ม `action` สีส้มไม่เกิน 1 ปุ่มต่อหน้าจอ, ข้อมูลจากแค็ตตาล็อกแสดงผ่าน component (BookCard / VolumeStrip / CitationChip) ไม่ใช่ข้อความหรือ URL ดิบ (รายละเอียดใน `.github/instructions/web.instructions.md`)
 
 ## คำสั่งที่ใช้บ่อย
 
-_ยังไม่มี — เพิ่มเมื่อสร้างโปรเจกต์ Next.js / Python แล้ว (dev server, build, lint, test, และวิธีรัน test เดี่ยว)_
+_ยังไม่มี — เพิ่มเมื่อสร้างโปรเจกต์ Next.js แล้ว (dev server, build, lint, test, และวิธีรัน test เดี่ยว)_
 
 | งาน | คำสั่ง |
 |---|---|
 | Dev (web) | _TBD_ |
 | รัน ingest | _TBD_ |
-| Test (Python) / Test เดี่ยว | _TBD_ |
+| Test / Test เดี่ยว | _TBD_ |
 | Lint / typecheck | _TBD_ |
 
 ## Git and PRs
@@ -95,7 +98,7 @@ _ยังไม่มี — เพิ่มเมื่อสร้างโ�
 
 ## ถามก่อนทำ (Ask first)
 
-- เพิ่ม dependency ใหม่ (npm / pip) — hook จะถามให้อัตโนมัติ
+- เพิ่ม dependency ใหม่ (npm) — hook จะถามให้อัตโนมัติ
 - เปลี่ยนค่าใน enum `edition` หรือ `match_status`, หรือเปลี่ยน threshold 0.8
 - แก้ไฟล์ใน `schemas/` หรือข้อมูลจริงใน `data/*.json` ด้วยมือ
 - เลือก database (Supabase / MongoDB) — ยังเป็นการตัดสินใจของทีม
@@ -108,6 +111,7 @@ _ยังไม่มี — เพิ่มเมื่อสร้างโ�
 - ให้ LLM ตัดสิน threshold, นับเล่มขาด หรือเขียนลง `user_shelf.json` โดยไม่ผ่าน Approval Gate
 - ปิด / ข้าม test หรือ hook เพื่อให้ผ่าน (`--no-verify`); ทิ้ง `print()` / `console.log()` debug ใน commit
 - แก้ไฟล์ `.env` (แก้ `.env.example` แทน) หรือ commit secret
+- แก้ไฟล์ใน `design/` — ถ้า design system ต้นฉบับเปลี่ยน ให้นำเข้าใหม่ทับทั้งโฟลเดอร์; ถ้าต้องปรับ token/CSS ให้แก้ในสำเนาที่ใช้งานจริงใน `web/`
 - Touch files unrelated to the task, including drive-by formatting.
 
 Adding dependencies, editing `.env` files, bypassing git hooks, and committing secrets are also checked by pre-commit hooks (gitleaks).

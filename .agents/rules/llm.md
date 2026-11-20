@@ -1,6 +1,5 @@
 ---
 paths:
-  - "ingest/**"
   - "web/**/api/**"
   - "web/**/server/**"
   - "web/**/lib/**"
