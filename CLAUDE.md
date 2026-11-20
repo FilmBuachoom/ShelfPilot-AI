@@ -115,7 +115,7 @@ _ยังไม่มี — เพิ่มเมื่อสร้างโ�
 
 ## ห้ามทำ (Never)
 
-- ใส่ OpenAI key ในโค้ด, ใน `NEXT_PUBLIC_*`, หรือเรียก OpenAI จาก browser (`dangerouslyAllowBrowser`)
+- ใส่ OpenAI key ในโค้ด, ใน `NEXT_PUBLIC_*`, หรือเรียก OpenAI จาก browser (`dangerouslyAllowBrowser`) — hook บล็อกไว้แล้ว
 - แต่งข้อมูลหนังสือ / ประกาศขึ้นเองใน catalog — ใช้เฉพาะประกาศ สนพ. ที่ได้รับอนุญาต
 - ให้ LLM ตัดสิน threshold, นับเล่มขาด หรือเขียนลง `user_shelf.json` โดยไม่ผ่าน Approval Gate
 - ปิด / ข้าม test หรือ hook เพื่อให้ผ่าน (`--no-verify`)
