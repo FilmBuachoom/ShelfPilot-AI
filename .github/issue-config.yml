@@ -1,0 +1,8 @@
+# Used by the issue-create skill (.claude/skills/issue-create/SKILL.md).
+# Installed as .github/issue-config.yml (ai-config, or copy by hand).
+project:
+  owner: FilmBuachoom     # org or user that owns the project
+  number: null            # TODO: no GitHub Project for ShelfPilot yet — create one, then set its number
+defaults:
+  status: Backlog         # Backlog | Todo
+  priority: Medium        # Urgent | High | Medium | Low

@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+<!--
+  Source of truth for AI instructions. After editing this file or anything in
+  .claude/rules/ or .claude/agents/, regenerate the Copilot copies:
+      python3 .claude/scripts/sync_copilot.py
+  This file loads on every session: keep it under ~100 lines and only write what
+  Claude cannot infer from the code. Stack conventions belong in .claude/rules/.
+  HTML comments like this one are stripped before Claude reads the file.
+-->
+
 ## ภาษาในการสื่อสาร
 
 **ตอบผู้ใช้เป็นภาษาไทยเสมอ** ไม่ว่าผู้ใช้จะถามมาเป็นภาษาใด (ศัพท์เทคนิค ชื่อไฟล์ ชื่อฟิลด์ และโค้ดใช้ภาษาอังกฤษได้ตามปกติ)
@@ -39,7 +48,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `data/` | `catalog.json`, `user_shelf.json`, `review_queue.json` (ข้อมูล MVP) |
 | `schemas/` | JSON Schema ของข้อมูลทั้งหมด — **สัญญากลาง** ที่ Python และ TypeScript ต้องตรงกัน |
 
-ถ้าเปลี่ยนโครงสร้างนี้ ให้แก้ `paths:` ใน `.claude/rules/*.md` และ regex ใน `.claude/hooks/protect_files.py` ตามด้วย
+ถ้าเปลี่ยนโครงสร้างนี้ ให้แก้ `paths:` ใน `.claude/rules/*.md` (ถ้ามี) และ regex ใน `.claude/hooks/protect_files.py` ตามด้วย
 
 ## สถาปัตยกรรม: 3 LLM Hubs
 
@@ -78,17 +87,6 @@ Trigger: แอดมินวางข้อความประกาศจ�
 - เมื่อไม่มั่นใจว่าเป็นเล่มเดียวกัน → `needs_review` แทนการเดา (ความถูกต้องของแค็ตตาล็อกสำคัญกว่าความอัตโนมัติ)
 - **`schemas/` คือสัญญากลาง** — แก้ shape ของข้อมูลเมื่อไหร่ ต้องแก้ schema, ฝั่ง Python และ type ฝั่ง TypeScript ใน commit เดียวกัน
 
-## กฎแยกตามหัวข้อ (`.claude/rules/`)
-
-โหลดอัตโนมัติเมื่อทำงานกับไฟล์ใน path ที่ระบุ
-
-| Rule file | ครอบคลุม |
-|---|---|
-| `data-contract.md` | `book_id`/`source_id`, `sources[]`, enum `edition`, `match_status`, threshold, JSON Schema |
-| `ingest.md` | Python pipeline: Extractor → Matcher → Disambiguator, RapidFuzz, fixtures 3 เคสหลัก |
-| `web.md` | Next.js: เรียก OpenAI ฝั่ง server, hydrate ID, Approval Gate, Confirmation Modal, 0-Token Fast Path |
-| `llm.md` | การเรียก OpenAI ทุกจุด: payload pruning, Structured Outputs, cache, โมเดลที่ใช้ |
-
 ## คำสั่งที่ใช้บ่อย
 
 _ยังไม่มี — เพิ่มเมื่อสร้างโปรเจกต์ Next.js / Python แล้ว (dev server, build, lint, test, และวิธีรัน test เดี่ยว)_
@@ -101,6 +99,12 @@ _ยังไม่มี — เพิ่มเมื่อสร้างโ�
 | Test เดี่ยว | _TBD_ |
 | Lint / typecheck | _TBD_ |
 
+## Git and PRs
+
+- Branches: `feature/`, `fix/`, `hotfix/`, `chore/`, `refactor/`, `docs/` + short kebab-case; ticket ID first when there is one (`feature/UC-123-add-export`).
+- Commits: Conventional Commits (`feat(scope): …`, `fix: …`, `chore: …`).
+- PR body: no template in `.github/PULL_REQUEST_TEMPLATE/` yet — the `pr-description` skill falls back to its default template.
+
 ## ถามก่อนทำ (Ask first)
 
 - เพิ่ม dependency ใหม่ (npm / pip) — hook จะถามให้อัตโนมัติ
@@ -111,8 +115,16 @@ _ยังไม่มี — เพิ่มเมื่อสร้างโ�
 
 ## ห้ามทำ (Never)
 
-- ใส่ OpenAI key ในโค้ด, ใน `NEXT_PUBLIC_*`, หรือเรียก OpenAI จาก browser (`dangerouslyAllowBrowser`) — hook บล็อกไว้แล้ว
+- ใส่ OpenAI key ในโค้ด, ใน `NEXT_PUBLIC_*`, หรือเรียก OpenAI จาก browser (`dangerouslyAllowBrowser`)
 - แต่งข้อมูลหนังสือ / ประกาศขึ้นเองใน catalog — ใช้เฉพาะประกาศ สนพ. ที่ได้รับอนุญาต
 - ให้ LLM ตัดสิน threshold, นับเล่มขาด หรือเขียนลง `user_shelf.json` โดยไม่ผ่าน Approval Gate
 - ปิด / ข้าม test หรือ hook เพื่อให้ผ่าน (`--no-verify`)
 - `print()` / `console.log()` ที่ debug ค้างไว้ใน commit
+- Touch files unrelated to the task, including drive-by formatting.
+
+<!-- claude-only -->
+Adding dependencies, editing `.env` files, bypassing git hooks, and committing secrets are enforced by hooks in `.claude/settings.json` — you will be stopped or asked automatically.
+<!-- /claude-only -->
+<!-- copilot-only
+Adding dependencies, editing `.env` files, bypassing git hooks, and committing secrets are also checked by pre-commit hooks and CI.
+-->

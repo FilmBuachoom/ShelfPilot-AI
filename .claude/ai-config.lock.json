@@ -1,0 +1,165 @@
+{
+  "commit": "64d94df5005b70be9108ec903b5839a4fb35d70a",
+  "files": {
+    ".claude/.gitignore": {
+      "base": "ced771be89a8b13b6517f27cdcf0c8aadc2e16863cf7be34100eba45572ed1e5",
+      "from": "claude/.gitignore"
+    },
+    ".claude/hooks/guard_bash.py": {
+      "base": "484fe42f6062a7eb76a0877ac0973c6238ec72b0c88c739a9984f3997c7d6839",
+      "from": "claude/hooks/guard_bash.py"
+    },
+    ".claude/hooks/protect_files.py": {
+      "base": "106fdccbf46c42c34b865b12ed33aaae2d22b7755a787cd7a2c8bce79c6952c0",
+      "from": "claude/hooks/protect_files.py"
+    },
+    ".claude/scripts/sync_copilot.py": {
+      "base": "0d901ff4130b60c5e6c6683148b71e1746c6c9e143a56834936986af240423a4",
+      "from": "claude/scripts/sync_copilot.py"
+    },
+    ".claude/settings.json": {
+      "base": "84bb3470f1bc35096df33018aeb4823674d2f9439803dfced0ea8a932e5c6618",
+      "from": "claude/settings.json"
+    },
+    ".claude/settings.local.json.example": {
+      "base": "5bac8408fed54918bbd077b98d5a46d6f5b89a246624247c1075a1155b52e175",
+      "from": "claude/settings.local.json.example"
+    },
+    ".claude/skills/gha-workflow-spec/SKILL.md": {
+      "base": "8c2395681bc0d9fdeb19dbb7947e198035dcf05e22fac76332ec6506630db551",
+      "from": "claude/skills/gha-workflow-spec/SKILL.md"
+    },
+    ".claude/skills/gha-workflow-spec/templates/spec.md": {
+      "base": "5c2d74c613820a29db3d10d0840f97005d7e8106a65a39701413df16f6cb6ae4",
+      "from": "claude/skills/gha-workflow-spec/templates/spec.md"
+    },
+    ".claude/skills/issue-create/SKILL.md": {
+      "base": "75b23229277e8df75b95e66d3ff6e7162e86627dda67f2f266341ac20fc63b69",
+      "from": "claude/skills/issue-create/SKILL.md"
+    },
+    ".claude/skills/issue-create/reference/priority-field.md": {
+      "base": "57be1a121ef297b6f25a539aa28495893f1c0f07a3e279a8ff9ddb05ad7a6622",
+      "from": "claude/skills/issue-create/reference/priority-field.md"
+    },
+    ".claude/skills/issue-create/reference/project-linking.md": {
+      "base": "2109e77d37d9aff8a36b86810f951a399de1591a0ee1c76c68339731bc97ff6c",
+      "from": "claude/skills/issue-create/reference/project-linking.md"
+    },
+    ".claude/skills/issue-create/templates/bug.md": {
+      "base": "f0eb60b925f722d57eeb2b628e66533e35112c34134da19cce5e267a9791ef12",
+      "from": "claude/skills/issue-create/templates/bug.md"
+    },
+    ".claude/skills/issue-create/templates/feature.md": {
+      "base": "dc3ea938ed8100a1458462fd5ed2eb7ab5a4addc1a027c8b5fd18274eb895177",
+      "from": "claude/skills/issue-create/templates/feature.md"
+    },
+    ".claude/skills/issue-create/templates/short.md": {
+      "base": "08154734dbbd9e814cc21070c76004143d9c2f02ff681e7a95dd76b7e1512c86",
+      "from": "claude/skills/issue-create/templates/short.md"
+    },
+    ".claude/skills/issue-create/templates/task.md": {
+      "base": "0b76317b21ae779aebd6c3b19808a6bd5d12cf9d7c9d8c8f3c2bb08def1eb94a",
+      "from": "claude/skills/issue-create/templates/task.md"
+    },
+    ".claude/skills/pr-create/SKILL.md": {
+      "base": "c56cd72fa2da884a8c01efab4c4aa4a19d2f6c157341005f3bc15fe1aff043c2",
+      "from": "claude/skills/pr-create/SKILL.md"
+    },
+    ".claude/skills/pr-create/scripts/create_pr.sh": {
+      "base": "d35423c0dc38dacd82558629f3923bfefeb5491ea7e286441c3650d8831cdf69",
+      "from": "claude/skills/pr-create/scripts/create_pr.sh"
+    },
+    ".claude/skills/pr-create/scripts/guard_push.py": {
+      "base": "ed15e11d747f974090472349787ded56bfee3d0f0a1e76b26d067be9a3f9eb29",
+      "from": "claude/skills/pr-create/scripts/guard_push.py"
+    },
+    ".claude/skills/pr-description/SKILL.md": {
+      "base": "2e45a529dffc95b587a6b48845aa26e58cdbaefdf27e13dfde26e671ac5d38b9",
+      "from": "claude/skills/pr-description/SKILL.md"
+    },
+    ".claude/skills/pr-description/scripts/gather_changes.sh": {
+      "base": "105bfee12cb4417a88c9f0726cac5f1ca1669f42b0e0d04ab5bf40deb5f1b5c6",
+      "from": "claude/skills/pr-description/scripts/gather_changes.sh"
+    },
+    ".claude/skills/pr-description/templates/default.md": {
+      "base": "b4056f2555124010426776f930b4ac5a3262ca82b6e3ba2ccb981104ea3e30a2",
+      "from": "claude/skills/pr-description/templates/default.md"
+    },
+    ".claude/skills/pr-screenshots/SKILL.md": {
+      "base": "60936dba1d2c6b0531ffbabd43892cc4b47a47264e8fd1534223496058a39b8a",
+      "from": "claude/skills/pr-screenshots/SKILL.md"
+    },
+    ".claude/skills/pr-screenshots/scripts/capture.py": {
+      "base": "c1e8961c0b8c80cb56b25b9768fce455b1682bcce7120f9ef0e028e72a290ed3",
+      "from": "claude/skills/pr-screenshots/scripts/capture.py"
+    },
+    ".claude/skills/pr-screenshots/scripts/upload_screenshot.sh": {
+      "base": "778c8647fde979a21266a067f16f5965340521d2f61bcc3e3b298c975ca3b81d",
+      "from": "claude/skills/pr-screenshots/scripts/upload_screenshot.sh"
+    },
+    ".claude/skills/test/SKILL.md": {
+      "base": "0fc6b19e82dd62deed7741e4ab6d0a42a5189180b907db322d4f81c531a9fa09",
+      "from": "claude/skills/test/SKILL.md"
+    },
+    ".claude/skills/test/reference/pitfalls.md": {
+      "base": "5b409978ffe37890dd5fa0428462326c1e5337c68b85b0f2de150f2c0a3729cc",
+      "from": "claude/skills/test/reference/pitfalls.md"
+    },
+    ".claude/skills/test/reference/techniques.md": {
+      "base": "484f8e98da15dff324907b418db1c16de20b48d6479e2cab62f3b62f5a00efa3",
+      "from": "claude/skills/test/reference/techniques.md"
+    },
+    ".claude/skills/test/templates/checklist.md": {
+      "base": "8cfb5b03f086db55115027a6de5a0286ec151662e86b081fc78f20613c405664",
+      "from": "claude/skills/test/templates/checklist.md"
+    },
+    ".claude/skills/test/templates/report.md": {
+      "base": "1e3c23ae60e3b41f39fe994b8e0777a371bccbb7171d0540d5e7b9a1c7f25e58",
+      "from": "claude/skills/test/templates/report.md"
+    },
+    ".github/ISSUE_TEMPLATE/bug_report.yml": {
+      "base": "c73a77ebd7bfc6a5c0b2e33c84ac1ba5281a4eee07c8002df1c4cb54194df8fd",
+      "from": "github/ISSUE_TEMPLATE/bug_report.yml"
+    },
+    ".github/ISSUE_TEMPLATE/config.yml": {
+      "base": "c730b91ece3a28a3ccceef02a5da99dab5c641f2d73badadff7e770658529c80",
+      "from": "github/ISSUE_TEMPLATE/config.yml"
+    },
+    ".github/ISSUE_TEMPLATE/feature_request.yml": {
+      "base": "5af0b871b49566f040478b81ae9da5c910446d5496f71b46cf5fc0951e65d3a3",
+      "from": "github/ISSUE_TEMPLATE/feature_request.yml"
+    },
+    ".github/ISSUE_TEMPLATE/task.yml": {
+      "base": "ea80c2421fceaaccffef883913943ab7dd53b83b01a9b07dbfff4bfa275bc130",
+      "from": "github/ISSUE_TEMPLATE/task.yml"
+    },
+    ".github/issue-config.yml": {
+      "base": "295a1cf849d73e3bef5283102fc54c66ba9f260c6b3f0d649427ad01145bad59",
+      "from": "github/issue-config.yml"
+    },
+    ".github/test-config.yml": {
+      "base": "9f9c9de04c1f21518273716948a41a818c05b8eb01f4000f8ea97266cad1ffc1",
+      "from": "github/test-config.yml"
+    },
+    ".pre-commit-config.yaml": {
+      "base": "4c0762ab06288c65e2fe754e995981f0598bc761eeed9f9daceed5858a50b0f6",
+      "from": "pre-commit-config.yaml"
+    },
+    "CLAUDE.md": {
+      "base": "6080fdb950574909537310a9bfa4632854640b3fe90a1818484bcb1e4fb6d245",
+      "from": "CLAUDE.template.md"
+    }
+  },
+  "groups": [
+    "core",
+    "skill:gha-workflow-spec",
+    "skill:issue-create",
+    "skill:pr-create",
+    "skill:pr-description",
+    "skill:pr-screenshots",
+    "skill:test"
+  ],
+  "source": "ai-deta/workflow-instructions",
+  "updated": "2026-11-20",
+  "version": "v1.3.0"
+}
