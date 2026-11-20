@@ -1,0 +1,50 @@
+---
+paths:
+  - "web/**"
+---
+
+# Next.js (web/)
+
+## Server / client boundary
+
+- OpenAI ถูกเรียกจาก API route / server action เท่านั้น — key อยู่ใน `process.env.OPENAI_API_KEY` ห้ามมี prefix `NEXT_PUBLIC_`
+- ถ้าจะ deploy ไป GitHub Pages (static) จะไม่มี API route — ต้อง Vercel ถ้ามี LLM
+
+## Hydration
+
+- LLM คืน `book_id` / `source_id` เท่านั้น → frontend lookup จาก catalog เพื่อสร้างการ์ด, ป้ายอ้างอิง, ปุ่มร้านค้า
+- ID ที่ lookup ไม่เจอ = LLM มโน → ไม่แสดง และ log ไว้ ห้ามแสดง ID เปล่าหรือเดา URL
+
+## Chat Hub (ฟีเจอร์ 1 + 2)
+
+- **Collection-Aware Chatbot** (Required) — โมเดลรุ่นเล็ก + Function Calling เรียก local search, payload pruning, อ้างอิงด้วย ID เช่น "มังงะหมอยาในวัง เล่มล่าสุดออกหรือยัง ฉันขาดเล่มไหน?" → ตอบจากคลังพร้อมป้ายอ้างอิงประกาศ
+- **Natural Language Shelf Updater** — tool `propose_shelf_update` แตกช่วงเลขเล่มด้วยโค้ดและจับคู่ `book_id` เช่น "เพิ่งซื้อฟรีเรน เล่ม 9-12 กับสปายฯ เล่ม 14" → 5 เล่ม → Approval Gate; ถ้ากำกวมให้ถามกลับ
+
+## Flow ที่ต้องมีเสมอ
+
+- **Approval Gate** — `propose_shelf_update` แสดงการ์ดสรุปรายการเล่ม (+/-) ผู้ใช้กดยืนยันก่อนค่อยเขียน `user_shelf.json` ปุ่มยกเลิกต้องไม่เขียนอะไรเลย
+- **Confirmation Modal** — ก่อนเปิดลิงก์ร้านค้า แสดง ชื่อเรื่อง–เลขเล่ม–ฉบับพิมพ์ ให้ยืนยัน
+- **0-Token Fast Path** — ปุ่มลัด (ออกใหม่เดือนนี้, เล่มที่ขาด) คำนวณจาก JSON ตรง ไม่เรียก API route ที่ใช้ LLM
+- นับคลิกไปร้านค้า (เป็นตัวชี้วัด) — event เดียว ที่จุดเดียว หลังยืนยันใน modal
+
+## Design system (`design/shelfpilot-ds/`)
+
+อ่าน `design/shelfpilot-ds/README.md` และ `components/<ชื่อ>/README.md` ก่อนสร้าง UI — `design/` เป็น snapshot ห้ามแก้ (ดู `design/README.md`)
+
+- **คลังมาก่อน** — หน้าแรกคือ "คลังของฉัน"; ฟีเจอร์คลัง (เพิ่ม / ติ๊กเล่ม / ดูเล่มขาด) ต้องใช้ได้ครบแม้ AI ล่มหรือ token หมด สร้าง Baseline (ShelfHeader, FilterTabs, SeriesRow, VolumeStrip) ก่อนต่อ AI
+- **ขาว-ดำเป็นค่าเริ่มต้น** — สีส้ม (`accent`, `action`) ใช้เฉพาะจุดลงมือ/ซื้อ; **ปุ่ม `action` ไม่เกิน 1 ปุ่มต่อหน้าจอ**; ข้อความสีส้มใช้ `accent-ink` (ห้ามใช้ `accent` กับตัวอักษรเล็ก); ตัวอักษรบนปุ่ม `action` ใช้ `on-action`
+- **แยก "AI พูด" กับ "ข้อมูลจริง"** — ข้อความ AI ไม่มี bubble; ข้อมูลจากแค็ตตาล็อกแสดงเป็น BookCard / VolumeStrip / CitationChip เสมอ; ห้าม URL ดิบในข้อความ
+- **ApprovalSheet** (ก่อนลงคลัง) และ **ConfirmModal** (ก่อนไปร้าน) ใช้รูปแบบเดียวกัน: สรุปรายการ + ปุ่ม `action` เต็มความกว้าง ข้อความปุ่มขึ้นต้นด้วยกริยาและบอกจำนวน เช่น "ยืนยัน 5 เล่ม"
+- **ความไม่แน่ใจต้องมองเห็น** — confidence < 0.8 หรือ `needs_review` ใช้ `review-*` + ขอบเส้นประ; Edition Badge เป็น outline สีกลางพร้อมคำกำกับ ห้ามใช้สีแยกฉบับ
+- **QuickChip (0-Token)** มี ⚡ และแสดงผลทันที ไม่มี typing indicator; อีโมจิที่ใช้ได้มีแค่ ⚡ และ ✦ (เหตุผลที่ AI เขียน)
+- ไม่มีข้อมูล → "ยังไม่พบในแค็ตตาล็อก" + เสนอทางต่อ ห้ามเดา
+- Component เป็น class `sp-*` ใน `components/bundle.css`; `preview.html` เป็นแค่ตัวอย่างหน้าตา ไม่ใช่ React component — เขียน component ใน `web/` เองตามชื่อและ README
+- Motion 150–200ms ease-out ไม่มี bounce/confetti และรองรับ `prefers-reduced-motion`
+- ห้าม: gradient น้ำเงิน-ม่วง, การ์ดอีโมจิ, แบนเนอร์ซ้อน, สี/โลโก้ Shopee (#EE4D2D)
+
+## Pitfalls
+
+- ฟอนต์ (Inter, Noto Sans Thai, IBM Plex Mono) โหลดผ่าน `next/font/google` — ตัดบรรทัด `@import` Google Fonts ออกจากสำเนา `bundle.css` ที่คัดลอกเข้า `web/` (อย่าแก้ไฟล์ใน `design/`)
+- README ของ design system อ้างถึง `tokens.css` แต่ repo มีแค่ `design/shelfpilot-ds/tokens.json` — ต้องสร้าง CSS variables (light/dark) จาก `tokens.json` เองใน `web/` ก่อนใช้ `bundle.css`
+- import โมดูลที่อ่าน `process.env.OPENAI_API_KEY` ใน client component → key หลุดหรือ build พัง แยกไว้ใน `server-only`
+- Fuse.js ฝั่ง client ใช้กับ catalog ที่ตัดฟิลด์แล้วเท่านั้น

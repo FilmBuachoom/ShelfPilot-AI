@@ -1,0 +1,47 @@
+---
+paths:
+  - "web/**/ingest/**"
+---
+
+# Ingestion pipeline (TypeScript, `web/lib/ingest/`)
+
+Flow: ข้อความประกาศ → **Extractor** (LLM) → **Matcher** (Fuse.js + LLM) → **Disambiguator** (โค้ด) → เขียน `data/`
+
+Trigger: แอดมินวางข้อความประกาศจากโซเชียลแล้วกด **"Import / Extract"** (ฟีเจอร์ 4 + 5 + 6) → API route ฝั่ง server เรียก pipeline ใน `web/lib/ingest/` (import `server-only`)
+
+1. **Extractor** — LLM + Structured Outputs สกัด `title`, `publisher`, `volume`, `edition`, `release_date` เก็บ `raw_text` และ `source_url` เป็น audit trail ผูกกับ `source_id`
+2. **Matcher** — fuzzy ดึงรายการใกล้เคียงจาก catalog แล้วให้ LLM เทียบ (Matcher + Disambiguator รวมเป็น API call เดียวได้) คืน `match_status` — ถูกเรียกจาก Chat Hub ด้วยเมื่อต้องเทียบชื่อย่อ/ชื่อญี่ปุ่น
+3. **Edition Disambiguator** — LLM ให้ `edition` + `confidence`; **โค้ด** ตัดสินตาม threshold 0.8 (ผลแต่ละ `match_status` ดู `data-contract.md`)
+
+## ต้องทำ
+
+- Extractor ใช้ Structured Outputs กับ JSON Schema จาก `schemas/` — ห้ามขอ JSON ด้วย prompt เปล่าแล้ว `JSON.parse` เอง
+- Matcher: Fuse.js ดึง top-N candidate (เริ่ม N=5) ก่อน แล้วส่งเฉพาะ candidate ที่ตัดฟิลด์แล้วเข้า LLM ไม่ใช่ทั้ง catalog
+- Disambiguator เป็นฟังก์ชัน pure: รับ `confidence` + ผล match คืน `match_status` — ทดสอบได้โดยไม่เรียก LLM
+- เขียนไฟล์ JSON แบบ atomic (เขียนไฟล์ชั่วคราวแล้ว `fs.rename`) กัน catalog พังกลางทาง
+- อ่าน key จาก `process.env.OPENAI_API_KEY` (Next.js โหลด `.env.local` ให้เอง) เฉพาะโมดูลฝั่ง server
+
+## Test 3 เคสหลัก (ต้องผ่านก่อนเดโม)
+
+เก็บ fixture ไว้ที่ `web/lib/ingest/__tests__/fixtures/` — ประกาศดิบ + ผลที่คาดหวัง
+
+| เคส | ตัวอย่าง | คาดหวัง |
+|---|---|---|
+| ประกาศซ้ำ | สนพ. โพสต์เล่มเดิมซ้ำ 2 ช่องทาง | `duplicate_merged`, `sources[]` ยาวขึ้น 1 |
+| ชื่อหลายแบบ | ชื่อไทย vs โรมาจิ vs ชื่อย่อ | จับคู่ `book_id` เดิมได้ |
+| ฉบับไม่ตรง | มังงะ vs ไลต์โนเวลชื่อเดียวกัน, หรือไม่ระบุ | `distinct_edition` หรือ `needs_review` — ห้าม merge |
+
+ตัวอย่างจาก brief (`docs/brief.md`) — ใช้เป็น fixture ได้เมื่อได้ข้อความประกาศจริงที่ได้รับอนุญาต (ห้ามแต่งประกาศเอง):
+
+- โพสต์ X "วางแผงแล้ว หมอยาฯ นิยาย #13" + โพสต์พรีออเดอร์เดิมใน Facebook → `duplicate_merged` เล่มเดียวกัน
+- "หมอยาฯ เล่ม 12 เข้าพรุ่งนี้" (ไม่ระบุมังงะ/นิยาย) → `needs_review` พร้อมตัวเลือก 2 ฉบับ
+- วางโพสต์ Facebook ของ สนพ. → JSON มาตรฐานที่มี `source_id` ผูกไว้
+
+- test ของ Disambiguator / merge logic ไม่ต้องเรียก LLM — mock ผล Extractor
+- test ที่เรียก LLM จริง แยกไฟล์ (เช่น `*.llm.test.ts`) ไม่ให้รันทุกครั้ง
+
+## Pitfalls
+
+- เชื่อ `confidence` ของ LLM ตรงๆ เกินไป — ถ้า `edition` ไม่ปรากฏใน `raw_text` เลย ให้ `needs_review` แม้ confidence สูง
+- Normalize ก่อน fuzzy: ตัดช่องว่างซ้ำ, เลขไทย → อารบิก, ตัด "เล่ม"/"Vol." ออก
+- Vercel มี filesystem แบบอ่านอย่างเดียว/ชั่วคราว — การเขียน `data/*.json` จาก API route ใช้ได้แค่ตอนรัน local (`next dev`); ถ้าเดโมบน Vercel ต้องมี database ก่อน (ยังเป็นการตัดสินใจของทีม)
