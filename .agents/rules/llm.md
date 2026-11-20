@@ -9,7 +9,7 @@ paths:
 
 # การเรียก OpenAI
 
-มี 3 hub เท่านั้น (Ingestion, Chat, Recommendation — ดู CLAUDE.md) จุดใหม่ต้องถามก่อน
+มี 3 hub เท่านั้น (Ingestion, Chat, Recommendation — ดู AGENTS.md) จุดใหม่ต้องถามก่อน
 
 ## ต้องทำ
 

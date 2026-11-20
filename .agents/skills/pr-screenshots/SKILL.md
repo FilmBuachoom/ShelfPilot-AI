@@ -7,7 +7,7 @@ description: >
   user wants screenshots for a PR, or when pr-description or pr-create gets a "yes"
   to its screenshot question. Not for screenshots unrelated to a PR or issue.
 argument-hint: "[1|2|3] [app-url]"
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/capture.py *), Bash(git rev-parse *), Bash(git status *), Bash(git diff *), Bash(gh repo view *)
+allowed-tools: Bash(.agents/skills/pr-screenshots/scripts/capture.py *), Bash(git rev-parse *), Bash(git status *), Bash(git diff *), Bash(gh repo view *)
 ---
 
 # PR screenshots
@@ -28,9 +28,9 @@ allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/capture.py *), Bash(git rev-pars
 
 | Task | Command |
 |---|---|
-| Capture | `${CLAUDE_SKILL_DIR}/scripts/capture.py <url> --name <slug> --out /tmp/pr-shots-<branch> [--devices desktop,tablet,phone] [--full-page] [--selector <css>] [--wait-ms 3000] [--storage-state <file>]` |
+| Capture | `.agents/skills/pr-screenshots/scripts/capture.py <url> --name <slug> --out /tmp/pr-shots-<branch> [--devices desktop,tablet,phone] [--full-page] [--selector <css>] [--wait-ms 3000] [--storage-state <file>]` |
 | Repo name | `gh repo view --json nameWithOwner -q .nameWithOwner` |
-| Upload (all files, one call) | `${CLAUDE_SKILL_DIR}/scripts/upload_screenshot.sh <owner>/<repo> <file>...` |
+| Upload (all files, one call) | `.agents/skills/pr-screenshots/scripts/upload_screenshot.sh <owner>/<repo> <file>...` |
 
 `capture.py` prints `<device><TAB><file>` per shot and refuses to write inside the repo. `upload_screenshot.sh` prints `<file><TAB><url>` per image.
 

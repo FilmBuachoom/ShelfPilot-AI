@@ -1,4 +1,4 @@
-# Used by the test skill (.claude/skills/test/SKILL.md).
+# Used by the test skill (.agents/skills/test/SKILL.md).
 # Installed as .github/test-config.yml (ai-config, or copy by hand). Fill in per project.
 # No passwords or tokens here — the tester signs in themselves.
 app: ShelfPilot AI                  # what the report calls it

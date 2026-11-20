@@ -33,7 +33,7 @@ while the user signs in. One run = one report.
 
 | Need | Check | If missing |
 |---|---|---|
-| A browser tool Codex can drive | The in-app browser pane, Codex in Chrome, or a Playwright MCP is listed among the tools | Ask the user to connect one; without it only step 2 can run |
+| A browser tool Codex can drive | Codex's built-in browser, a Chrome / computer-use plugin, or a Playwright MCP is listed among the tools | Ask the user to connect one; without it only step 2 can run |
 | `curl`, `dig`, `git` | `command -v curl dig git` | Skip the checks that need them and say so |
 | `gh` (for the follow-up) | `gh auth status` | Offer `/issue-create` later |
 | `.github/test-config.yml` | Exists in the project | Step 1 builds one with the user |
@@ -51,7 +51,7 @@ while the user signs in. One run = one report.
 | `uat` | The whole checklist file (`checklists.uat` in the config) |
 | `smoke` | Section 1 ("Must pass") only |
 | `regression` | Section 1, plus the rows touching what changed since the last release tag (`git log <last tag>..<branch>`) |
-| `feature <name>` | Rows built from that feature's commits (`git log --grep`), its rule file in `.Codex/rules/` and matching checklist rows. Show the list before starting |
+| `feature <name>` | Rows built from that feature's commits (`git log --grep`), its rule file in `.agents/rules/` and matching checklist rows. Show the list before starting |
 
 ## Safety
 
@@ -60,7 +60,7 @@ while the user signs in. One run = one report.
   and only test values from the project's seed or example files. Everywhere else the **user
   signs in** in the browser Codex drives.
 - **One browser = one session.** Signing up or in replaces the current account in that browser.
-  A second account (invitee, guest, another role) needs a second browser — Codex in Chrome if
+  A second account (invitee, guest, another role) needs a second browser — a second browser tool if
   connected, otherwise the user's own private window, following steps Codex writes out.
 - **Extra accounts** use `accounts.extra` from the config; read their mail the way
   `accounts.mail` says, or ask.
@@ -150,7 +150,7 @@ Before a row becomes ❌:
 2. **Rule out the test environment**: wrong account in the session, stale tab, the automation
    (clicks during animations, blocked clipboard, background-tab captures), a date rollover in
    `timezone`, a value deliberately snapshotted.
-3. **Find it in the code** (`file:line`, why) and read the matching `.Codex/rules/` file —
+3. **Find it in the code** (`file:line`, why) and read the matching `.agents/rules/` file —
    "by design" is not a bug.
 4. **Grade**: High (blocks release, money, sign-in, data), Medium (wrong, with a workaround),
    Low (cosmetic, copy, cut-off). Possibly-the-automation goes under "Not confirmed".

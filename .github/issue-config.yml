@@ -1,4 +1,4 @@
-# Used by the issue-create skill (.claude/skills/issue-create/SKILL.md).
+# Used by the issue-create skill (.agents/skills/issue-create/SKILL.md).
 # Installed as .github/issue-config.yml (ai-config, or copy by hand).
 project:
   owner: FilmBuachoom     # org or user that owns the project

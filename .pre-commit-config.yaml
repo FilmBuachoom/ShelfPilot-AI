@@ -1,5 +1,5 @@
-# Safety net for everyone: humans, Copilot, and Claude. Claude Code hooks
-# (.claude/settings.json) only cover Claude; these run on every `git commit`.
+# Safety net for everyone: humans, Copilot, and Codex. Codex hooks
+# (.codex/hooks.json) only cover Codex; these run on every `git commit`.
 #
 # Setup once per machine:   pipx install pre-commit   (or: pip install pre-commit)
 # Then once per clone:      pre-commit install
@@ -19,8 +19,8 @@ repos:
         exclude: '\.(example|sample|template)$'
 
       - id: sync-copilot
-        name: Regenerate Copilot instructions from CLAUDE.md and .claude/
+        name: Regenerate Copilot instructions from AGENTS.md and .agents/
         language: system
-        entry: python3 .claude/scripts/sync_copilot.py
+        entry: python3 .agents/scripts/sync_copilot.py
         pass_filenames: false
-        files: '^(CLAUDE\.md|\.claude/(rules|agents)/)'
+        files: '^(AGENTS\.md|\.agents/(rules|agents)/)'

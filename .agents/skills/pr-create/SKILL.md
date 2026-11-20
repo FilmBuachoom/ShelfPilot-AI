@@ -6,14 +6,7 @@ description: >
   prefix, draft detection, and linked issues. Use when the user asks to create, open, raise, or submit a PR, including
   short requests like "PR this" or "push PR".
 argument-hint: "[base-branch]"
-model: sonnet
 allowed-tools: Bash(git branch *), Bash(git log *), Bash(git rev-parse *), Bash(gh auth status), Bash(gh repo view *)
-hooks:
-  PreToolUse:
-    - matcher: "Bash"
-      hooks:
-        - type: command
-          command: "python3 \"$CLAUDE_PROJECT_DIR/.Codex/skills/pr-create/scripts/guard_push.py\""
 ---
 
 # Create PR
@@ -23,7 +16,7 @@ hooks:
 - `gh` CLI, authenticated. Check with `gh auth status`. If it's missing, stop and tell the user how to install it:
   - macOS `brew install gh` · Ubuntu `sudo apt install gh` · Windows `winget install GitHub.cli`
   - then `gh auth login`
-- While this skill is active, a hook blocks `git push` from `main`, `master`, `develop`, or `staging`. Create a feature branch first.
+- A project hook (`.codex/hooks/guard_push.py`) blocks `git push` from `main`, `master`, `develop`, or `staging`. Create a feature branch first.
 
 ## Workflow checklist
 
@@ -47,7 +40,7 @@ If `$ARGUMENTS` names a branch, use it. Otherwise **always ask** ("Which branch 
 
 ### 3. Title and body
 
-Follow the **pr-description** skill (`.Codex/skills/pr-description/SKILL.md`), steps 2–8, with the base branch from step 2. Its step 5 asks whether the user wants screenshots of a UI change and in which style; wait for the answer before creating the PR. Also:
+Follow the **pr-description** skill (`.agents/skills/pr-description/SKILL.md`), steps 2–8, with the base branch from step 2. Its step 5 asks whether the user wants screenshots of a UI change and in which style; wait for the answer before creating the PR. Also:
 
 - Issue links: `#NNN` in the branch name, or `Closes/Fixes #NNN` in commits → `Closes #NNN` in Related Issues. Non-GitHub IDs (`UC-123`) → plain text.
 - Write the body to a temp file, e.g. `/tmp/pr-body-<branch>.md`.
@@ -60,7 +53,7 @@ If verification (pr-description step 8) fails, fix the body before going on. Don
 The script pushes the branch, picks the label and draft state, skips labels the repo doesn't have, and refuses protected or empty branches:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/create_pr.sh <base> "<title>" /tmp/pr-body-<branch>.md [--draft]
+.agents/skills/pr-create/scripts/create_pr.sh <base> "<title>" /tmp/pr-body-<branch>.md [--draft]
 ```
 
 Pass `--draft` only when the user said "draft" or "WIP". The script also detects `wip/` and `draft/` branches and `[WIP]` / `[DRAFT]` commits. Don't rebuild this logic by hand with `gh pr create`.

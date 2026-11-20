@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Skill-scoped PreToolUse hook (registered by pr-create's frontmatter):
+"""Codex PreToolUse hook for Bash (wired in .codex/hooks.json):
 deny `git push` while the current branch is a protected branch.
 Requires Python 3.8+, standard library only."""
 import json
@@ -16,7 +16,7 @@ def main():
     command = (data.get("tool_input") or {}).get("command") or ""
     if not re.search(r"\bgit\b[^;&|\n]*\bpush\b", command):
         return 0
-    cwd = data.get("cwd") or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
+    cwd = data.get("cwd") or os.getcwd()
     branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=cwd,
                             capture_output=True, text=True, timeout=10).stdout.strip()
     if branch in PROTECTED:
