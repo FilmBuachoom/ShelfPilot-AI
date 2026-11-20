@@ -186,7 +186,7 @@ def check(command, cwd):
         packages = added_packages(seg)
         if packages:
             asks.append("Adds dependencies: " + ", ".join(packages) +
-                        ". Project rule: ask before adding a dependency.")
+                        ". Company rule: ask before adding a dependency.")
         call = git_call(seg)
         if not call:
             continue

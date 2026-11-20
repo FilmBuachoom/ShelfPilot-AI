@@ -15,6 +15,11 @@ paths:
 - LLM คืน `book_id` / `source_id` เท่านั้น → frontend lookup จาก catalog เพื่อสร้างการ์ด, ป้ายอ้างอิง, ปุ่มร้านค้า
 - ID ที่ lookup ไม่เจอ = LLM มโน → ไม่แสดง และ log ไว้ ห้ามแสดง ID เปล่าหรือเดา URL
 
+## Chat Hub (ฟีเจอร์ 1 + 2)
+
+- **Collection-Aware Chatbot** (Required) — โมเดลรุ่นเล็ก + Function Calling เรียก local search, payload pruning, อ้างอิงด้วย ID เช่น "มังงะหมอยาในวัง เล่มล่าสุดออกหรือยัง ฉันขาดเล่มไหน?" → ตอบจากคลังพร้อมป้ายอ้างอิงประกาศ
+- **Natural Language Shelf Updater** — tool `propose_shelf_update` แตกช่วงเลขเล่มด้วยโค้ดและจับคู่ `book_id` เช่น "เพิ่งซื้อฟรีเรน เล่ม 9-12 กับสปายฯ เล่ม 14" → 5 เล่ม → Approval Gate; ถ้ากำกวมให้ถามกลับ
+
 ## Flow ที่ต้องมีเสมอ
 
 - **Approval Gate** — `propose_shelf_update` แสดงการ์ดสรุปรายการเล่ม (+/-) ผู้ใช้กดยืนยันก่อนค่อยเขียน `user_shelf.json` ปุ่มยกเลิกต้องไม่เขียนอะไรเลย

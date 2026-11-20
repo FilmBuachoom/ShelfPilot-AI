@@ -1,0 +1,35 @@
+# Used by the test skill (.claude/skills/test/SKILL.md).
+# Installed as .github/test-config.yml (ai-config, or copy by hand). Fill in per project.
+# No passwords or tokens here — the tester signs in themselves.
+app: ShelfPilot AI                  # what the report calls it
+timezone: Asia/Bangkok              # "today", midnight rollovers, report dates
+
+environments:                       # /test env=<key>; the first one is the default
+  staging:                          # Vercel preview deployment
+    branch: main
+    urls:
+      app: null                     # TODO: Vercel preview URL after the first deploy
+    health: null                    # TODO: no health route yet
+    sign_in: user
+  local:
+    branch: HEAD
+    urls:
+      app: http://localhost:3000    # Next.js dev server default (web/)
+    health: null                    # TODO: no health route yet
+    sign_in: test-values
+
+session_check: null                 # MVP has no sign-in
+
+accounts:
+  test_shop: ""                     # MVP has no sign-in
+  extra: ""
+  mail: none
+
+locales:
+  cookie: null
+  values: [th]                      # languages to check for cut-off text
+
+checklists:
+  uat: docs/qa/checklists/uat.md    # smoke = its section 1; start one from the skill's templates/checklist.md
+
+report_dir: docs/qa                 # reports and screenshots/ go here

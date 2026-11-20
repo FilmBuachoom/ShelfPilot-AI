@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-"""PreToolUse hook for Edit/Write: block or gate edits to sensitive files and content.
+"""PreToolUse hook for Edit/Write: block or gate edits to sensitive files.
 
 Wired in .claude/settings.json. Reads the tool call as JSON on stdin and prints a
 permission decision. Requires Python 3.8+, standard library only.
 
-Two checks:
-  1. Path rules  — (regex on the repo-relative path, reason).
-  2. Content rules — (regex on the text being written, reason). Catches an OpenAI
-     key or a client-side OpenAI call before it lands in any file.
+Edit the lists below per project. Each entry is (regex on the repo-relative path,
+reason shown to Claude and the user).
+
+Project addition: CONTENT_DENY checks the text being written, so an OpenAI key or a
+client-side OpenAI call is refused before it lands in any file.
 """
 import json
 import os
 import re
 import sys
 
-# Never gated by path rules, checked first.
+# Never gated, checked first.
 ALLOW = [
     r"(^|/)\.env(\.[^/]*)?\.(example|sample|template)$",
 ]
@@ -22,17 +23,22 @@ ALLOW = [
 # Always refused.
 DENY = [
     (r"(^|/)\.env(\.[^/]*)?$",
-     "Env files hold the OpenAI key. Edit .env.example instead and tell the user which variables to set."),
+     "Env files hold secrets. Edit .env.example instead and tell the user which variables to set."),
+]
+
+# Project-specific paths Claude must never edit, e.g. vendored third-party addons.
+PROJECT_DENY = [
+    # (r"^addons/l10n_th_vendor/", "Third-party addon — extend it from a custom addon instead."),
 ]
 
 # Allowed only after the user approves.
 ASK = [
     (r"(^|/)\.claude/(settings\.json|hooks/)",
      "This file enforces the project's safety rules."),
-    (r"^schemas/",
-     "JSON Schema is the shared contract between Python and TypeScript — update both sides in the same change."),
     (r"(^|/)next\.config\.(js|mjs|ts)$",
      "Global Next.js config."),
+    (r"^schemas/",
+     "JSON Schema is the shared contract between Python and TypeScript — update both sides in the same change."),
 ]
 
 # Asked only when the file already exists: creating seed data is fine, rewriting
@@ -42,9 +48,9 @@ ASK_IF_EXISTS = [
      "Real catalog / shelf data. Catalog accuracy is the metric — never invent entries; changes should come from the ingest pipeline or the user."),
 ]
 
-# Refused whatever the path (except ALLOW). Checked on the text being written.
-# (pattern, reason, also_in_docs): docs and .claude/ may *mention* the code
-# patterns (CLAUDE.md, rules, this hook), but never hold a real key.
+# Project addition. Refused whatever the path (except ALLOW). Checked on the text
+# being written. (pattern, reason, also_in_docs): docs and .claude/ may *mention*
+# the code patterns (CLAUDE.md, rules, this hook), but never hold a real key.
 CONTENT_DENY = [
     (re.compile(r"\bsk-(proj-|svcacct-|admin-)?[A-Za-z0-9_-]{20,}"),
      "Looks like a literal OpenAI API key. Read it from process.env.OPENAI_API_KEY / os.environ instead.",
@@ -67,10 +73,10 @@ def written_text(tool_input):
     return "\n".join(p for p in parts if isinstance(p, str))
 
 
-def decide(rel_path, exists, text):
+def decide(rel_path, exists, text=""):
     if any(re.search(pattern, rel_path) for pattern in ALLOW):
         return None, None
-    for pattern, reason in DENY:
+    for pattern, reason in DENY + PROJECT_DENY:
         if re.search(pattern, rel_path):
             return "deny", reason
     is_doc = bool(DOCS.search(rel_path))

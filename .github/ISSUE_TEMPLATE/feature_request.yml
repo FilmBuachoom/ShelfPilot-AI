@@ -1,0 +1,39 @@
+name: ✨ Feature Request
+description: New capability or improvement
+labels: ["enhancement"]
+# projects: ["<org>/<project-number>"]   # e.g. ["ai-deta/3"] — auto-adds the issue to the project board
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: 📌 Short Summary
+      placeholder: "One sentence — what to build and why"
+    validations:
+      required: true
+  - type: textarea
+    id: user-story
+    attributes:
+      label: 👤 User Story
+      value: "As a <role>, I want <capability> so that <benefit>."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: ✅ Acceptance Criteria
+      value: |
+        - [ ] 
+        - [ ] 
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🚦 Priority
+      options: [Urgent, High, Medium, Low]
+      default: 2
+  - type: textarea
+    id: notes
+    attributes:
+      label: 🎨 Designs / Notes
+      placeholder: "Figma link, client request, related issues"

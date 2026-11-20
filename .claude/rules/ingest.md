@@ -7,6 +7,12 @@ paths:
 
 Flow: ข้อความประกาศ → **Extractor** (LLM) → **Matcher** (RapidFuzz + LLM) → **Disambiguator** (โค้ด) → เขียน `data/`
 
+Trigger: แอดมินวางข้อความประกาศจากโซเชียลแล้วกด **"Import / Extract"** (ฟีเจอร์ 4 + 5 + 6)
+
+1. **Extractor** — LLM + Structured Outputs สกัด `title`, `publisher`, `volume`, `edition`, `release_date` เก็บ `raw_text` และ `source_url` เป็น audit trail ผูกกับ `source_id`
+2. **Matcher** — fuzzy ดึงรายการใกล้เคียงจาก catalog แล้วให้ LLM เทียบ (Matcher + Disambiguator รวมเป็น API call เดียวได้) คืน `match_status` — ถูกเรียกจาก Chat Hub ด้วยเมื่อต้องเทียบชื่อย่อ/ชื่อญี่ปุ่น
+3. **Edition Disambiguator** — LLM ให้ `edition` + `confidence`; **โค้ด** ตัดสินตาม threshold 0.8 (ผลแต่ละ `match_status` ดู `data-contract.md`)
+
 ## ต้องทำ
 
 - Extractor ใช้ Structured Outputs กับ JSON Schema จาก `schemas/` — ห้ามขอ JSON ด้วย prompt เปล่าแล้ว `json.loads` เอง
@@ -24,6 +30,12 @@ Flow: ข้อความประกาศ → **Extractor** (LLM) → **Matc
 | ประกาศซ้ำ | สนพ. โพสต์เล่มเดิมซ้ำ 2 ช่องทาง | `duplicate_merged`, `sources[]` ยาวขึ้น 1 |
 | ชื่อหลายแบบ | ชื่อไทย vs โรมาจิ vs ชื่อย่อ | จับคู่ `book_id` เดิมได้ |
 | ฉบับไม่ตรง | มังงะ vs ไลต์โนเวลชื่อเดียวกัน, หรือไม่ระบุ | `distinct_edition` หรือ `needs_review` — ห้าม merge |
+
+ตัวอย่างจาก brief (`docs/brief.md`) — ใช้เป็น fixture ได้เมื่อได้ข้อความประกาศจริงที่ได้รับอนุญาต (ห้ามแต่งประกาศเอง):
+
+- โพสต์ X "วางแผงแล้ว หมอยาฯ นิยาย #13" + โพสต์พรีออเดอร์เดิมใน Facebook → `duplicate_merged` เล่มเดียวกัน
+- "หมอยาฯ เล่ม 12 เข้าพรุ่งนี้" (ไม่ระบุมังงะ/นิยาย) → `needs_review` พร้อมตัวเลือก 2 ฉบับ
+- วางโพสต์ Facebook ของ สนพ. → JSON มาตรฐานที่มี `source_id` ผูกไว้
 
 - test ของ Disambiguator / merge logic ไม่ต้องเรียก LLM — mock ผล Extractor
 - test ที่เรียก LLM จริง แยก marker (เช่น `@pytest.mark.llm`) ไม่ให้รันทุกครั้ง

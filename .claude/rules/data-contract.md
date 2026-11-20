@@ -29,7 +29,7 @@ paths:
 
 ## Merge semantics
 
-- `duplicate_merged` → **append** ลง `sources[]` ของ `book_id` เดิม ไม่สร้างแถวใหม่ ไม่ลบ source เก่า
+- `duplicate_merged` → **append** ลง `sources[]` ของ `book_id` เดิม และอัปเดตสถานะวางขาย ไม่สร้างแถวใหม่ ไม่ลบ source เก่า
 - `distinct_edition` → แถวใหม่ + `book_id` ใหม่
 - `needs_review` → เขียนลง `review_queue.json` พร้อม candidate `book_id` ไม่แตะ `catalog.json`
 
