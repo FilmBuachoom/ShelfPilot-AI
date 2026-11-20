@@ -34,6 +34,8 @@ DENY = [
 # Project-specific paths the agent must never edit, e.g. vendored third-party addons.
 PROJECT_DENY = [
     # (r"^addons/l10n_th_vendor/", "Third-party addon — extend it from a custom addon instead."),
+    (r"^design/",
+     "Read-only design-system snapshot. Re-import the whole folder when the source changes; adapt tokens/CSS in web/ instead."),
 ]
 
 # Allowed only after the user approves.

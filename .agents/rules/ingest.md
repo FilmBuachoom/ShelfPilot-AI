@@ -1,13 +1,13 @@
 ---
 paths:
-  - "ingest/**"
+  - "web/**/ingest/**"
 ---
 
-# Ingestion pipeline (Python)
+# Ingestion pipeline (TypeScript, `web/lib/ingest/`)
 
-Flow: ข้อความประกาศ → **Extractor** (LLM) → **Matcher** (RapidFuzz + LLM) → **Disambiguator** (โค้ด) → เขียน `data/`
+Flow: ข้อความประกาศ → **Extractor** (LLM) → **Matcher** (Fuse.js + LLM) → **Disambiguator** (โค้ด) → เขียน `data/`
 
-Trigger: แอดมินวางข้อความประกาศจากโซเชียลแล้วกด **"Import / Extract"** (ฟีเจอร์ 4 + 5 + 6)
+Trigger: แอดมินวางข้อความประกาศจากโซเชียลแล้วกด **"Import / Extract"** (ฟีเจอร์ 4 + 5 + 6) → API route ฝั่ง server เรียก pipeline ใน `web/lib/ingest/` (import `server-only`)
 
 1. **Extractor** — LLM + Structured Outputs สกัด `title`, `publisher`, `volume`, `edition`, `release_date` เก็บ `raw_text` และ `source_url` เป็น audit trail ผูกกับ `source_id`
 2. **Matcher** — fuzzy ดึงรายการใกล้เคียงจาก catalog แล้วให้ LLM เทียบ (Matcher + Disambiguator รวมเป็น API call เดียวได้) คืน `match_status` — ถูกเรียกจาก Chat Hub ด้วยเมื่อต้องเทียบชื่อย่อ/ชื่อญี่ปุ่น
@@ -15,15 +15,15 @@ Trigger: แอดมินวางข้อความประกาศจ�
 
 ## ต้องทำ
 
-- Extractor ใช้ Structured Outputs กับ JSON Schema จาก `schemas/` — ห้ามขอ JSON ด้วย prompt เปล่าแล้ว `json.loads` เอง
-- Matcher: RapidFuzz ดึง top-N candidate (เริ่ม N=5) ก่อน แล้วส่งเฉพาะ candidate ที่ตัดฟิลด์แล้วเข้า LLM ไม่ใช่ทั้ง catalog
+- Extractor ใช้ Structured Outputs กับ JSON Schema จาก `schemas/` — ห้ามขอ JSON ด้วย prompt เปล่าแล้ว `JSON.parse` เอง
+- Matcher: Fuse.js ดึง top-N candidate (เริ่ม N=5) ก่อน แล้วส่งเฉพาะ candidate ที่ตัดฟิลด์แล้วเข้า LLM ไม่ใช่ทั้ง catalog
 - Disambiguator เป็นฟังก์ชัน pure: รับ `confidence` + ผล match คืน `match_status` — ทดสอบได้โดยไม่เรียก LLM
-- เขียนไฟล์ JSON แบบ atomic (เขียนไฟล์ชั่วคราวแล้ว `os.replace`) กัน catalog พังกลางทาง
-- อ่าน key จาก `os.environ["OPENAI_API_KEY"]` (โหลดจาก `.env` ผ่าน `python-dotenv` ถ้ามี)
+- เขียนไฟล์ JSON แบบ atomic (เขียนไฟล์ชั่วคราวแล้ว `fs.rename`) กัน catalog พังกลางทาง
+- อ่าน key จาก `process.env.OPENAI_API_KEY` (Next.js โหลด `.env.local` ให้เอง) เฉพาะโมดูลฝั่ง server
 
 ## Test 3 เคสหลัก (ต้องผ่านก่อนเดโม)
 
-เก็บ fixture ไว้ที่ `ingest/tests/fixtures/` — ประกาศดิบ + ผลที่คาดหวัง
+เก็บ fixture ไว้ที่ `web/lib/ingest/__tests__/fixtures/` — ประกาศดิบ + ผลที่คาดหวัง
 
 | เคส | ตัวอย่าง | คาดหวัง |
 |---|---|---|
@@ -38,9 +38,10 @@ Trigger: แอดมินวางข้อความประกาศจ�
 - วางโพสต์ Facebook ของ สนพ. → JSON มาตรฐานที่มี `source_id` ผูกไว้
 
 - test ของ Disambiguator / merge logic ไม่ต้องเรียก LLM — mock ผล Extractor
-- test ที่เรียก LLM จริง แยก marker (เช่น `@pytest.mark.llm`) ไม่ให้รันทุกครั้ง
+- test ที่เรียก LLM จริง แยกไฟล์ (เช่น `*.llm.test.ts`) ไม่ให้รันทุกครั้ง
 
 ## Pitfalls
 
 - เชื่อ `confidence` ของ LLM ตรงๆ เกินไป — ถ้า `edition` ไม่ปรากฏใน `raw_text` เลย ให้ `needs_review` แม้ confidence สูง
 - Normalize ก่อน fuzzy: ตัดช่องว่างซ้ำ, เลขไทย → อารบิก, ตัด "เล่ม"/"Vol." ออก
+- Vercel มี filesystem แบบอ่านอย่างเดียว/ชั่วคราว — การเขียน `data/*.json` จาก API route ใช้ได้แค่ตอนรัน local (`next dev`); ถ้าเดโมบน Vercel ต้องมี database ก่อน (ยังเป็นการตัดสินใจของทีม)

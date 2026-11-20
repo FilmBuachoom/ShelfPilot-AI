@@ -2,14 +2,13 @@
 paths:
   - "schemas/**"
   - "data/**"
-  - "ingest/**"
   - "web/**/types/**"
   - "web/**/lib/**"
 ---
 
 # Data contract
 
-`schemas/*.schema.json` คือ source of truth เดียวของ shape ข้อมูล Python (`ingest/`) และ TypeScript (`web/`) อ่าน/เขียนไฟล์เดียวกันใน `data/` จึงต้องตรงกันเสมอ
+`schemas/*.schema.json` คือ source of truth เดียวของ shape ข้อมูล — TypeScript types ใน `web/`, Structured Outputs ของ LLM และไฟล์ใน `data/` ต้องตรงกันเสมอ
 
 ## ID
 
@@ -24,7 +23,7 @@ paths:
 | `edition` | `manga`, `light_novel`, `special_set`, `big_book` |
 | `match_status` | `duplicate_merged`, `distinct_edition`, `needs_review` |
 
-- ประกาศ enum ไว้ที่เดียวใน schema แล้วให้ทั้งสองฝั่งอ่าน/generate จากตรงนั้น ห้าม hardcode string ซ้ำหลายไฟล์
+- ประกาศ enum ไว้ที่เดียวใน schema แล้วให้ types และ Structured Outputs อ่าน/generate จากตรงนั้น ห้าม hardcode string ซ้ำหลายไฟล์
 - threshold `0.8` เป็น constant ในโค้ด (ไม่ใช่ใน prompt) ฝั่งที่ตัดสินมีที่เดียว
 
 ## Merge semantics
