@@ -1,6 +1,6 @@
 # <App> UAT checklist
 
-Each row: **What** must be true, and **How** Claude verifies it (page, steps, the API read that
+Each row: **What** must be true, and **How** Codex verifies it (page, steps, the API read that
 proves it). A pasted checklist overrides this file for one run; rows that match reuse the How.
 After each run, add new Hows and traps here.
 

@@ -1,32 +1,124 @@
 # AGENTS.md
 
-Instructions for Codex and other agents that read `AGENTS.md`. The source of truth is
-`CLAUDE.md` plus `.claude/rules/*.md` — read them before working; this file only
-summarizes what must never be missed.
+This file provides guidance to Codex (and other agents that read `AGENTS.md`) when working with code in this repository.
 
-## Read first
+<!--
+  Source of truth for AI instructions. After editing this file or anything in
+  .agents/rules/, regenerate the Copilot copies (pre-commit does it too):
+      python3 .agents/scripts/sync_copilot.py
+  This file loads on every session: keep it short and only write what the agent
+  cannot infer from the code. Stack conventions belong in .agents/rules/.
+-->
 
-| When you touch | Read |
+## ภาษาในการสื่อสาร
+
+**ตอบผู้ใช้เป็นภาษาไทยเสมอ** ไม่ว่าผู้ใช้จะถามมาเป็นภาษาใด (ศัพท์เทคนิค ชื่อไฟล์ ชื่อฟิลด์ และโค้ดใช้ภาษาอังกฤษได้ตามปกติ)
+
+## สถานะ Repository
+
+ณ ตอนสร้างไฟล์นี้ repo ยังว่าง (ยังไม่มีโค้ด, `package.json`, `pyproject.toml` หรือคำสั่ง build/test) — เมื่อเพิ่มโครงสร้างโปรเจกต์แล้วให้อัปเดตส่วน "คำสั่งที่ใช้บ่อย" ด้านล่างด้วยคำสั่งจริง อย่าเดาคำสั่งที่ยังไม่มีอยู่
+
+## ภาพรวมผลิตภัณฑ์
+
+**ShelfPilot AI** — ผู้ช่วยค้นหาหนังสือเล่มและจัดการหนังสือสะสมสำหรับผู้อ่านมังงะ/ไลต์โนเวลในไทย ปัญหาหลัก: ประกาศหนังสือออกใหม่กระจายตามโซเชียลของแต่ละสำนักพิมพ์ และชื่อเรื่องไทย/ญี่ปุ่น ฉบับพิมพ์ เลขเล่ม ระบุไม่ตรงกัน Brief ฉบับเต็ม (use case, เหตุผลของแต่ละฟีเจอร์): `docs/brief.md`
+
+- บริบท: Hackathon 1 วัน (10:00–16:45 หักพักเที่ยง 1 ชม. ≈ 5–6 ชม. ทำงานจริง) → เลือกทางที่เร็วและเดโมได้ครบ flow มากกว่าความสมบูรณ์แบบ
+- **ฟีเจอร์ Required: 1 (Collection-Aware Chatbot) และ 3 (Explainable Recommendation)** — ถ้าเวลาไม่พอ ตัดฟีเจอร์อื่นก่อน
+- MVP ใช้แค็ตตาล็อกขนาดเล็กจากประกาศ สนพ. ที่ได้รับอนุญาตเท่านั้น และต้องทดสอบ 3 เคสหลัก: **ประกาศซ้ำ**, **ชื่อเรียกหลายแบบ (ไทย/ญี่ปุ่น/ชื่อย่อ)**, **ฉบับพิมพ์ไม่ตรงกัน**
+- ตัวชี้วัด: ความแม่นยำในการจับคู่, ประโยชน์ของการแจ้งเตือน, จำนวนคลิกไปหน้าซื้อสินค้า
+
+## Tech Stack
+
+ทีมถนัด Python เป็นหลัก
+
+- Frontend + API routes: Next.js · Data/ingestion: Python
+- Database: Supabase หรือ MongoDB Atlas (ยังไม่ได้ตัดสินใจ) — ช่วง MVP ใช้ไฟล์ `catalog.json` / `user_shelf.json`
+- Deployment: **Vercel** (API route เรียก LLM ฝั่ง server — ห้ามฝัง API key ฝั่ง client)
+- AI: OpenAI (ChatGPT) API — Function Calling + Structured Outputs (JSON Schema)
+- Local fuzzy search: `Fuse.js` (JS) / `RapidFuzz` (Python)
+
+## โครงสร้างโฟลเดอร์ (ข้อเสนอ — ปรับได้)
+
+| Path | เนื้อหา |
 |---|---|
-| anything | `CLAUDE.md` (product, 3 LLM hubs, Core Rules, Ask first, Never) |
-| `ingest/**` | `.claude/rules/ingest.md`, `.claude/rules/llm.md`, `.claude/rules/data-contract.md` |
-| `web/**` | `.claude/rules/web.md` (+ `llm.md` for `api/`, `server/`, `lib/`) |
-| `schemas/**`, `data/**` | `.claude/rules/data-contract.md` |
+| `web/` | Next.js — UI + API routes (เรียก OpenAI ฝั่ง server เท่านั้น) |
+| `ingest/` | Python — Extractor / Matcher / Edition Disambiguator, script นำเข้าประกาศ |
+| `data/` | `catalog.json`, `user_shelf.json`, `review_queue.json` (ข้อมูล MVP) |
+| `schemas/` | JSON Schema ของข้อมูลทั้งหมด — **สัญญากลาง** ที่ Python และ TypeScript ต้องตรงกัน |
 
-Full team brief: `docs/brief.md`.
+ถ้าเปลี่ยนโครงสร้างนี้ ให้แก้ `paths:` ใน `.agents/rules/*.md`, ตาราง "อ่านก่อนแก้" ด้านล่าง และ regex ใน `.codex/hooks/protect_files.py` ตามด้วย
 
-## Never
+## อ่านก่อนแก้ (Rule files)
 
-- Put an OpenAI key in code, in `NEXT_PUBLIC_*`, or call OpenAI from the browser (`dangerouslyAllowBrowser`).
-- Edit `.env` files (edit `.env.example`), commit secrets, or bypass git hooks (`--no-verify`).
-- Invent book or announcement data in the catalog.
-- Let the LLM decide the 0.8 threshold, count missing volumes, or write `user_shelf.json` without the Approval Gate.
-- Send whole JSON files to the LLM; cite only `book_id` / `source_id`, never URLs.
+Codex ไม่โหลด rule file ให้อัตโนมัติ — **อ่านไฟล์ที่ตรงกับ path ที่จะแตะก่อนเริ่มงานทุกครั้ง**
 
-## Ask first
+| เมื่อแตะ | อ่าน |
+|---|---|
+| `ingest/**` | `.agents/rules/ingest.md`, `.agents/rules/llm.md`, `.agents/rules/data-contract.md` |
+| `web/**` | `.agents/rules/web.md` (+ `.agents/rules/llm.md` ถ้าแตะ `api/`, `server/`, `lib/`; + `.agents/rules/data-contract.md` ถ้าแตะ `types/`, `lib/`) |
+| `schemas/**`, `data/**` | `.agents/rules/data-contract.md` |
+| `**/prompts/**` | `.agents/rules/llm.md` |
 
-Adding dependencies; changing `edition` / `match_status` enums or the 0.8 threshold; hand-editing
-`schemas/` or `data/*.json`; choosing the database; adding an LLM call outside the 3 hubs.
+Skills ของโปรเจกต์อยู่ใน `.agents/skills/` (Codex โหลดให้เอง)
 
-Claude Code enforces some of these with hooks in `.claude/`; Codex does not run them, so
-follow them yourself. `pre-commit` (gitleaks, no `.env`) runs for everyone on commit.
+## สถาปัตยกรรม: 3 LLM Hubs
+
+ทุกการเรียก LLM ต้องอยู่ใน 1 ใน 3 hub นี้เท่านั้น รายละเอียดอยู่ใน rule file (ดูตารางด้านบน)
+
+| Hub | ฟีเจอร์ | Trigger | สรุป | Rule |
+|---|---|---|---|---|
+| Ingestion Pipeline | 4+5+6 | แอดมินกด "Import / Extract" | Extractor (LLM) → Matcher (fuzzy + LLM) → Disambiguator (โค้ด, threshold 0.8) → `match_status` | `ingest.md`, `data-contract.md` |
+| Chat Hub | 1+2 | ผู้ใช้พิมพ์ในแชท | โมเดลเล็ก + Function Calling; `propose_shelf_update` หยุดที่ Approval Gate; ปุ่มลัด 0-Token | `web.md`, `llm.md` |
+| Recommendation | 3 | เปิดแท็บ / กดอัปเดต / ข้อมูลเปลี่ยน | โค้ดนับเล่มขาด → LLM แนะนำ 2 กลุ่มพร้อมเหตุผล + รายการออกใหม่เฉพาะบุคคล / แจ้งเตือนเล่มที่ขาด; cache | `llm.md` |
+
+## กฎที่ต้องรักษาทุกจุด (Core Rules)
+
+- **ห้ามส่ง JSON ทั้งก้อนเข้า LLM** — local search + ตัดฟิลด์ (URL, รูปปก) ก่อนใส่ prompt
+- **ID-Based Citation** — LLM อ้างอิงได้เฉพาะ `book_id` / `source_id`; URL มาจาก hydrate ฝั่ง frontend; ไม่มีข้อมูลให้ตอบตรงๆ
+- **Approval Gate** ก่อนแก้ไขคลังหนังสือของผู้ใช้ทุกครั้ง
+- **Confirmation Modal** ยืนยันชื่อเรื่อง–เลขเล่ม–ฉบับพิมพ์ ก่อนพาไปหน้าร้านค้า
+- งาน deterministic (นับเล่มขาด, ตรวจ threshold, ปุ่มลัด) ทำด้วยโค้ด ไม่ใช่ LLM
+- ไม่มั่นใจว่าเป็นเล่มเดียวกัน → `needs_review` แทนการเดา
+- **`schemas/` คือสัญญากลาง** — แก้ shape ต้องแก้ schema + Python + TypeScript ใน commit เดียวกัน
+
+## คำสั่งที่ใช้บ่อย
+
+_ยังไม่มี — เพิ่มเมื่อสร้างโปรเจกต์ Next.js / Python แล้ว (dev server, build, lint, test, และวิธีรัน test เดี่ยว)_
+
+| งาน | คำสั่ง |
+|---|---|
+| Dev (web) | _TBD_ |
+| รัน ingest | _TBD_ |
+| Test (Python) / Test เดี่ยว | _TBD_ |
+| Lint / typecheck | _TBD_ |
+
+## Git and PRs
+
+- Default branch: `main`. Branches: `feature/`, `fix/`, `hotfix/`, `chore/`, `refactor/`, `docs/` + short kebab-case; ticket ID first when there is one.
+- Commits: Conventional Commits (`feat(scope): …`, `fix: …`, `chore: …`).
+- Write PRs in English unless the user asks for Thai. No template in `.github/PULL_REQUEST_TEMPLATE/` yet — `pr-description` uses its default.
+- Issues go to GitHub Project "ShelfPilot AI" (`.github/issue-config.yml`).
+
+## ถามก่อนทำ (Ask first)
+
+- เพิ่ม dependency ใหม่ (npm / pip) — hook จะถามให้อัตโนมัติ
+- เปลี่ยนค่าใน enum `edition` หรือ `match_status`, หรือเปลี่ยน threshold 0.8
+- แก้ไฟล์ใน `schemas/` หรือข้อมูลจริงใน `data/*.json` ด้วยมือ
+- เลือก database (Supabase / MongoDB) — ยังเป็นการตัดสินใจของทีม
+- เพิ่มจุดเรียก LLM ที่อยู่นอก 3 hub
+
+## ห้ามทำ (Never)
+
+- ใส่ OpenAI key ในโค้ด, ใน `NEXT_PUBLIC_*`, หรือเรียก OpenAI จาก browser (`dangerouslyAllowBrowser`) — hook บล็อกไว้แล้ว
+- แต่งข้อมูลหนังสือ / ประกาศขึ้นเองใน catalog — ใช้เฉพาะประกาศ สนพ. ที่ได้รับอนุญาต
+- ให้ LLM ตัดสิน threshold, นับเล่มขาด หรือเขียนลง `user_shelf.json` โดยไม่ผ่าน Approval Gate
+- ปิด / ข้าม test หรือ hook เพื่อให้ผ่าน (`--no-verify`); ทิ้ง `print()` / `console.log()` debug ใน commit
+- แก้ไฟล์ `.env` (แก้ `.env.example` แทน) หรือ commit secret
+- Touch files unrelated to the task, including drive-by formatting.
+
+<!-- codex-only -->
+Editing `.env` files, writing an OpenAI key, bypassing git hooks, committing secrets, and pushing from `main` are blocked by hooks in `.codex/hooks.json` (each teammate must trust them once via `/hooks`). Codex hooks cannot *ask*, so the "Ask first" list above is on you: stop and ask in chat before doing any of it.
+<!-- /codex-only -->
+<!-- copilot-only
+Adding dependencies, editing `.env` files, bypassing git hooks, and committing secrets are also checked by pre-commit hooks (gitleaks).
+-->

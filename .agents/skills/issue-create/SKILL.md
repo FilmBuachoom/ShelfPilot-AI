@@ -9,7 +9,6 @@ description: >
   the user asks to create, open, file, log, or raise an issue, bug, or ticket, add
   something to the backlog or project board, or turn notes or a list into issues.
 argument-hint: "[what to file]"
-model: sonnet
 allowed-tools: Bash(gh auth status), Bash(gh repo view *), Bash(gh label list *), Bash(gh issue list *), Bash(gh project list *), Bash(gh project view *), Bash(gh project field-list *)
 ---
 

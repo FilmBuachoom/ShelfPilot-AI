@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """PreToolUse hook for Bash: enforce the rules that must never be missed.
 
-Wired in .claude/settings.json. Requires Python 3.8+, standard library only.
+Wired in .codex/hooks.json (matcher Bash). Requires Python 3.8+, standard library only.
+Codex hooks cannot ask the user: "ask" rules below only add a reminder to the
+agent's context; "deny" rules block the command.
 
   deny  bypassing git hooks on commit/push (--no-verify, -n, core.hooksPath,
                                           SKIP=/HUSKY= env vars)
@@ -223,14 +225,22 @@ def check(command, cwd):
 def main():
     data = json.load(sys.stdin)
     command = (data.get("tool_input") or {}).get("command") or ""
-    cwd = data.get("cwd") or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
+    cwd = data.get("cwd") or os.getcwd()
     decision, reason = check(command, cwd)
-    if decision:
+    if decision == "deny":
         print(json.dumps({
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
-                "permissionDecision": decision,
+                "permissionDecision": "deny",
                 "permissionDecisionReason": reason,
+            }
+        }))
+    elif decision == "ask":  # Codex cannot ask: remind the agent instead
+        print(json.dumps({
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "additionalContext": "ASK FIRST (AGENTS.md): " + reason +
+                                     " Confirm with the user in chat if you have not already.",
             }
         }))
     return 0

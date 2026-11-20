@@ -6,7 +6,7 @@
 | **Build** | `<version>` — <tip of `<branch>` (`<sha>`) / N commits behind> |
 | **Where** | <hosts tested> |
 | **Accounts** | <test account (plan/role)>, <extra accounts> |
-| **How** | Claude in <browser>; the tester signed in, Claude ran the checklist |
+| **How** | Codex in <browser>; the tester signed in, Codex ran the checklist |
 
 ## Verdict
 

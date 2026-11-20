@@ -8,8 +8,7 @@ description: >
   a PR, or as the first half of creating a PR. Not for commit messages, changelogs,
   or release notes unless explicitly asked.
 argument-hint: "[base-branch]"
-model: sonnet
-allowed-tools: Bash(git branch *), Bash(git log *), Bash(git diff *), Bash(git rev-parse *), Bash(${CLAUDE_SKILL_DIR}/scripts/gather_changes.sh *)
+allowed-tools: Bash(git branch *), Bash(git log *), Bash(git diff *), Bash(git rev-parse *), Bash(.agents/skills/pr-description/scripts/gather_changes.sh *)
 ---
 
 # PR description
@@ -23,8 +22,8 @@ allowed-tools: Bash(git branch *), Bash(git log *), Bash(git diff *), Bash(git r
 
 ## Requirements
 
-- `git`. Screenshots use the **pr-screenshots** skill (`.Codex/skills/pr-screenshots/SKILL.md`), which lists its own needs.
-- `${CLAUDE_SKILL_DIR}` below is this skill's folder (`.Codex/skills/pr-description`).
+- `git`. Screenshots use the **pr-screenshots** skill (`.agents/skills/pr-screenshots/SKILL.md`), which lists its own needs.
+- Script paths below are relative to the repo root (run them from there).
 
 ## Workflow checklist
 
@@ -65,7 +64,7 @@ The template is **exact**: keep every heading and checkbox, in order.
 ## 3. Gather the changes
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/gather_changes.sh <base>
+.agents/skills/pr-description/scripts/gather_changes.sh <base>
 ```
 
 The script prints the branch, commits, changed files, stats, and the first 300 diff lines. It falls back to uncommitted changes when no commits are ahead. If the diff is over 500 lines, summarize by file group instead of reading every line.
@@ -107,7 +106,7 @@ You can also paste or attach your own images.
 
 | Answer | Do |
 |---|---|
-| 1, 2, or 3 | Follow **pr-screenshots** (`.Codex/skills/pr-screenshots/SKILL.md`) with that style. Its markdown goes in the Screenshots section. |
+| 1, 2, or 3 | Follow **pr-screenshots** (`.agents/skills/pr-screenshots/SKILL.md`) with that style. Its markdown goes in the Screenshots section. |
 | Images pasted or attached | pr-screenshots steps 4–5 (upload, embed), Default layout unless the user labels them before/after |
 | 4 or no | Screenshots section: `N/A`. Don't ask again. |
 

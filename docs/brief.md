@@ -1,6 +1,6 @@
 # ShelfPilot AI — Project brief
 
-> Original team brief, kept for humans. AI instructions live in `CLAUDE.md` and `.claude/rules/`; this file is reference only.
+> Original team brief, kept for humans. AI instructions live in `AGENTS.md` and `.agents/rules/`; this file is reference only.
 
 ## Core
 
