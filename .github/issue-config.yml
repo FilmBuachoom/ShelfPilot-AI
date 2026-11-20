@@ -2,7 +2,7 @@
 # Installed as .github/issue-config.yml (ai-config, or copy by hand).
 project:
   owner: FilmBuachoom     # org or user that owns the project
-  number: null            # TODO: no GitHub Project for ShelfPilot yet — create one, then set its number
+  number: 3               # github.com/users/FilmBuachoom/projects/3 (ShelfPilot AI)
 defaults:
-  status: Backlog         # Backlog | Todo
+  status: Todo            # Todo | In Progress | Done
   priority: Medium        # Urgent | High | Medium | Low

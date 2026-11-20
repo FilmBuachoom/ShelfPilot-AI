@@ -5,8 +5,12 @@ app: ShelfPilot AI                  # what the report calls it
 timezone: Asia/Bangkok              # "today", midnight rollovers, report dates
 
 environments:                       # /test env=<key>; the first one is the default
-  # TODO: add a deployed environment (Vercel preview/production) once one exists:
-  #   branch, urls.app, health, build_info, sign_in
+  staging:                          # Vercel preview deployment
+    branch: main
+    urls:
+      app: null                     # TODO: Vercel preview URL after the first deploy
+    health: null                    # TODO: no health route yet
+    sign_in: user
   local:
     branch: HEAD
     urls:

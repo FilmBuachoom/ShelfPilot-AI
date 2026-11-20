@@ -1,0 +1,40 @@
+---
+paths:
+  - "schemas/**"
+  - "data/**"
+  - "ingest/**"
+  - "web/**/types/**"
+  - "web/**/lib/**"
+---
+
+# Data contract
+
+`schemas/*.schema.json` คือ source of truth เดียวของ shape ข้อมูล Python (`ingest/`) และ TypeScript (`web/`) อ่าน/เขียนไฟล์เดียวกันใน `data/` จึงต้องตรงกันเสมอ
+
+## ID
+
+- `book_id` — 1 ค่าต่อ **1 เล่ม 1 ฉบับพิมพ์** (ฟรีเรน เล่ม 9 มังงะ ≠ ฟรีเรน เล่ม 9 big book) สร้างครั้งเดียว ห้ามเปลี่ยน
+- `source_id` — 1 ค่าต่อ 1 ประกาศ (โพสต์โซเชียล 1 โพสต์) ผูกกับ `raw_text` + `source_url` เป็น audit trail
+- LLM อ้างอิงได้แค่สองค่านี้ — URL, ราคา, รูปปก มาจากการ hydrate ฝั่ง frontend เท่านั้น
+
+## Enum (เปลี่ยนค่า = ถามก่อน)
+
+| Field | ค่า |
+|---|---|
+| `edition` | `manga`, `light_novel`, `special_set`, `big_book` |
+| `match_status` | `duplicate_merged`, `distinct_edition`, `needs_review` |
+
+- ประกาศ enum ไว้ที่เดียวใน schema แล้วให้ทั้งสองฝั่งอ่าน/generate จากตรงนั้น ห้าม hardcode string ซ้ำหลายไฟล์
+- threshold `0.8` เป็น constant ในโค้ด (ไม่ใช่ใน prompt) ฝั่งที่ตัดสินมีที่เดียว
+
+## Merge semantics
+
+- `duplicate_merged` → **append** ลง `sources[]` ของ `book_id` เดิม และอัปเดตสถานะวางขาย ไม่สร้างแถวใหม่ ไม่ลบ source เก่า
+- `distinct_edition` → แถวใหม่ + `book_id` ใหม่
+- `needs_review` → เขียนลง `review_queue.json` พร้อม candidate `book_id` ไม่แตะ `catalog.json`
+
+## Pitfalls
+
+- เทียบชื่อเรื่องด้วย string ตรงๆ — ชื่อไทย/ญี่ปุ่น/ชื่อย่อต่างกันได้ ให้เก็บ `aliases[]` และเทียบผ่าน fuzzy
+- `volume` เก็บเป็นตัวเลข ไม่ใช่ `"เล่ม 9"` — parse ตอน extract
+- `release_date` เก็บเป็น ISO `YYYY-MM-DD` (เวลาไทย) ถ้าประกาศบอกแค่เดือน ให้มี field แยกบอกความละเอียด อย่าเดาวัน

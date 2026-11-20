@@ -37,11 +37,15 @@ ASK = [
      "This file enforces the project's safety rules."),
     (r"(^|/)next\.config\.(js|mjs|ts)$",
      "Global Next.js config."),
+    (r"^schemas/",
+     "JSON Schema is the shared contract between Python and TypeScript — update both sides in the same change."),
 ]
 
-# Asked only when the file already exists: new migrations are fine, rewriting
-# applied ones is not (except when squashing).
+# Asked only when the file already exists: creating seed data is fine, rewriting
+# the real catalog or a user's shelf by hand is not.
 ASK_IF_EXISTS = [
+    (r"^data/[^/]+\.json$",
+     "Real catalog / shelf data. Catalog accuracy is the metric — never invent entries; changes should come from the ingest pipeline or the user."),
 ]
 
 # Project addition. Refused whatever the path (except ALLOW). Checked on the text
