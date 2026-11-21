@@ -3,7 +3,8 @@ import "server-only";
 import { searchBooks } from "@/lib/search/fuse";
 import { normalizeTitle } from "@/lib/search/normalize";
 import { parseVolumeSpec } from "@/lib/shelf/volumes";
-import type { Book, BookId, Catalog, Edition, UserShelf } from "@/types/generated";
+import type { Book, Catalog, Edition, UserShelf } from "@/types/generated";
+import type { ShelfProposal, ShelfProposalItem } from "@/types/generated/chat-answer";
 
 interface ShelfIntent {
   title_query: string;
@@ -23,16 +24,6 @@ interface SeriesOption {
   title: string;
 }
 
-interface ProposalItem {
-  series_id: string;
-  edition: Edition;
-  add: BookId[];
-  remove: BookId[];
-  already_owned: number[];
-  not_owned: number[];
-  not_found_volumes: number[];
-}
-
 type ClarificationReason =
   | "empty_request"
   | "invalid_volumes"
@@ -42,7 +33,7 @@ type ClarificationReason =
   | "conflicting_actions";
 
 type ProposalResult =
-  | { status: "proposal"; items: ProposalItem[]; user_text: string; total: number }
+  | ({ status: "proposal" } & ShelfProposal)
   | { status: "needs_clarification"; reason: ClarificationReason; title_query?: string;
       options?: SeriesOption[]; volume?: number };
 
@@ -98,10 +89,10 @@ export function proposeShelfUpdate(
   }
 
   const owned = new Set(shelf.owned.map(({ book_id }) => book_id));
-  const preview: ProposalItem[] = [];
+  const preview: ShelfProposalItem[] = [];
   let total = 0;
   for (const { booksByVolume, requested, titleQuery, seriesId, edition } of pendingItems.values()) {
-    const item: ProposalItem = {
+    const item: ShelfProposalItem = {
       series_id: seriesId,
       edition,
       add: [],

@@ -1,4 +1,8 @@
 import { beforeEach, expect, test, vi } from "vitest";
+import Ajv from "ajv";
+import chatSchema from "../../schemas/chat_answer.schema.json";
+import proposalSchema from "../../schemas/shelf_proposal.schema.json";
+import commonSchema from "../../schemas/common.schema.json";
 import { POST } from "@/app/api/chat/route";
 import { CHAT_NOT_FOUND, CHAT_UNAVAILABLE } from "@/lib/chat/shared";
 import { book, catalog, shelf, timestamp } from "./shelf-fixture";
@@ -47,7 +51,7 @@ test("runs the read tools, computes shelf status, and returns only citations see
       content: null,
       tool_calls: [
         toolCall("get_series_status", { series_id: "series-fixture", edition: "manga" }, "status"),
-        toolCall("propose_shelf_update", { items: [] }, "proposal"),
+        toolCall("write_shelf", { items: [] }, "proposal"),
       ],
     },
   }).mockResolvedValueOnce({
@@ -60,7 +64,7 @@ test("runs the read tools, computes shelf status, and returns only citations see
   expect(await response.json()).toMatchObject({ text: "คุณขาดเล่ม 2", book_ids: ["b2"], source_ids: ["s2"] });
   expect(call).toHaveBeenCalledTimes(2);
   expect(call.mock.calls[0][0].tools.map((tool: { function: { name: string } }) => tool.function.name)).toEqual([
-    "search_catalog", "get_series_status", "list_releases",
+    "search_catalog", "get_series_status", "list_releases", "propose_shelf_update",
   ]);
   const sent = JSON.stringify(call.mock.calls[1][0].messages);
   expect(sent).toContain("unknown_tool");
@@ -161,4 +165,50 @@ test("allows a reader to choose an edition after a clarification", async () => {
   ]));
   expect(await response.json()).toMatchObject({ book_ids: ["novel-16"], needs_clarification: false });
   expect(call).toHaveBeenCalledTimes(2);
+});
+
+test("returns a five-volume proposal built from catalog IDs and quotes the reader's original request", async () => {
+  const titleA = "Alpha";
+  const titleB = "Beta";
+  readCatalog.mockResolvedValue(catalog(
+    ...[9, 10, 11, 12].map((vol) => book("a-" + vol, vol, { title: titleA })),
+    book("b-14", 14, { title: titleB, series_id: "series-b", aliases: [] }),
+  ));
+  const initialShelf = shelf();
+  readShelf.mockResolvedValue(initialShelf);
+  const content = "Bought Alpha 9–12 and Beta 14";
+  call.mockResolvedValueOnce({
+    data: null, message: { tool_calls: [toolCall("propose_shelf_update", { items: [
+      { title_query: titleA, action: "add", volumes: "9–12" },
+      { title_query: titleB, action: "add", volumes: "14" },
+    ] }, "proposal")] },
+  });
+  const answer = await (await POST(request([{ role: "user", content }]))).json();
+  const validate = new Ajv().addSchema(commonSchema).addSchema(proposalSchema).compile(chatSchema);
+  expect(validate(answer)).toBe(true);
+  expect(answer.proposal).toMatchObject({
+    total: 5, user_text: content, items: [{ add: ["a-9", "a-10", "a-11", "a-12"] }, { add: ["b-14"] }],
+  });
+  expect(call).toHaveBeenCalledTimes(1);
+  expect(initialShelf).toEqual(shelf());
+});
+
+test("asks about an ambiguous update even if the model supplies a guessed edition", async () => {
+  readCatalog.mockResolvedValue(catalog(book("m", 1), book("n", 1, { edition: "light_novel" })));
+  call.mockResolvedValueOnce({
+    data: null, message: { tool_calls: [toolCall("propose_shelf_update", { items: [
+      { title_query: "Test Series", action: "add", edition: "manga", volumes: "1" },
+    ] }, "proposal")] },
+  });
+  const answer = await (await POST(request([{ role: "user", content: "Bought Test Series 1" }]))).json();
+  expect(answer.needs_clarification).toBe(true);
+  expect(answer.proposal).toBeUndefined();
+});
+
+test("never accepts a proposal authored in the model's final answer", async () => {
+  call.mockResolvedValueOnce({
+    data: { ...CHAT_UNAVAILABLE, needs_clarification: true, proposal: { total: 5, items: [], user_text: "fake" } },
+    message: { role: "assistant" },
+  });
+  expect(await (await POST(request())).json()).toEqual(CHAT_UNAVAILABLE);
 });

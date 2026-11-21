@@ -12,12 +12,14 @@ import type { ChatAnswer } from "@/types/generated/chat-answer";
 import { createEditionClarifier } from "./edition-clarification";
 import chatAnswerSchema from "../../../schemas/chat_answer.schema.json";
 import { CHAT_NOT_FOUND, CHAT_UNAVAILABLE, MAX_CHAT_MESSAGES, type ChatMessageInput } from "./shared";
-import { dispatchReadTool, readToolDefinitions } from "./tool-calls";
+import { dispatchChatTool, chatToolDefinitions } from "./tool-calls";
 import { createChatToolRegistry } from "./tools/registry";
 
 const { type, properties, required, additionalProperties } = chatAnswerSchema;
-const schema = { name: "chat_answer", schema: { type, properties, required, additionalProperties } };
-const isChatAnswer = new Ajv().compile<ChatAnswer>(chatAnswerSchema);
+// Only deterministic tool results may attach a shelf proposal to the API response.
+const modelProperties = Object.fromEntries(required.map((key) => [key, properties[key as keyof typeof properties]]));
+const schema = { name: "chat_answer", schema: { type, properties: modelProperties, required, additionalProperties } };
+const isChatAnswer = new Ajv().compile<Omit<ChatAnswer, "proposal">>(schema.schema);
 const maxToolRounds = 3;
 const maxCallsPerRound = 4;
 const turnTimeout = 15_000;
@@ -46,7 +48,8 @@ export async function runChat(
       ...history.slice(-MAX_CHAT_MESSAGES).map(({ role, content }) => ({ role, content })),
     ];
     const registry = createChatToolRegistry(context);
-    const editionClarifier = createEditionClarifier(context.catalog, history.at(-1)?.content ?? "");
+    const userText = history.at(-1)?.content ?? "";
+    const editionClarifier = createEditionClarifier(context.catalog, userText);
     const deadline = Date.now() + turnTimeout;
 
     for (let round = 0; round <= maxToolRounds; round++) {
@@ -57,7 +60,7 @@ export async function runChat(
         model: chatModel,
         messages,
         schema,
-        tools: round < maxToolRounds ? readToolDefinitions : undefined,
+        tools: round < maxToolRounds ? chatToolDefinitions : undefined,
         timeoutMs,
         maxRetries: 0,
         maxCompletionTokens: 700,
@@ -83,11 +86,16 @@ export async function runChat(
         content: message.content,
         tool_calls: calls,
       });
+      const splitProposal = calls.filter((c) => c.type === "function" && c.function.name === "propose_shelf_update").length > 1;
       for (const call of calls) {
+        if (splitProposal) {
+          messages.push({ role: "tool", tool_call_id: call.id, content: "Retry all changes together in one propose_shelf_update call." });
+          continue;
+        }
         const dispatched = call.type === "function"
-          ? dispatchReadTool(registry.tools, editionClarifier, call.function.name, call.function.arguments)
+          ? dispatchChatTool(registry.tools, editionClarifier, call.function.name, call.function.arguments, userText)
           : { result: { error: "unknown_tool" } };
-        if (dispatched.clarification) return dispatched.clarification;
+        if (dispatched.answer) return dispatched.answer;
         messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(dispatched.result) });
       }
     }

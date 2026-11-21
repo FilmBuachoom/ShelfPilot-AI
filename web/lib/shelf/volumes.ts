@@ -11,13 +11,15 @@ export function parseVolumeSpec(input: string): number[] | null {
   const volumes = new Set<number>();
 
   for (const part of normalized.split(",")) {
-    const match = /^(?:เล่ม\s*|vol\.\s*)?(\d+)(?:\s*-\s*(\d+))?$/i.exec(part.trim());
+    const match = /^(?:เล่ม\s*|vol\.\s*)?(\d+(?:\.\d+)?)(?:\s*-\s*(\d+))?$/i.exec(part.trim());
     if (!match) return null;
 
     const first = Number(match[1]);
     const last = match[2] === undefined ? first : Number(match[2]);
-    if (!Number.isSafeInteger(first) || !Number.isSafeInteger(last)
-      || last < first || last - first >= MAX_VOLUMES) return null;
+    if (first > Number.MAX_SAFE_INTEGER || last > Number.MAX_SAFE_INTEGER) return null;
+    if (match[2] !== undefined && (!Number.isInteger(first) || last < first || last - first >= MAX_VOLUMES)) {
+      return null;
+    }
 
     for (let offset = 0; offset <= last - first; offset++) {
       volumes.add(first + offset);

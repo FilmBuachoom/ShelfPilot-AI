@@ -6,6 +6,7 @@ import { ChatMessage } from "@/components/ChatMessage/ChatMessage";
 import { Composer } from "@/components/Composer/Composer";
 import { QuickChip } from "@/components/QuickChip/QuickChip";
 import { MAX_MESSAGE_LENGTH } from "@/lib/chat/shared";
+import type { ShelfProposal } from "@/types/generated/chat-answer";
 import type { QuickAction } from "@/lib/chat/quick";
 
 type Message = ComponentProps<typeof ChatMessage> & { id: number };
@@ -17,9 +18,10 @@ const quickChips: { label: string; action?: QuickAction }[] = [
   { label: "จัดงบ 500 บาท" },
 ];
 
-export function AssistantScreen({ messages = [], approval, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
+export function AssistantScreen({ messages = [], proposal, finishProposal, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
   messages?: Message[];
-  approval?: ComponentProps<typeof ApprovalSheet>;
+  proposal?: ShelfProposal;
+  finishProposal?: (outcome: "confirmed" | "cancelled" | "editing") => void;
   onSend?: (message: string) => void;
   onQuick?: (label: string, action?: QuickAction) => void;
   pending?: boolean;
@@ -69,7 +71,14 @@ export function AssistantScreen({ messages = [], approval, pending = false, reve
           setDraft("");
         })} />
       </div>
-      {approval && <ApprovalSheet {...approval} />}
+      {proposal && finishProposal && <ApprovalSheet proposal={proposal}
+        onConfirm={() => finishProposal("confirmed")}
+        onCancel={() => finishProposal("cancelled")}
+        onEdit={() => {
+          setDraft(proposal.user_text);
+          finishProposal("editing");
+          requestAnimationFrame(() => input.current?.focus());
+        }} />}
     </div>
   );
 }

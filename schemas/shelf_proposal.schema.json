@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "shelf_proposal.schema.json",
+  "title": "ShelfProposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["user_text", "items", "total"],
+  "properties": {
+    "user_text": { "type": "string", "minLength": 1 },
+    "total": { "type": "integer", "minimum": 0 },
+    "items": {
+      "type": "array",
+      "items": {
+        "title": "ShelfProposalItem",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["series_id", "edition", "add", "remove", "already_owned", "not_owned", "not_found_volumes"],
+        "properties": {
+          "series_id": { "type": "string" },
+          "edition": { "$ref": "common.schema.json#/$defs/edition" },
+          "add": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/book_id" } },
+          "remove": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/book_id" } },
+          "already_owned": { "$ref": "#/definitions/volumes" },
+          "not_owned": { "$ref": "#/definitions/volumes" },
+          "not_found_volumes": { "$ref": "#/definitions/volumes" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "volumes": { "type": "array", "items": { "type": "number" } }
+  }
+}

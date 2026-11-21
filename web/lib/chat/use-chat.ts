@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useCatalog } from "@/lib/data/catalog-provider";
-import type { ChatAnswer } from "@/types/generated/chat-answer";
+import type { ChatAnswer, ShelfProposal } from "@/types/generated/chat-answer";
 import { answerQuick, type QuickAction } from "./quick";
 import { CHAT_RATE_LIMITED, CHAT_UNAVAILABLE, MAX_CHAT_MESSAGES, MAX_MESSAGE_LENGTH, type ChatMessageInput } from "./shared";
 
@@ -17,6 +17,7 @@ type Message = {
 export function useChat() {
   const { books, sources, collection } = useCatalog();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [proposal, setProposal] = useState<ShelfProposal>();
   const [pending, setPending] = useState(false);
   const [revealId, setRevealId] = useState<number>();
   const onRevealComplete = useCallback((id: number) => {
@@ -35,7 +36,8 @@ export function useChat() {
       book_ids: book_ids.filter((bookId) => books.has(bookId)),
       source_ids: source_ids.filter((sourceId) => sources.has(sourceId)),
     }]);
-    if (animate && text !== CHAT_UNAVAILABLE.text) setRevealId(id);
+    if (answer.proposal) setProposal(answer.proposal);
+    else if (animate && text !== CHAT_UNAVAILABLE.text) setRevealId(id);
   }
 
   async function onSend(text: string) {
@@ -87,5 +89,16 @@ export function useChat() {
     appendReply(answerQuick(action, books, collection.series));
   }
 
-  return { messages, pending, revealId, onRevealComplete, onSend, onQuick };
+  function finishProposal(outcome: "confirmed" | "cancelled" | "editing") {
+    if (!proposal) return;
+    const text = {
+      confirmed: "บันทึกการปรับคลังแล้ว " + proposal.total + " เล่ม",
+      cancelled: "ยกเลิกรายการแล้ว",
+      editing: "แก้ไขคำขอแล้วส่งใหม่เพื่อตรวจรายการ",
+    }[outcome];
+    setProposal(undefined);
+    appendReply({ text, book_ids: [], source_ids: [], not_found: false, needs_clarification: false });
+  }
+
+  return { messages, proposal, finishProposal, pending, revealId, onRevealComplete, onSend, onQuick };
 }

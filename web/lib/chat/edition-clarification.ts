@@ -7,7 +7,7 @@ import type { ChatAnswer } from "@/types/generated/chat-answer";
 
 const explicitEdition = /มังงะ|การ์ตูน|นิยาย|โนเวล|ชุดพิเศษ|บ็อกซ์เซ็ต|บ๊อกซ์เซ็ต|บิ๊กบุ๊ก|บิ๊กบุ๊ค|漫画|マンガ|小説|ライトノベル|特装版|\b(?:manga|(?:light[ -])?novel|(?:special[ -])?set|box[ -]?set|big[ -]?book)\b/i;
 
-const editionLabels: Record<Edition, string> = {
+export const editionLabels: Record<Edition, string> = {
   manga: "มังงะ",
   light_novel: "ไลต์โนเวล",
   special_set: "ชุดพิเศษ",

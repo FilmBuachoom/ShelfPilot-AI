@@ -10,6 +10,7 @@
     "book_ids": { "type": "array", "items": { "type": "string" } },
     "source_ids": { "type": "array", "items": { "type": "string" } },
     "not_found": { "type": "boolean" },
-    "needs_clarification": { "type": "boolean" }
+    "needs_clarification": { "type": "boolean" },
+    "proposal": { "$ref": "shelf_proposal.schema.json" }
   }
 }
