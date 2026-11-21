@@ -21,7 +21,7 @@ function validInput(value: unknown): value is IngestInput {
 
 export async function POST(request: Request): Promise<Response> {
   if (!allowsLocalIngestPost(request)) {
-    return Response.json({ error: "Import / Extract ใช้งานได้ผ่านเซิร์ฟเวอร์ทดลองในเครื่อง" }, { status: 404 });
+    return Response.json({ error: "Import / Extract ใช้งานได้บนเซิร์ฟเวอร์ทดลองในเครื่องที่ใช้แค็ตตาล็อกแบบไฟล์" }, { status: 404 });
   }
   const contentType = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
   if (contentType !== "application/json") {
@@ -59,7 +59,7 @@ export async function POST(request: Request): Promise<Response> {
   } catch (error) {
     return Response.json({
       error: error instanceof LlmUnavailableError
-        ? "ยังสกัดข้อมูลไม่ได้ตอนนี้ กรุณาลองอีกครั้ง ข้อความของคุณยังอยู่"
+        ? "ยังประมวลผลประกาศไม่ได้ตอนนี้ กรุณาลองอีกครั้ง ข้อความของคุณยังอยู่"
         : "นำเข้าข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง",
     }, { status: error instanceof LlmUnavailableError ? 503 : 500 });
   }

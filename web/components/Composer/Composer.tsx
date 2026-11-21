@@ -1,11 +1,12 @@
 import { useId, type Ref } from "react";
 import { Icon } from "../icons";
 
-export function Composer({ value, onChange, onSend, inputRef, disabled = false }: {
+export function Composer({ value, onChange, onSend, inputRef, maxLength, disabled = false }: {
   value: string;
   onChange: (value: string) => void;
   onSend?: (value: string) => void;
   inputRef?: Ref<HTMLTextAreaElement>;
+  maxLength?: number;
   disabled?: boolean;
 }) {
   const hint = useId();
@@ -17,8 +18,8 @@ export function Composer({ value, onChange, onSend, inputRef, disabled = false }
         if (message && !disabled) onSend?.(message);
       }}>
         <textarea ref={inputRef} rows={1} className="sp-composer__input" aria-label="ข้อความถึงผู้ช่วย"
-          aria-describedby={hint} placeholder="ถามผู้ช่วย หรือพิมพ์ว่าเพิ่งซื้ออะไรมา"
-          value={value} onChange={(event) => onChange(event.target.value)} disabled={disabled} />
+          aria-describedby={hint} placeholder="ถามว่าเล่มไหนออกใหม่ หรือยังขาดเล่มไหน"
+          maxLength={maxLength} value={value} onChange={(event) => onChange(event.target.value)} disabled={disabled} />
         <button className="sp-composer__send" type="submit" aria-label="ส่งข้อความ" disabled={!onSend || !message || disabled}>
           <Icon name="send" size={20} />
         </button>

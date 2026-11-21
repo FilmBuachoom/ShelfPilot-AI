@@ -1,0 +1,97 @@
+import "server-only";
+
+import type { BookId, Catalog, ReviewQueue, UserShelf } from "@/types/generated";
+
+interface AuthSession {
+  access_token: string;
+  expires_in: number;
+}
+
+function config() {
+  const url = process.env.SHELFPILOT_SUPABASE_URL;
+  const key = process.env.SHELFPILOT_SUPABASE_PUBLISHABLE_KEY;
+  const email = process.env.SHELFPILOT_SUPABASE_DEMO_EMAIL;
+  const password = process.env.SHELFPILOT_SUPABASE_DEMO_PASSWORD;
+  if (!url || !key || !email || !password) {
+    throw new Error("Supabase demo connection settings are incomplete.");
+  }
+  const endpoint = new URL(url);
+  if (endpoint.protocol !== "https:" || endpoint.username || endpoint.password) {
+    throw new Error("The Supabase demo URL must use HTTPS.");
+  }
+  return { endpoint, key, email, password };
+}
+
+export function usesSupabaseDemo() {
+  if (process.env.SHELFPILOT_DATA_BACKEND !== "supabase") return false;
+  if (process.env.NODE_ENV !== "development" || process.env.VERCEL === "1") {
+    throw new Error("The shared Supabase demo shelf requires a local development server.");
+  }
+  return true;
+}
+
+export function isLocalDemoWrite(request: Request) {
+  const target = new URL(request.url);
+  // Next can normalize the request URL to localhost while preserving the browser's Host.
+  const host = request.headers.get("host") ?? target.host;
+  const origin = request.headers.get("origin");
+  return /^(localhost|127\.0\.0\.1|\[::1\])(:\d{1,5})?$/.test(host)
+    && (!origin || origin === `${target.protocol}//${host}`);
+}
+
+let session: { token: string; expiresAt: number } | undefined;
+let signIn: Promise<string> | undefined;
+
+async function accessToken(settings: ReturnType<typeof config>) {
+  if (session && session.expiresAt > Date.now()) return session.token;
+  if (!signIn) {
+    signIn = (async () => {
+      const response = await fetch(new URL("/auth/v1/token?grant_type=password", settings.endpoint), {
+        method: "POST",
+        headers: { apikey: settings.key, "Content-Type": "application/json" },
+        body: JSON.stringify({ email: settings.email, password: settings.password }),
+        cache: "no-store",
+        redirect: "error",
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!response.ok) throw new Error(`Supabase demo sign-in failed (${response.status}).`);
+      const { access_token, expires_in } = await response.json() as AuthSession;
+      if (!access_token || !Number.isFinite(expires_in)) throw new Error("Invalid Supabase demo session.");
+      session = { token: access_token, expiresAt: Date.now() + Math.max(0, expires_in - 30) * 1000 };
+      return access_token;
+    })().finally(() => { signIn = undefined; });
+  }
+  return signIn;
+}
+
+async function rpc<T>(name: string, args: Record<string, unknown> = {}): Promise<T> {
+  const settings = config();
+  const token = await accessToken(settings);
+  const response = await fetch(new URL(`/rest/v1/rpc/shelfpilot_demo_${name}`, settings.endpoint), {
+    method: "POST",
+    headers: { apikey: settings.key, Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(args),
+    cache: "no-store",
+    redirect: "error",
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) {
+    if (response.status === 401) session = undefined;
+    throw new Error(`Supabase demo ${name} failed (${response.status}).`);
+  }
+  const result: T | null = await response.json();
+  if (result === null) throw new Error(`Supabase demo ${name} returned no record.`);
+  return result;
+}
+
+export const readSupabaseCatalog = () => rpc<Catalog>("catalog");
+export const readSupabaseShelf = () => rpc<UserShelf>("shelf");
+export const readSupabaseReviewQueue = () => rpc<ReviewQueue>("review_queue");
+
+export function updateSupabaseShelf(add: BookId[], remove: BookId[]) {
+  return rpc<UserShelf>("update_shelf", { add_ids: add, remove_ids: remove });
+}
+
+export function recordSupabaseStoreClick(bookId: BookId) {
+  return rpc<boolean>("store_click", { clicked_book_id: bookId });
+}

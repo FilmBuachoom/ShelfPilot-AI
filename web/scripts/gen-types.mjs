@@ -32,15 +32,16 @@ const types = await compile(
 await mkdir(outputDir, { recursive: true });
 await writeFile(new URL("index.ts", outputDir), types);
 
-const extraction = JSON.parse(await readFile(new URL("extraction.schema.json", schemasDir), "utf8"));
-await writeFile(new URL("extraction.ts", outputDir), await compile(extraction, "Extraction", {
-  cwd: fileURLToPath(schemasDir),
-  bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
-}));
-
-const recommendation = JSON.parse(await readFile(new URL("recommendation.schema.json", schemasDir), "utf8"));
-const recommendationTypes = await compile(recommendation, "Recommendation", {
-  cwd: fileURLToPath(schemasDir),
-  bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
-});
-await writeFile(new URL("recommendation.ts", outputDir), recommendationTypes);
+const standaloneSchemas = [
+  ["extraction", "Extraction"],
+  ["match_result", "MatchResult"],
+  ["recommendation", "Recommendation"],
+  ["chat_answer", "ChatAnswer", "chat-answer"],
+];
+for (const [name, title, outputName = name] of standaloneSchemas) {
+  const schema = JSON.parse(await readFile(new URL(`${name}.schema.json`, schemasDir), "utf8"));
+  await writeFile(new URL(`${outputName}.ts`, outputDir), await compile(schema, title, {
+    cwd: fileURLToPath(schemasDir),
+    bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
+  }));
+}

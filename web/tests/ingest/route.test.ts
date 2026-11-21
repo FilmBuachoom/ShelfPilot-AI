@@ -7,6 +7,7 @@ vi.mock("@/lib/ingest/pipeline", () => ({ runPipeline: vi.fn() }));
 beforeEach(() => {
   vi.stubEnv("NODE_ENV", "development");
   vi.stubEnv("VERCEL", undefined);
+  vi.stubEnv("SHELFPILOT_DATA_BACKEND", undefined);
 });
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -41,6 +42,12 @@ test.each<Record<string, string>>([
   expect(runPipeline).not.toHaveBeenCalled();
 });
 
+test("Supabase demo mode rejects imports before calling the pipeline", async () => {
+  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase");
+  expect((await POST(request(input))).status).toBe(404);
+  expect(runPipeline).not.toHaveBeenCalled();
+});
+
 test("requires a JSON content type before reading the body", async () => {
   expect((await POST(request(input, { "Content-Type": "text/plain" }))).status).toBe(415);
   expect(runPipeline).not.toHaveBeenCalled();
@@ -63,10 +70,10 @@ test("malformed JSON is rejected", async () => {
 });
 
 test("valid input passes through the pipeline", async () => {
-  vi.mocked(runPipeline).mockResolvedValue({ status: "dry_run", message: "ok", source: { ...input, source_id: "src_test", publisher: "", imported_at: "2026-01-01T00:00:00Z" }, extraction: { items: [] } });
+  vi.mocked(runPipeline).mockResolvedValue({ status: "not_imported", message: "ok", source: { ...input, source_id: "src_test", publisher: "", imported_at: "2026-01-01T00:00:00Z" }, extraction: { items: [] }, decisions: [] });
   const response = await POST(request(input, { Origin: "http://127.0.0.1:3000" }));
   expect(response.status).toBe(200);
-  expect(await response.json()).toMatchObject({ status: "dry_run" });
+  expect(await response.json()).toMatchObject({ status: "not_imported" });
   expect(runPipeline).toHaveBeenCalledWith(input);
 });
 
