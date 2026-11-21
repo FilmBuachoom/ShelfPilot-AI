@@ -8,7 +8,7 @@ const common = JSON.parse(await readFile(new URL("common.schema.json", schemasDi
 
 // Compile the data files together so shared references produce a single type.
 const properties = Object.fromEntries(
-  ["catalog", "user_shelf", "review_queue"].map((name) => [
+  ["catalog", "user_shelf", "review_queue", "store_clicks"].map((name) => [
     `${name}.json`,
     { $ref: `${name}.schema.json` },
   ]),

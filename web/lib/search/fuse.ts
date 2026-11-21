@@ -1,26 +1,17 @@
 import "server-only";
 
-import Fuse from "fuse.js";
 import { readCatalog } from "@/lib/data/store";
 import type { Book } from "@/types/generated";
+import { createCatalogSearch } from "./catalog-search";
 import { normalizeTitle } from "./normalize";
 
 export async function searchCatalog(
   query: string,
   { limit = 5 }: { limit?: number } = {},
 ): Promise<Book[]> {
-  const normalizedQuery = normalizeTitle(query);
-  if (!normalizedQuery || limit <= 0) {
-    return [];
-  }
+  if (!normalizeTitle(query) || limit <= 0) return [];
 
   const { books } = await readCatalog();
-  const index = new Fuse(books, {
-    ignoreLocation: true,
-    keys: [
-      { name: "title", getFn: (book) => normalizeTitle(book.title) },
-      { name: "aliases", getFn: (book) => book.aliases.map(normalizeTitle) },
-    ],
-  });
-  return index.search(normalizedQuery, { limit }).map(({ item }) => item);
+  const byId = new Map(books.map((book) => [book.book_id, book]));
+  return createCatalogSearch(books)(query, limit).map((id) => byId.get(id)!);
 }

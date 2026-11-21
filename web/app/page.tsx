@@ -1,7 +1,5 @@
+import { ShelfScreen } from "./shelf-screen";
+
 export default function Home() {
-  return (
-    <main>
-      <h1>ShelfPilot AI</h1>
-    </main>
-  );
+  return <ShelfScreen />;
 }
