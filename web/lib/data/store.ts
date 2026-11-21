@@ -5,8 +5,9 @@ import path from "node:path";
 import type { DataFiles } from "@/types/generated";
 import { dataPath } from "./paths";
 import {
-  readSupabaseCatalog, readSupabaseReviewQueue, readSupabaseShelf, usesSupabaseDemo,
+  readSupabaseCatalog, readSupabaseReviewQueue, readSupabaseShelf,
 } from "./supabase-demo";
+import { usesSupabaseDemo } from "./supabase-demo-access";
 
 async function readJson<File extends keyof DataFiles>(file: File): Promise<DataFiles[File]> {
   return JSON.parse(await readFile(dataPath(file), "utf8")) as DataFiles[File];

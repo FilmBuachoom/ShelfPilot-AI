@@ -39,10 +39,18 @@ On Vercel, the app allows six requests per minute per client IP and 30 per minut
 
 JSON Schema ใน `../schemas/` เป็นสัญญาของไฟล์ใน `../data/` รัน `npm run gen:types` หลังแก้ schema แล้ว commit ไฟล์ TypeScript ที่สร้างพร้อมกัน
 
-ไฟล์ JSON ตั้งต้นใช้กับการอ่านข้อมูลบน Vercel การบันทึกคลังและการนับคลิกร้านค้ารองรับการรันในเครื่อง การเขียนข้อมูลบน Vercel ต้องมีที่เก็บข้อมูลถาวร ตั้ง `SHELFPILOT_DATA_DIR` เป็น path ของชุดไฟล์สำหรับทดสอบเมื่อต้องการแยกข้อมูลทดสอบจาก `../data/`
+แอปใช้ข้อมูล JSON ตั้งต้นเมื่อเว้น `SHELFPILOT_DATA_BACKEND` ว่าง โหมด JSON รองรับการบันทึกคลังและการนับคลิกร้านค้าในเครื่อง ตั้ง `SHELFPILOT_DATA_DIR` เป็น path ของชุดไฟล์สำหรับทดสอบเมื่อต้องการแยกข้อมูลทดสอบจาก `../data/`
 
 ### Local Supabase demo
 
 Apply the migrations in `supabase/migrations/` to the development database and provision a dedicated Supabase Auth fixture account with `app_metadata.shelfpilot_fixture` set to `true` and an existing shelf tied to its user ID. Supply the five `SHELFPILOT_*` connection settings listed in `.env.example` to the server process. Set `SHELFPILOT_DATA_BACKEND=supabase`. Keep the fixture password out of Git and use the project's publishable key.
 
 Run `npm run dev -- --hostname 127.0.0.1` from `web/`. The app reads the catalog, shelf, and review queue directly from Supabase and sends confirmed shelf changes and store clicks to the database. This mode is for local development with a shared fixture shelf. The regular mode uses JSON when the backend selector is unset.
+
+### Shared Supabase demo on Vercel
+
+1. Apply the Supabase migrations and provision the fixture account and shelf as described above. Use a Supabase project and fixture account dedicated to team demo data.
+2. In Project Settings → Environment Variables, set the same five `SHELFPILOT_*` connection settings for Production. Set `SHELFPILOT_TEAM_PASSWORD` to a separate, randomly generated team password. Set Preview variables too if the team uses Preview deployments.
+3. Deploy the updated commit. Open the HTTPS production URL and sign in with username `shelfpilot` and the team password. The browser uses this sign-in for pages and API requests. Each signed-in teammate uses the same fixture shelf.
+
+The catalog, shelf, and review queue load from Supabase. Confirmed shelf changes and store clicks persist in Supabase. Announcement import is available in local JSON mode.

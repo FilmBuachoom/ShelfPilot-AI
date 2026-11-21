@@ -1,6 +1,8 @@
 import "server-only";
 
+import { headers } from "next/headers";
 import type { BookId, Catalog, ReviewQueue, UserShelf } from "@/types/generated";
+import { hasDemoAccess, isHostedDemo } from "./supabase-demo-access";
 
 interface AuthSession {
   access_token: string;
@@ -20,23 +22,6 @@ function config() {
     throw new Error("The Supabase demo URL must use HTTPS.");
   }
   return { endpoint, key, email, password };
-}
-
-export function usesSupabaseDemo() {
-  if (process.env.SHELFPILOT_DATA_BACKEND !== "supabase") return false;
-  if (process.env.NODE_ENV !== "development" || process.env.VERCEL === "1") {
-    throw new Error("The shared Supabase demo shelf requires a local development server.");
-  }
-  return true;
-}
-
-export function isLocalDemoWrite(request: Request) {
-  const target = new URL(request.url);
-  // Next can normalize the request URL to localhost while preserving the browser's Host.
-  const host = request.headers.get("host") ?? target.host;
-  const origin = request.headers.get("origin");
-  return /^(localhost|127\.0\.0\.1|\[::1\])(:\d{1,5})?$/.test(host)
-    && (!origin || origin === `${target.protocol}//${host}`);
 }
 
 let session: { token: string; expiresAt: number } | undefined;
@@ -65,6 +50,13 @@ async function accessToken(settings: ReturnType<typeof config>) {
 }
 
 async function rpc<T>(name: string, args: Record<string, unknown> = {}): Promise<T> {
+  if (isHostedDemo()) {
+    const authorization = (await headers()).get("authorization");
+    const password = process.env.SHELFPILOT_TEAM_PASSWORD;
+    if (!password || !hasDemoAccess(authorization, password)) {
+      throw new Error("Team demo sign-in required.");
+    }
+  }
   const settings = config();
   const token = await accessToken(settings);
   const response = await fetch(new URL(`/rest/v1/rpc/shelfpilot_demo_${name}`, settings.endpoint), {
