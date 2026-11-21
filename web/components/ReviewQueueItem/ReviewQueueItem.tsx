@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import type { BookId, Edition, ReviewQueue } from "@/types/generated";
+import type { Book, BookId, Edition, ReviewQueue } from "@/types/generated";
 import { EDITION_CONFIDENCE_THRESHOLD } from "@/lib/ingest/constants";
 import { reviewSource } from "@/lib/ingest/review-record";
 import { EditionBadge, editionLabels } from "../Badge/Badge";
@@ -10,18 +10,25 @@ const editions = Object.keys(editionLabels) as Edition[];
 
 type ReviewItem = ReviewQueue["items"][number];
 
-export function ReviewQueueItem({ item, selected, onSelect, onSkip, onCreate, onMerge, onResume, pending = false }: {
+export function ReviewQueueItem({
+  item, selected, onSelect, onSkip, onCreate, onMerge, onResume, createReferences = [], pending = false,
+}: {
   item: ReviewItem;
   selected?: BookId;
   onSelect: (book_id: BookId) => void;
   onSkip?: () => void;
-  onCreate?: (edition: Edition) => void;
+  onCreate?: (edition: Edition, reference?: BookId) => void;
   onMerge?: () => void;
   onResume?: () => void;
+  createReferences?: readonly Book[];
   pending?: boolean;
 }) {
   const group = useId();
   const [edition, setEdition] = useState<Edition | "">("");
+  const [reference, setReference] = useState<BookId>("");
+  const referenceBook = createReferences.find(({ book_id }) => book_id === reference)
+    ?? createReferences.find(({ book_id }) => book_id === selected)
+    ?? (createReferences.length === 1 ? createReferences[0] : undefined);
   const title = item.extracted.title;
   const volume = item.extracted.volume;
   const confidence = Math.max(0, ...item.candidates.map((candidate) => candidate.confidence));
@@ -69,8 +76,18 @@ export function ReviewQueueItem({ item, selected, onSelect, onSkip, onCreate, on
                 {editions.map((value) => <option key={value} value={value}>{editionLabels[value]}</option>)}
               </select>
             </div>}
-            <Button size="sm" disabled={pending || !onCreate || !edition}
-              onClick={() => { if (edition) onCreate?.(edition); }}>สร้างรายการใหม่</Button>
+            {onCreate && createReferences.length > 1 && <div className="sp-field">
+              <label htmlFor={`${group}-reference`}>เล่มอ้างอิงสำหรับรายการใหม่</label>
+              <select id={`${group}-reference`} value={referenceBook?.book_id ?? ""} disabled={pending}
+                onChange={(event) => setReference(event.currentTarget.value)}>
+                <option value="">เลือกสายพิมพ์</option>
+                {createReferences.map((book) => <option key={book.book_id} value={book.book_id}>
+                  {book.title} · {editionLabels[book.edition]} · เล่ม {book.volume} · {book.publisher}
+                </option>)}
+              </select>
+            </div>}
+            <Button size="sm" disabled={pending || !onCreate || !edition || (createReferences.length > 1 && !referenceBook)}
+              onClick={() => { if (edition) onCreate?.(edition, referenceBook?.book_id); }}>สร้างรายการใหม่</Button>
             <Button size="sm" disabled={pending || !onMerge || !selected} onClick={onMerge}>
               ตรวจและรวม
             </Button>

@@ -85,6 +85,19 @@ test("accepts an explicit special set with a parenthetical base format", () => {
   expect(getEditionReview({ ...statedEdition, edition: "special_set", edition_evidence }, rawText)).toBeNull();
   expect(getEditionReview({ ...statedEdition, edition: "light_novel", edition_evidence }, rawText))
     .toMatchObject({ status: "needs_review" });
+  expect(getEditionReview({ ...statedEdition, edition: "light_novel", edition_evidence: "ไลต์โนเวล" }, rawText))
+    .toMatchObject({ status: "needs_review" });
+});
+
+test("requires evidence on the right source row even when the model only extracted one volume", () => {
+  const rawText = "fixture-a · มังงะ · เล่ม ๑๒\nfixture-a · เล่ม ๑๓";
+  const only = normalizeItem(item, rawText);
+  expect(getItemEditionReview(only, [only], rawText)).toMatchObject({ status: "needs_review" });
+  expect(getItemEditionReview(only, [only], `${rawText} · มังงะ`)).toBeNull();
+  expect(getItemEditionReview(only, [only], rawText.replace("\n", " / ")))
+    .toMatchObject({ status: "needs_review" });
+  expect(getItemEditionReview(only, [only], "fixture-a · มังงะ · 12\nfixture-a · 13"))
+    .toMatchObject({ status: "needs_review" });
 });
 
 test("routes a score of 0.79 to human review with a reason", () => {

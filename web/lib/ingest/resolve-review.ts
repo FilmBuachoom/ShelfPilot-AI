@@ -1,13 +1,12 @@
 import "server-only";
 
 import { readCatalog, readReviewQueue, updateJsonAtomic } from "@/lib/data/store";
-import { normalizeTitle } from "@/lib/search/normalize";
-import type { Catalog } from "@/types/generated";
+import type { Book, Catalog } from "@/types/generated";
 import { createReviewedBook, mergeReviewedBook } from "./apply";
 import type { ReviewResolution } from "./contracts";
 import { findCompletedReviewSource, withReviewWrite } from "./review-queue";
 import {
-  canCreateFromReview, parseReviewResolution, pendingReviewResolution, reviewDraft, type ReviewItem,
+  canCreateFromReview, parseReviewResolution, pendingReviewResolution, reviewDraft, reviewPublicationBooks, type ReviewItem,
 } from "./review-record";
 
 export class ReviewResolutionError extends Error {
@@ -30,7 +29,7 @@ function applyApproval(
   record: ReviewItem,
   resolution: Exclude<ReviewResolution, { action: "skip" }>,
   resuming: boolean,
-): { catalog: Catalog; referenceBookId?: string } {
+): { catalog: Catalog | null; referenceBookId?: string } {
   const draft = reviewDraft(record);
   if (!draft) throw new ReviewResolutionError("รายการนี้ไม่มีข้อมูลประกาศสำหรับอนุมัติ", 409);
   const { extracted, source } = draft;
@@ -44,35 +43,55 @@ function applyApproval(
   if (!canCreateFromReview(record) || !title || volume === null) {
     throw new ReviewResolutionError("ต้องมีชื่อเรื่อง เลขเล่ม และสำนักพิมพ์ก่อนสร้างรายการใหม่", 409);
   }
-  const reference = resolution.book_id
-    ? chosenBook(catalog, record, resolution.book_id, volume)
-    : resuming
-      ? catalog.books.find(({ book_id }) => book_id === record.extracted.resolution_reference_book_id)
-      : inferPublicationLine(catalog, record, title);
-  if (resuming && record.extracted.resolution_reference_book_id && !reference) {
-    throw new ReviewResolutionError("เล่มอ้างอิงสำหรับการอนุมัติเดิมไม่มีอยู่ในแค็ตตาล็อกแล้ว", 409);
-  }
+  const relatedBooks = reviewPublicationBooks(catalog.books, record);
+  const reference = creationReference(catalog, relatedBooks, record, resolution.book_id, resuming);
   const updated = createReviewedBook(
     catalog, source, { ...extracted, title, volume, edition: resolution.edition },
-    extracted.publisher || source.publisher, reference,
+    extracted.publisher || source.publisher, { reference, relatedBooks, resuming },
   );
-  if (!updated) throw new ReviewResolutionError("มีเล่มฉบับนี้อยู่แล้ว กรุณาเลือกตรวจและรวม", 409);
   return { catalog: updated, referenceBookId: reference?.book_id };
 }
 
-function inferPublicationLine(catalog: Catalog, record: ReviewItem, title: string) {
-  const candidateIds = new Set(record.candidates.map(({ book_id }) => book_id));
-  const candidates = catalog.books.filter(({ book_id }) => candidateIds.has(book_id));
-  if (!candidates.length && candidateIds.size) {
-    throw new ReviewResolutionError("ตัวเลือกในคิวไม่มีอยู่ในแค็ตตาล็อกแล้ว", 409);
+function creationReference(
+  catalog: Catalog,
+  relatedBooks: readonly Book[],
+  record: ReviewItem,
+  selectedBookId: string | undefined,
+  resuming: boolean,
+) {
+  if (resuming) {
+    const referenceId = record.extracted.resolution_reference_book_id;
+    if (typeof referenceId !== "string") return;
+    const reference = catalog.books.find(({ book_id }) => book_id === referenceId);
+    if (!reference) throw new ReviewResolutionError("เล่มอ้างอิงสำหรับการอนุมัติเดิมไม่มีอยู่ในแค็ตตาล็อกแล้ว", 409);
+    return reference;
   }
-  const normalizedTitle = normalizeTitle(title);
-  const books = candidates.length ? candidates : catalog.books.filter((book) =>
-    [book.title, ...book.aliases].some((name) => normalizeTitle(name) === normalizedTitle));
-  if (new Set(books.map(({ series_id }) => series_id)).size > 1) {
+  if (selectedBookId) {
+    const reference = relatedBooks.find(({ book_id }) => book_id === selectedBookId);
+    if (!reference) throw new ReviewResolutionError("เล่มอ้างอิงนี้ไม่อยู่ในสายพิมพ์ที่เกี่ยวข้อง", 409);
+    return reference;
+  }
+  if (new Set(relatedBooks.map(({ series_id }) => series_id)).size > 1) {
     throw new ReviewResolutionError("กรุณาเลือกเล่มอ้างอิงเพื่อระบุสายพิมพ์ก่อนสร้างรายการใหม่", 409);
   }
-  return books[0];
+  if (!relatedBooks.length && record.candidates.length) {
+    throw new ReviewResolutionError("ตัวเลือกในคิวไม่มีอยู่ในแค็ตตาล็อกแล้ว", 409);
+  }
+  return relatedBooks[0];
+}
+
+function reopenConflictingCreation(catalog: Catalog, item: ReviewItem) {
+  const confidence = new Map(item.candidates.map((candidate) => [candidate.book_id, candidate.confidence]));
+  const candidates = reviewPublicationBooks(catalog.books, item)
+    .filter(({ volume }) => volume === item.extracted.volume)
+    .map(({ book_id, edition }) => ({ book_id, edition, confidence: confidence.get(book_id) ?? 0 }));
+  const extracted = { ...item.extracted };
+  delete extracted.resolution;
+  delete extracted.resolution_reference_book_id;
+  return updateJsonAtomic("review_queue.json", (current) => ({
+    items: current.items.map((record) => record.review_id === item.review_id
+      ? { ...record, extracted, candidates } : record),
+  }));
 }
 
 export function resolveReview(resolution: ReviewResolution) {
@@ -94,6 +113,12 @@ export function resolveReview(resolution: ReviewResolution) {
         throw new ReviewResolutionError("การนำเข้าประกาศยังไม่เสร็จ กรุณาส่งประกาศเดิมอีกครั้ง", 409);
       }
       const { catalog: updated, referenceBookId } = applyApproval(catalog, item, resolution, !!previous);
+      if (!updated) {
+        // The approved creation never reached the catalog and a related edition now exists.
+        // Clear the recorded choice so the reviewer can select the updated catalog entry.
+        await reopenConflictingCreation(catalog, item);
+        throw new ReviewResolutionError("มีเล่มฉบับนี้อยู่แล้ว กรุณาเลือกตรวจและรวม", 409);
+      }
       if (!previous) {
         // Record the validated choice before writing the catalog so retries can only complete that choice.
         await updateJsonAtomic("review_queue.json", (current) => ({

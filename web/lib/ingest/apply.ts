@@ -79,12 +79,22 @@ export function createReviewedBook(
   source: Source,
   item: NormalizedItem & { title: string; volume: number; edition: Edition },
   publisher: string,
-  candidate?: Book,
+  { reference, relatedBooks, resuming }: { reference?: Book; relatedBooks: readonly Book[]; resuming: boolean },
 ): Catalog | null {
-  const seriesId = candidate?.series_id ?? `sr_${hash([normalizeTitle(item.title)])}`;
-  const existing = catalog.books.find((book) => book.series_id === seriesId && book.volume === item.volume && book.edition === item.edition);
-  if (existing) return existing.sources.includes(source.source_id) ? catalog : null;
-  const added = newBook(item, publisher, source.source_id, seriesId, candidate);
+  const seriesId = reference?.series_id ?? `sr_${hash([normalizeTitle(item.title)])}`;
+  const sameVolumeAndEdition = (book: Book) => book.volume === item.volume && book.edition === item.edition;
+  const existing = catalog.books.find((book) => book.series_id === seriesId && sameVolumeAndEdition(book));
+  if (existing?.sources.includes(source.source_id)) return catalog;
+
+  const publisherKey = (value: string) => value.normalize("NFKC").trim().replace(/\s+/gu, " ").toLowerCase();
+  const samePublisher = (book: Book) => publisherKey(book.publisher) === publisherKey(publisher);
+  if (existing) {
+    // A different import may fill the approved slot while a create is waiting to retry.
+    return resuming && samePublisher(existing) ? mergeReviewedBook(catalog, source, item, existing) : null;
+  }
+  if (relatedBooks.some((book) => sameVolumeAndEdition(book) && samePublisher(book))) return null;
+
+  const added = newBook(item, publisher, source.source_id, seriesId, reference);
   return withSource(catalog, [...catalog.books, added], source, new Date().toISOString());
 }
 

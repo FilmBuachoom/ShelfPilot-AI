@@ -15,8 +15,9 @@ when submitted again. This includes exact replays of seeded evidence with an
 existing `demo-*` source ID. Edited text at the same URL gets a new source ID.
 The edition check requires a source quote that supports the extracted edition
 and confidence of at least 0.8 from extraction and from matching when a
-match call ran. For multiple books, it asks for review when the quote cannot
-be tied to a single title and volume. Accepted items are written to the catalog;
+match call ran. It checks the volume on the source rows even if the extractor
+returns only one item. A base-format quote inside a special edition label
+does not establish the base edition. Accepted items are written to the catalog;
 review-only imports leave it untouched.
 
 In local JSON mode, the pipeline writes `needs_review` results to
@@ -25,9 +26,11 @@ of the same volume in the matched series or sharing a title or alias. New
 queue entries keep their source in the schema's open-ended `extracted` object.
 In Admin, select a book to merge its provenance, select an edition to create
 a distinct book, or skip. To create when multiple publication lines match,
-select a reference book as well. An interrupted approval can be resumed with
-its recorded choice. Each resolution closes the review. Existing queue entries without an
-embedded announcement can still be shown and skipped.
+select a reference book in the intended line, including an earlier volume
+when needed. If an identical edition appears during a retry, the recorded
+approval can finish within its selected line. A conflict across lines
+reopens the choice with updated candidates. Each resolution closes the review.
+Existing queue entries without an embedded announcement can still be shown and skipped.
 
 The URL is provenance supplied by the admin. Ingestion keeps fractional volumes
 and preserves a month-only window as written in `source.raw_text`. A book's

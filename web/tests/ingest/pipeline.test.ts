@@ -7,6 +7,7 @@ import { POST as resolve } from "@/app/api/review/resolve/route";
 import * as store from "@/lib/data/store";
 import { readCatalog, readReviewQueue } from "@/lib/data/store";
 import { createSourceId } from "@/lib/ingest/source-id";
+import { creationReferences } from "@/lib/ingest/review-record";
 import { callStructured, LlmUnavailableError } from "@/lib/llm/client";
 import { book, catalog } from "../shelf-fixture";
 import { input, item, matchResult } from "./fixtures";
@@ -289,16 +290,15 @@ test("creates a distinct human-approved edition and skips another without a writ
 });
 
 
-async function queueCrossSeriesReview() {
+async function queueCrossSeriesReview(existingVolume = original.volume) {
   const novel = { ...original, book_id: "bk_novel", series_id: "sr_novel", edition: "light_novel" as const };
-  await writeFile(file, JSON.stringify(catalog(original, novel)));
+  await writeFile(file, JSON.stringify(catalog({ ...original, volume: existingVolume }, { ...novel, volume: existingVolume })));
   vi.mocked(callStructured)
     .mockResolvedValueOnce(reply({ items: [{ ...item, title: original.title, publisher: original.publisher, edition: null }] }))
-    .mockResolvedValueOnce(reply({ ...matchResult, edition: null }));
+    .mockResolvedValueOnce(reply({ ...matchResult, edition: null, same_volume: existingVolume === original.volume }));
   const response = await ingest({ ...input, raw_text: `${original.title} · เล่ม ๑๓` });
   expect(response.status).toBe(200);
   const { items: [review] } = await readReviewQueue();
-  expect(review.candidates.map(({ book_id }) => book_id)).toEqual([original.book_id, novel.book_id]);
   return { review, novel };
 }
 
@@ -318,6 +318,30 @@ test("creates a new edition under the explicitly selected publication line", asy
     series_id: novel.series_id, sources: [review.source_id],
   });
   expect((await readReviewQueue()).items[0].status).toBe("resolved");
+});
+
+test("offers prior volumes as create references without treating them as merge targets", async () => {
+  const { review, novel } = await queueCrossSeriesReview(12);
+  expect(review.candidates).toEqual([]);
+  expect(creationReferences((await readCatalog()).books, review)).toMatchObject([
+    { book_id: original.book_id, volume: 12 },
+    { book_id: novel.book_id, volume: 12 },
+  ]);
+  expect((await approve({ review_id: review.review_id, action: "merge", book_id: novel.book_id })).status).toBe(409);
+  expect((await approve({ review_id: review.review_id, action: "create", edition: "light_novel", book_id: novel.book_id })).status).toBe(200);
+  expect((await readCatalog()).books.find(({ volume }) => volume === 13)).toMatchObject({
+    edition: "light_novel", series_id: novel.series_id, sources: [review.source_id],
+  });
+});
+
+test("rejects creating an edition already offered from another line of the same publisher", async () => {
+  const { review, novel } = await queueCrossSeriesReview();
+  const before = await readFile(file, "utf8");
+  expect((await approve({ review_id: review.review_id, action: "create", edition: "light_novel", book_id: original.book_id })).status)
+    .toBe(409);
+  expect(await readFile(file, "utf8")).toBe(before);
+  expect((await readReviewQueue()).items[0]).toMatchObject({ status: "open" });
+  expect((await approve({ review_id: review.review_id, action: "merge", book_id: novel.book_id })).status).toBe(200);
 });
 
 test("retries the recorded approval after a queue write failure without attaching the source elsewhere", async () => {
@@ -373,6 +397,41 @@ test("retries creation under the recorded publication line after the catalog cha
   expect((await readCatalog()).books.find(({ edition }) => edition === "special_set")).toMatchObject({
     series_id: original.series_id, sources: [review.source_id],
   });
+  expect((await readReviewQueue()).items[0].status).toBe("resolved");
+});
+
+test.each(["the selected line", "another line"])("recovers if a concurrent import created the edition in %s", async (line) => {
+  const { review, novel } = await queueCrossSeriesReview();
+  const update = store.updateJsonAtomic;
+  let failCatalog = true;
+  vi.spyOn(store, "updateJsonAtomic").mockImplementation((name, transform) => {
+    if (name === "catalog.json" && failCatalog) {
+      failCatalog = false;
+      return Promise.reject(new Error("Fixture catalog write failure"));
+    }
+    return update(name, transform);
+  });
+  const create = { review_id: review.review_id, action: "create", edition: "special_set", book_id: novel.book_id };
+  expect((await approve(create)).status).toBe(500);
+  expect((await readReviewQueue()).items[0].extracted.resolution).toMatchObject(create);
+
+  const concurrent = { ...novel, book_id: "bk_other_import", edition: "special_set" as const,
+    series_id: line === "the selected line" ? novel.series_id : original.series_id };
+  await update("catalog.json", (current) => ({ ...current, books: [...current.books, concurrent] }));
+  const retry = await approve(create);
+  if (line === "the selected line") {
+    expect(retry.status).toBe(200);
+  } else {
+    expect(retry.status).toBe(409);
+    const updated = (await readReviewQueue()).items[0];
+    expect(updated.extracted.resolution).toBeUndefined();
+    expect(updated.candidates).toContainEqual({ book_id: concurrent.book_id, edition: "special_set", confidence: 0 });
+    expect((await approve({ review_id: review.review_id, action: "merge", book_id: concurrent.book_id })).status).toBe(200);
+  }
+  const after = await readCatalog();
+  expect(after.books.filter(({ edition }) => edition === "special_set")).toEqual([
+    { ...concurrent, release_date: item.release_date, sources: [review.source_id] },
+  ]);
   expect((await readReviewQueue()).items[0].status).toBe("resolved");
 });
 

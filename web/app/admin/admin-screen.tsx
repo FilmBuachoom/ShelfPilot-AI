@@ -5,8 +5,9 @@ import { useRef, useState } from "react";
 import { Badge } from "@/components/Badge/Badge";
 import { ImportExtractForm } from "@/components/ImportExtractForm/ImportExtractForm";
 import { ReviewQueueItem } from "@/components/ReviewQueueItem/ReviewQueueItem";
+import { useCatalog } from "@/lib/data/catalog-provider";
 import type { ReviewResolution } from "@/lib/ingest/contracts";
-import { canCreateFromReview, pendingReviewResolution, reviewSource } from "@/lib/ingest/review-record";
+import { canCreateFromReview, creationReferences, pendingReviewResolution, reviewSource } from "@/lib/ingest/review-record";
 import type { BookId, ReviewQueue } from "@/types/generated";
 
 export function AdminScreen({ items, canManageIngest }: {
@@ -14,12 +15,14 @@ export function AdminScreen({ items, canManageIngest }: {
   canManageIngest: boolean;
 }) {
   const router = useRouter();
+  const { books } = useCatalog();
   const [selected, setSelected] = useState<Record<string, BookId>>({});
   const [resolved, setResolved] = useState<string[]>([]);
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState("");
   const inFlight = useRef(false);
   const openItems = items.filter(({ review_id }) => !resolved.includes(review_id));
+  const catalogBooks = [...books.values()];
 
   async function approve(resolution: ReviewResolution) {
     if (inFlight.current) return;
@@ -70,11 +73,14 @@ export function AdminScreen({ items, canManageIngest }: {
           const saved = pendingReviewResolution(item);
           const book_id = saved && "book_id" in saved ? saved.book_id : selected[id];
           const canDecide = canManageIngest && !saved;
+          const canCreate = canDecide && canCreateFromReview(item);
           return <ReviewQueueItem key={id} item={item} selected={book_id} pending={pending === id}
             onSelect={(idOfBook) => setSelected((current) => ({ ...current, [id]: idOfBook }))}
             onSkip={canDecide ? () => approve({ review_id: id, action: "skip" }) : undefined}
-            onCreate={canDecide && canCreateFromReview(item)
-              ? (edition) => approve({ review_id: id, action: "create", edition, book_id }) : undefined}
+            createReferences={canCreate ? creationReferences(catalogBooks, item) : undefined}
+            onCreate={canCreate
+              ? (edition, reference) => approve({ review_id: id, action: "create", edition, book_id: reference })
+              : undefined}
             onMerge={canDecide && reviewSource(item) && book_id
               ? () => approve({ review_id: id, action: "merge", book_id }) : undefined}
             onResume={canManageIngest && saved ? () => approve(saved) : undefined} />;

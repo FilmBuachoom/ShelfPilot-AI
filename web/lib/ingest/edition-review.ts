@@ -22,6 +22,7 @@ const attachedWordStart = /^[\p{L}\p{M}\p{N}]/u;
 const attachedWordEnd = /[\p{L}\p{M}\p{N}]$/u;
 const editionPrefix = /(?:^|[^\p{L}\p{M}\p{N}])(?:ฉบับ(?:พิมพ์)?|ประเภท)$/u;
 const volumeMarker = /(?:เล่ม(?:ที่)?\s*|\bvol(?:ume)?\.?\s*|#\s*)(\d+(?:\.\d+)?)(?![\d.])/giu;
+const compoundPrefix = /(?:ชุดพิเศษ|บ็อกซ์\s*เซ(?:็ต|ต)|box[\s-]*set|special[\s-]+set|บิ๊กบุ๊ก|บิ๊กบุ๊ค|big[\s-]*book)\s*[(（[:：–—-]\s*(?:ฉบับ(?:พิมพ์)?\s*)?$/iu;
 
 function hasAffirmativeOccurrence(text: string, quote: string, firstOffset: number, title?: string | null): boolean {
   const titleText = title ? normalizeSourceText(title) : "";
@@ -34,6 +35,7 @@ function hasAffirmativeOccurrence(text: string, quote: string, firstOffset: numb
 
     const precedingText = text.slice(Math.max(0, offset - 40), offset);
     if (precedingNegation.test(precedingText)) continue;
+    if (compoundPrefix.test(precedingText)) continue;
     if (attachedWordEnd.test(precedingText) && !editionPrefix.test(precedingText)) continue;
     const followingText = text.slice(end);
     if (attachedWordStart.test(followingText) && !/^(?:เล่ม|巻)/u.test(followingText)) continue;
@@ -68,29 +70,35 @@ export function getEditionReview(item: EditionSignals, rawText: string): Edition
   return null;
 }
 
-/** Scope quoted evidence to one title and volume in a multi-book announcement. */
+/** Scope quoted evidence using the source rows as well as the extracted items. */
 export function getItemEditionReview(item: NormalizedItem, items: readonly NormalizedItem[], rawText: string, matchConfidence?: number): EditionReview | null {
+  const title = normalizeSourceText(item.title ?? "").toLowerCase();
+  const rows = rawText.split(/\r?\n/).map((line) => ({
+    line, normalizedText: normalizeSourceText(line).toLowerCase(),
+    volumes: new Set(Array.from(arabicDigits(line).matchAll(volumeMarker), ([, number]) => Number(number))),
+  }));
+  const numberedRows = rows.filter(({ volumes }) => volumes.size > 0);
+  const repeatedTitle = !!title && rows.filter(({ normalizedText }) => normalizedText.includes(title)).length > 1;
+  const competingVolumes = repeatedTitle || numberedRows.length > 1 || numberedRows.some(({ volumes }) =>
+    volumes.size > 1 || (item.volume !== null && !volumes.has(item.volume)));
   let evidenceText = rawText;
-  if (items.length > 1) {
-    const title = normalizeSourceText(item.title ?? "").toLowerCase();
+  if (items.length > 1 || competingVolumes) {
     const others = items.filter((other) => other !== item).map((other) => ({
       title: normalizeSourceText(other.title ?? "").toLowerCase(), volume: other.volume,
     }));
-    const lines = title && rawText.split(/\r?\n/).filter((line) => {
-      const lower = normalizeSourceText(line).toLowerCase();
-      if (!lower.includes(title)) return false;
-      const volumes = new Set(Array.from(arabicDigits(line).matchAll(volumeMarker), ([, number]) => Number(number)));
+    const lines = title && rows.filter(({ normalizedText, volumes }) => {
+      if (!normalizedText.includes(title)) return false;
       const [volume] = volumes;
-      if (volumes.size > 1 || (volume !== undefined && item.volume !== null && volume !== item.volume)) {
+      if (volumes.size > 1 || (competingVolumes && (item.volume === null || volume !== item.volume))) {
         return false;
       }
-      return !others.some((other) => other.title && lower.includes(other.title)
+      return !others.some((other) => other.title && normalizedText.includes(other.title)
         && (volume === undefined || other.volume === null || other.volume === volume));
     });
     if (!lines || lines.length !== 1) {
       return { status: "needs_review", reason: "ต้องยืนยันว่าหลักฐานฉบับเป็นของรายการนี้" };
     }
-    evidenceText = lines[0];
+    evidenceText = lines[0].line;
   }
   return getEditionReview(item, evidenceText)
     ?? (matchConfidence === undefined ? null : getEditionReview({ ...item, edition_confidence: matchConfidence }, evidenceText));

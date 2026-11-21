@@ -1,8 +1,38 @@
 import common from "../../../schemas/common.schema.json";
-import type { Edition, ReviewQueue, Source } from "@/types/generated";
+import { normalizeTitle } from "@/lib/search/normalize";
+import type { Book, Edition, ReviewQueue, Source } from "@/types/generated";
 import type { NormalizedItem, ReviewResolution } from "./contracts";
 
 export type ReviewItem = ReviewQueue["items"][number];
+
+export function matchingPublicationBooks(books: readonly Book[], title: string, anchors: readonly Book[]) {
+  const seriesIds = new Set(anchors.map(({ series_id }) => series_id));
+  const titles = [title, ...anchors.flatMap((book) => [book.title, ...book.aliases])];
+  const normalizedTitles = new Set(titles.map(normalizeTitle).filter(Boolean));
+  return books.filter((book) => seriesIds.has(book.series_id)
+    || [book.title, ...book.aliases].some((name) => normalizedTitles.has(normalizeTitle(name))));
+}
+
+export function reviewPublicationBooks(books: readonly Book[], item: ReviewItem) {
+  const { title, matched_book_id } = item.extracted;
+  const knownIds = new Set(item.candidates.map(({ book_id }) => book_id));
+  if (typeof matched_book_id === "string") knownIds.add(matched_book_id);
+  const anchors = books.filter(({ book_id }) => knownIds.has(book_id));
+  return matchingPublicationBooks(books, typeof title === "string" ? title : "", anchors);
+}
+
+export function creationReferences(books: readonly Book[], item: ReviewItem) {
+  const volume = item.extracted.volume;
+  if (typeof volume !== "number") return [];
+  const references = new Map<string, Book>();
+  for (const book of reviewPublicationBooks(books, item)) {
+    const prior = references.get(book.series_id);
+    if (!prior || Math.abs(book.volume - volume) < Math.abs(prior.volume - volume)) {
+      references.set(book.series_id, book);
+    }
+  }
+  return [...references.values()];
+}
 
 function isRecordId(value: unknown): value is string {
   return typeof value === "string" && !!value.trim() && value.length <= 200;
