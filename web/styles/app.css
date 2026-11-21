@@ -85,10 +85,20 @@ button.sp-stat:hover { background: var(--line); }
 .sp-item__thumb { display: grid; place-items: center; color: var(--ink-muted); }
 .sp-book__title a:focus-visible { outline-offset: -1px; }
 .sp-book__why { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sp-book__why-button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-family: inherit;
+  text-align: start;
+  text-decoration: underline;
+  cursor: pointer;
+}
 .sp-book__sub .sp-badge { margin-bottom: 4px; }
 
 .sp-feed { padding: var(--space-5) 0 var(--space-7); }
 .sp-feed-head { padding: 0 var(--space-4) var(--space-4); }
+.sp-recommend-head { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
 .sp-feed-section { border-top: 1px solid var(--line); padding-top: var(--space-4); }
 .sp-feed-empty { margin: 0; padding: var(--space-3) var(--space-4) var(--space-5); color: var(--ink-muted); font-size: var(--text-body-sm-size); }
 
@@ -105,7 +115,7 @@ button.sp-stat:hover { background: var(--line); }
 .sp-diff { display: grid; white-space: normal; }
 .sp-form { margin-top: var(--space-3); display: grid; gap: var(--space-4); }
 .sp-field { display: grid; gap: var(--space-1); font-size: var(--text-body-sm-size); }
-.sp-field select, .sp-field textarea {
+.sp-field :is(select, textarea, input[type="text"], input[type="url"]) {
   width: 100%;
   background: var(--surface);
   color: var(--ink);
@@ -131,6 +141,25 @@ button.sp-stat:hover { background: var(--line); }
 .sp-conf__bar--verified::-webkit-meter-optimum-value { background: var(--verified-ink); }
 .sp-conf__bar--verified::-moz-meter-bar { background: var(--verified-ink); }
 
+.sp-assistant-icon {
+  display: block;
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+}
+.sp-assistant-icon img {
+  position: absolute;
+  width: 34px;
+  max-width: none;
+  height: 34px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-52%, -44.5%);
+}
 .sp-assistant-panel { display: none; min-width: 0; }
 .sp-app--assistant-route .sp-assistant-panel { display: flex; flex: 1; flex-direction: column; }
 .sp-assistant { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--space-4); }
@@ -141,6 +170,16 @@ button.sp-stat:hover { background: var(--line); }
 .sp-composer__send:disabled, .sp-chip:disabled { opacity: .55; cursor: not-allowed; }
 .sp-chat { overflow-wrap: anywhere; overflow: auto; }
 .sp-msg-user, .sp-msg-ai__body p { white-space: pre-wrap; }
+.sp-reply-caret {
+  display: inline-block;
+  width: 0.45em;
+  height: 0.85em;
+  margin-inline-start: 0.12em;
+  vertical-align: -0.06em;
+  border-radius: 2px;
+  background: var(--ink-muted);
+}
+
 
 @media (max-width: 480px) {
   .sp-review__grid { grid-template-columns: minmax(0, 1fr); }

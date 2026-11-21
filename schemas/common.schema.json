@@ -4,6 +4,7 @@
   "$defs": {
     "edition": {
       "title": "Edition",
+      "type": "string",
       "enum": ["manga", "light_novel", "special_set", "big_book"]
     },
     "match_status": {

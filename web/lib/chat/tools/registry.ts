@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getSeriesStatus, type SeriesStatusArgs } from "./series-status";
 import { createCitationGuard } from "@/lib/chat/citation-guard";
 import type { Catalog, UserShelf } from "@/types/generated";
 import {
@@ -32,6 +33,17 @@ export function createChatToolRegistry({ catalog, shelf }: ChatToolContext) {
       search_catalog(args: SearchCatalogArgs) {
         const result = searchCatalogTool(catalog, args);
         recordBooks(result.groups.flatMap(({ books }) => books));
+        return result;
+      },
+      get_series_status(args: SeriesStatusArgs) {
+        const result = getSeriesStatus(catalog, shelf, args);
+        if (result.found) {
+          citations.record({
+            book_ids: [...result.owned, ...result.missing, ...result.upcoming, result.latest]
+              .map(({ book_id }) => book_id),
+            source_ids: result.latest.source_ids,
+          });
+        }
         return result;
       },
       list_releases(args: ListReleasesArgs) {

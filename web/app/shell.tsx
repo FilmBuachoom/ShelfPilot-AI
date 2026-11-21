@@ -7,6 +7,7 @@ import { BottomNav } from "@/components/BottomNav/BottomNav";
 import { Button } from "@/components/Button/Button";
 import { useSingleActionGuard } from "@/components/Button/use-single-action-guard";
 import { Icon } from "@/components/icons";
+import { useChat } from "@/lib/chat/use-chat";
 import { AssistantScreen } from "./assistant/assistant-screen";
 import { AssistantPanelContext } from "./assistant/panel";
 import { ShelfScreen } from "./shelf-screen";
@@ -14,6 +15,7 @@ import { ShelfScreen } from "./shelf-screen";
 export function AppShell({ aiEnabled, children }: { aiEnabled: boolean; children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const chat = useChat();
   const [panelOpen, setPanelOpen] = useState(false);
   const assistantRoute = aiEnabled && pathname === "/assistant";
   const showPanel = aiEnabled && (assistantRoute || panelOpen);
@@ -58,7 +60,7 @@ export function AppShell({ aiEnabled, children }: { aiEnabled: boolean; children
               <span>ผู้ช่วย</span>
               <Button variant="ghost" size="sm" aria-label="ปิดผู้ช่วย" onClick={closeAssistant}><Icon name="close" size={18} /></Button>
             </div>
-            {assistantRoute ? children : <AssistantScreen />}
+            <AssistantScreen {...chat} />
           </section>
         )}
         <BottomNav pathname={pathname} aiEnabled={aiEnabled} />

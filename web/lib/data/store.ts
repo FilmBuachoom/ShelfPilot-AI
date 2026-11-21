@@ -4,21 +4,24 @@ import { mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { DataFiles } from "@/types/generated";
 import { dataPath } from "./paths";
+import {
+  readSupabaseCatalog, readSupabaseReviewQueue, readSupabaseShelf, usesSupabaseDemo,
+} from "./supabase-demo";
 
 async function readJson<File extends keyof DataFiles>(file: File): Promise<DataFiles[File]> {
   return JSON.parse(await readFile(dataPath(file), "utf8")) as DataFiles[File];
 }
 
 export function readCatalog() {
-  return readJson("catalog.json");
+  return usesSupabaseDemo() ? readSupabaseCatalog() : readJson("catalog.json");
 }
 
 export function readShelf() {
-  return readJson("user_shelf.json");
+  return usesSupabaseDemo() ? readSupabaseShelf() : readJson("user_shelf.json");
 }
 
 export function readReviewQueue() {
-  return readJson("review_queue.json");
+  return usesSupabaseDemo() ? readSupabaseReviewQueue() : readJson("review_queue.json");
 }
 
 export async function writeJsonAtomic(file: string, data: unknown): Promise<void> {
@@ -44,6 +47,7 @@ export async function updateJsonAtomic<File extends keyof DataFiles>(
   file: File,
   update: (current: DataFiles[File]) => DataFiles[File],
 ): Promise<DataFiles[File]> {
+  if (usesSupabaseDemo()) throw new Error("File updates are disabled in Supabase demo mode.");
   const destination = dataPath(file);
   const previous = pendingUpdates.get(destination);
   // Keep each read/modify/write together across concurrent requests in the local server.
