@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { MouseEventHandler } from "react";
 import { AssistantIcon } from "../AssistantIcon/AssistantIcon";
 import { Icon } from "../icons";
 
@@ -13,7 +14,7 @@ export function BottomNav({ pathname, aiEnabled, onAssistant, panelOpen, rail = 
   pathname: string;
   aiEnabled: boolean;
   rail?: boolean;
-  onAssistant?: () => void;
+  onAssistant?: MouseEventHandler<HTMLButtonElement>;
   panelOpen?: boolean;
 }) {
   return (

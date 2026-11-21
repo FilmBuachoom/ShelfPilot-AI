@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ComponentProps } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type RefObject } from "react";
 import { ApprovalSheet } from "@/components/ApprovalSheet/ApprovalSheet";
 import { ChatMessage } from "@/components/ChatMessage/ChatMessage";
 import { Composer } from "@/components/Composer/Composer";
@@ -18,7 +18,8 @@ const quickChips: { label: string; action?: QuickAction }[] = [
   { label: "จัดงบ 500 บาท" },
 ];
 
-export function AssistantScreen({ messages = [], finishProposal, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
+export function AssistantScreen({ inputRef, messages = [], finishProposal, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
+  inputRef: RefObject<HTMLTextAreaElement | null>;
   messages?: Message[];
   finishProposal?: (outcome: "confirmed" | "cancelled" | "editing") => void;
   onSend?: (message: string) => void;
@@ -29,9 +30,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
 }) {
   const reviewing = Boolean(messages.at(-1)?.proposal);
   const [draft, setDraft] = useState("");
-  const input = useRef<HTMLTextAreaElement>(null);
   const log = useRef<HTMLDivElement>(null);
-  useEffect(() => { input.current?.focus(); }, []);
   useEffect(() => {
     const container = log.current;
     if (!container) return;
@@ -46,7 +45,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
   return (
     <div className="sp-assistant">
       {messages.length > 0 ? (
-        <div ref={log} className="sp-chat" role="log" aria-label="บทสนทนา">
+        <div ref={log} className="sp-chat" role="log" aria-label="บทสนทนา" tabIndex={0}>
           {messages.map(({ id, proposal, ...message }) => (
             <ChatMessage key={id} {...message}
               reveal={id === revealId && onRevealComplete ? { id, onComplete: onRevealComplete } : undefined}>
@@ -56,7 +55,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
                 onEdit={() => {
                   setDraft(proposal.user_text);
                   finishProposal("editing");
-                  requestAnimationFrame(() => input.current?.focus());
+                  requestAnimationFrame(() => inputRef.current?.focus());
                 }} />}
             </ChatMessage>
           ))}
@@ -75,7 +74,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
               onClick={onQuick && !pending && !reviewing ? () => onQuick(label, action) : undefined} />
           ))}
         </div>
-        <Composer disabled={pending || reviewing} maxLength={MAX_MESSAGE_LENGTH} inputRef={input} value={draft} onChange={setDraft} onSend={onSend && ((message) => {
+        <Composer disabled={pending || reviewing} maxLength={MAX_MESSAGE_LENGTH} inputRef={inputRef} value={draft} onChange={setDraft} onSend={onSend && ((message) => {
           onSend(message);
           setDraft("");
         })} />
