@@ -23,7 +23,7 @@ function MatchDetails({ decision }: { decision: MatchDecision }) {
   </div>;
 }
 
-export function ImportExtractForm({ onImported }: { onImported?: () => void }) {
+export function ImportExtractForm({ onImported, reviewActive = false }: { onImported?: () => void; reviewActive?: boolean }) {
   const [rawText, setRawText] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [publisher, setPublisher] = useState("");
@@ -85,7 +85,7 @@ export function ImportExtractForm({ onImported }: { onImported?: () => void }) {
           </div>
         </div>
         <div className="sp-inline">
-          <Button type="submit" variant="action" disabled={pending || !rawText.trim() || !sourceUrl.trim()}>
+          <Button type="submit" variant={reviewActive ? "default" : "action"} disabled={pending || !rawText.trim() || !sourceUrl.trim()}>
             {pending ? "กำลังประมวลผลประกาศ…" : "Import / Extract"}
           </Button>
         </div>

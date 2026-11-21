@@ -88,7 +88,7 @@ export function ReviewQueueItem({
             </div>}
             <Button size="sm" disabled={pending || !onCreate || !edition || (createReferences.length > 1 && !referenceBook)}
               onClick={() => { if (edition) onCreate?.(edition, referenceBook?.book_id); }}>สร้างรายการใหม่</Button>
-            <Button size="sm" disabled={pending || !onMerge || !selected} onClick={onMerge}>
+            <Button size="sm" variant={onMerge && selected ? "action" : "default"} disabled={pending || !onMerge || !selected} onClick={onMerge}>
               ตรวจและรวม
             </Button>
           </>

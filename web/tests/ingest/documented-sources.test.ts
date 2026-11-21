@@ -96,10 +96,10 @@ test("QA-11-1: Phoenix announcement and regular listing append two sources to on
   expect((await readCatalog()).books[0].sources).toEqual(addedSources);
 });
 
-test("QA-11-2: the Thai, Japanese and English names reach the same Phoenix series", async () => {
+test("QA-11-2: Thai, Japanese, English and short names reach the same Phoenix series", async () => {
   await writeFile(catalogFile, JSON.stringify(catalog));
-  const queries = [regular.title, "薬屋のひとりごと", "The Apothecary Diaries"];
-  expect(regular.aliases).toEqual(queries.slice(1));
+  const queries = [regular.title, "薬屋のひとりごと", "The Apothecary Diaries", "หมอยาฯ"];
+  expect(regular.aliases).toEqual(queries.slice(1, 3));
   vi.mocked(callStructured).mockImplementation(async ({ messages }) => {
     const userMessage = messages.at(-1)?.content;
     if (typeof userMessage !== "string") throw new Error("Expected a matcher payload");
@@ -119,7 +119,7 @@ test("QA-11-2: the Thai, Japanese and English names reach the same Phoenix serie
     expect(match?.candidate_book_id).toBe(regular.book_id);
     expect(match?.rejectedCandidate).toBeUndefined();
   }
-  expect(callStructured).toHaveBeenCalledTimes(3);
+  expect(callStructured).toHaveBeenCalledTimes(4);
 });
 
 test("QA-12-1: an explicit special set stays distinct and missing edition requires approval", async () => {
