@@ -1,13 +1,10 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
+import { Badge, EditionBadge } from "@/components/Badge/Badge";
+import { Button } from "@/components/Button/Button";
 import type { PipelineResult } from "@/lib/ingest/contracts";
-import "./design.css";
 import "./import.css";
-
-const editionLabels = {
-  manga: "มังงะ", light_novel: "นิยาย", special_set: "บ็อกซ์เซ็ต", big_book: "บิ๊กบุ๊ก",
-};
 
 export function ImportExtractForm() {
   const [rawText, setRawText] = useState("");
@@ -42,35 +39,40 @@ export function ImportExtractForm() {
   }
 
   return (
-    <section className="sp-import" aria-labelledby="import-title">
-      <header className="sp-import__header">
-        <p className="sp-import__eyebrow">ShelfPilot · Admin</p>
-        <h1 id="import-title">นำเข้าประกาศหนังสือ</h1>
-        <p>วางข้อความจากประกาศสำนักพิมพ์ที่ได้รับอนุญาต พร้อม URL ต้นทาง</p>
-      </header>
-      <form onSubmit={submit} aria-busy={pending}>
-        <label htmlFor="import-text">ข้อความประกาศ</label>
-        <textarea id="import-text" required maxLength={30000} rows={8} value={rawText}
-          onChange={(event) => setRawText(event.target.value)} disabled={pending}
-          placeholder="วางข้อความประกาศที่นี่" />
-        <div className="sp-import__fields">
-          <div><label htmlFor="import-url">URL ต้นทาง</label>
-            <input id="import-url" type="url" required maxLength={2048} value={sourceUrl}
-              onChange={(event) => setSourceUrl(event.target.value)} disabled={pending} placeholder="https://…" /></div>
-          <div><label htmlFor="import-publisher">สำนักพิมพ์ <span>(ไม่บังคับ)</span></label>
-            <input id="import-publisher" maxLength={200} value={publisher}
-              onChange={(event) => setPublisher(event.target.value)} disabled={pending} /></div>
+    <section className="sp-section sp-import" aria-labelledby="import-title">
+      <h2 id="import-title">นำเข้าประกาศหนังสือ</h2>
+      <p className="sp-muted">วางข้อความจากประกาศสำนักพิมพ์ที่ได้รับอนุญาต พร้อม URL ต้นทาง</p>
+      <form className="sp-form" onSubmit={submit} aria-busy={pending}>
+        <div className="sp-field">
+          <label htmlFor="import-text">ข้อความประกาศ</label>
+          <textarea id="import-text" required maxLength={30000} rows={5} value={rawText}
+            onChange={(event) => setRawText(event.target.value)} disabled={pending}
+            placeholder="วางข้อความประกาศที่นี่" />
         </div>
-        <button type="submit" className="sp-btn sp-btn--action" disabled={pending}>
-          {pending ? "กำลังสกัดข้อมูล…" : "Import / Extract"}
-        </button>
+        <div className="sp-import__fields">
+          <div className="sp-field">
+            <label htmlFor="import-url">URL ต้นทาง</label>
+            <input id="import-url" type="url" required maxLength={2048} value={sourceUrl}
+              onChange={(event) => setSourceUrl(event.target.value)} disabled={pending} placeholder="https://…" />
+          </div>
+          <div className="sp-field">
+            <label htmlFor="import-publisher">สำนักพิมพ์ <span className="sp-muted">(ไม่บังคับ)</span></label>
+            <input id="import-publisher" type="text" maxLength={200} value={publisher}
+              onChange={(event) => setPublisher(event.target.value)} disabled={pending} />
+          </div>
+        </div>
+        <div className="sp-inline">
+          <Button type="submit" variant="action" disabled={pending || !rawText.trim() || !sourceUrl.trim()}>
+            {pending ? "กำลังสกัดข้อมูล…" : "Import / Extract"}
+          </Button>
+        </div>
       </form>
       {error && <p className="sp-import__error" role="alert">{error}</p>}
       <div aria-live="polite" aria-atomic="true">
         {result && <section className="sp-import__result" aria-label="ผลการสกัดข้อมูล">
           <div className="sp-import__result-head">
-            <h2>ผลการสกัดข้อมูล</h2>
-            <span className="sp-badge sp-badge--muted">{result.status === "dry_run" ? "ยังไม่บันทึก" : "นำเข้าแล้ว"}</span>
+            <h3>ผลการสกัดข้อมูล</h3>
+            <Badge variant="muted">{result.status === "dry_run" ? "ยังไม่บันทึก" : "นำเข้าแล้ว"}</Badge>
           </div>
           <p>{result.message}</p>
           <p className="sp-import__source">source_id · <code>{result.source.source_id}</code></p>
@@ -79,7 +81,7 @@ export function ImportExtractForm() {
               <thead><tr><th scope="col">ชื่อเรื่อง</th><th scope="col">เล่ม</th><th scope="col">ฉบับ</th><th scope="col">วันวางจำหน่าย</th><th scope="col">ความละเอียดวันที่</th></tr></thead>
               <tbody>{result.extraction.items.map((item, index) => <tr key={index}>
                 <td>{item.title ?? "ไม่ระบุ"}</td><td>{item.volume ?? "ไม่ระบุ"}</td>
-                <td><span className={`sp-badge ${item.edition ? "sp-badge--edition" : "sp-badge--review"}`}>{item.edition ? editionLabels[item.edition] : "ไม่ระบุ"}</span></td>
+                <td>{item.edition ? <EditionBadge edition={item.edition} /> : <Badge variant="review">ไม่ระบุ</Badge>}</td>
                 <td>{item.release_date ?? "ไม่ระบุวัน"}</td>
                 <td>{{ day: "วัน", month: "เดือน", unknown: "ไม่ระบุ" }[item.release_date_precision]}</td>
               </tr>)}</tbody>

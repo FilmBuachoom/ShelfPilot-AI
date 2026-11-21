@@ -7,7 +7,6 @@ import common from "../../../schemas/common.schema.json";
 import { callStructured, LlmUnavailableError } from "@/lib/llm/client";
 import { extractModel } from "@/lib/llm/models";
 import type { Extraction } from "@/types/generated/extraction";
-import { dataPath } from "@/lib/data/paths";
 import { normalizeItem } from "./normalize";
 import type { IngestInput, NormalizedExtraction } from "./contracts";
 
@@ -21,7 +20,9 @@ export const extractionSchema = {
 let prompt: Promise<string> | undefined;
 
 export async function extractAnnouncement(input: IngestInput): Promise<NormalizedExtraction> {
-  prompt ??= readFile(path.resolve(dataPath(".."), "web/prompts/extract-system.md"), "utf8")
+  const cwd = process.cwd();
+  const webRoot = path.basename(cwd) === "web" ? cwd : path.join(cwd, "web");
+  prompt ??= readFile(path.join(webRoot, "prompts/extract-system.md"), "utf8")
     .catch((error) => { prompt = undefined; throw error; });
   const result = await callStructured<Extraction>({
     model: extractModel,

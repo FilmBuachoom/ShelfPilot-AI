@@ -37,3 +37,27 @@ export async function writeJsonAtomic(file: string, data: unknown): Promise<void
     await rm(tempDir, { recursive: true, force: true });
   }
 }
+
+const pendingUpdates = new Map<string, Promise<unknown>>();
+
+export async function updateJsonAtomic<File extends keyof DataFiles>(
+  file: File,
+  update: (current: DataFiles[File]) => DataFiles[File],
+): Promise<DataFiles[File]> {
+  const destination = dataPath(file);
+  const previous = pendingUpdates.get(destination);
+  // Keep each read/modify/write together across concurrent requests in the local server.
+  const next = (previous?.catch(() => undefined) ?? Promise.resolve()).then(async () => {
+    const current = await readJson(file);
+    const updated = update(current);
+    if (updated !== current) await writeJsonAtomic(destination, updated);
+    return updated;
+  });
+
+  pendingUpdates.set(destination, next);
+  try {
+    return await next;
+  } finally {
+    if (pendingUpdates.get(destination) === next) pendingUpdates.delete(destination);
+  }
+}

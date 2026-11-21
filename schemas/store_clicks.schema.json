@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "store_clicks.schema.json",
+  "title": "StoreClicks",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["events"],
+  "properties": {
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["book_id", "clicked_at"],
+        "properties": {
+          "book_id": { "$ref": "common.schema.json#/$defs/book_id" },
+          "clicked_at": { "$ref": "common.schema.json#/$defs/iso_date" }
+        }
+      }
+    }
+  }
+}

@@ -30,6 +30,7 @@ export interface DataFiles {
   "catalog.json": Catalog;
   "user_shelf.json": UserShelf;
   "review_queue.json": ReviewQueue;
+  "store_clicks.json": StoreClicks;
 }
 export interface Catalog {
   books: Book[];
@@ -81,5 +82,11 @@ export interface ReviewQueue {
     reason: string;
     status: "open" | "resolved";
     created_at: IsoDate;
+  }[];
+}
+export interface StoreClicks {
+  events: {
+    book_id: BookId;
+    clicked_at: IsoDate;
   }[];
 }

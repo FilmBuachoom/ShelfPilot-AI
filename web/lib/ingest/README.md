@@ -2,11 +2,10 @@
 
 `POST /api/ingest` accepts `{ raw_text, source_url, publisher_hint? }`. The server
 extracts with the schema in `schemas/extraction.schema.json`, normalizes volumes
-and dates, and returns `{ status, message, source, extraction }`. `/admin` hosts a
-self-contained `ImportExtractForm`; #13 can import that component into its shell.
-The component's scoped Button/Badge CSS and token values copy the design snapshot;
-its form and table styles cover elements absent from the bundle. It does not
-change the global app shell or design snapshot. #13 supplies the shared fonts.
+and dates, and returns `{ status, message, source, extraction }`. On `/admin`,
+`ImportExtractForm` uses the shared ShelfPilot form, button and badge styles and
+appears above the review queue. The extractor prompt is bundled with the app
+and loads independently of `SHELFPILOT_DATA_DIR`.
 
 ## Persistence and integration
 

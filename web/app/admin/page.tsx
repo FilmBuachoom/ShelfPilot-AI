@@ -1,6 +1,7 @@
-import { ImportExtractForm } from "@/components/ImportExtractForm/ImportExtractForm";
+import { readReviewQueue } from "@/lib/data/store";
+import { AdminScreen } from "./admin-screen";
 
-// #13 can embed the form in its admin shell without changing the API or pipeline.
-export default function AdminPage() {
-  return <main><ImportExtractForm /></main>;
+export default async function AdminPage() {
+  const { items } = await readReviewQueue();
+  return <AdminScreen items={items.filter(({ status }) => status === "open")} />;
 }
