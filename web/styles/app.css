@@ -115,7 +115,7 @@ button.sp-stat:hover { background: var(--line); }
 .sp-diff { display: grid; white-space: normal; }
 .sp-form { margin-top: var(--space-3); display: grid; gap: var(--space-4); }
 .sp-field { display: grid; gap: var(--space-1); font-size: var(--text-body-sm-size); }
-.sp-field select, .sp-field textarea {
+.sp-field :is(select, textarea, input[type="text"], input[type="url"]) {
   width: 100%;
   background: var(--surface);
   color: var(--ink);
