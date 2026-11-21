@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "user_shelf.schema.json",
+  "title": "UserShelf",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["owned", "updated_at"],
+  "properties": {
+    "owned": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["book_id", "added_at"],
+        "properties": {
+          "book_id": { "$ref": "common.schema.json#/$defs/book_id" },
+          "added_at": { "$ref": "common.schema.json#/$defs/iso_date" }
+        }
+      }
+    },
+    "updated_at": { "$ref": "common.schema.json#/$defs/iso_date" }
+  }
+}

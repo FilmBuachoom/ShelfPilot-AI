@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "source.schema.json",
+  "title": "Source",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source_id", "source_url", "raw_text", "publisher", "imported_at"],
+  "properties": {
+    "source_id": { "$ref": "common.schema.json#/$defs/source_id" },
+    "source_url": { "type": "string", "format": "uri" },
+    "raw_text": { "type": "string" },
+    "publisher": { "type": "string" },
+    "posted_at": { "$ref": "common.schema.json#/$defs/iso_date" },
+    "imported_at": { "$ref": "common.schema.json#/$defs/iso_date" }
+  }
+}
