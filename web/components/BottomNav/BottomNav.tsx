@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AssistantIcon } from "../AssistantIcon/AssistantIcon";
 import { Icon } from "../icons";
 
 const navItems = [
@@ -22,7 +23,7 @@ export function BottomNav({ pathname, aiEnabled, onAssistant, panelOpen, rail = 
         const { href, label, icon } = item;
         const active = pathname === href || (href === "/" && pathname.startsWith("/series/"));
         const className = `sp-nav__item${active ? " sp-nav__item--active" : ""}`;
-        const content = <><Icon name={icon} /><span>{label}</span></>;
+        const content = <>{icon === "chat" ? <AssistantIcon /> : <Icon name={icon} />}<span>{label}</span></>;
         return href === "/assistant" && rail && onAssistant ? (
           <button key={href} id="assistant-panel-toggle" type="button" className={className} aria-expanded={panelOpen}
             aria-controls={panelOpen ? "assistant-panel" : undefined} onClick={onAssistant}>{content}</button>
