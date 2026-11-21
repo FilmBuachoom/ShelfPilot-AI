@@ -110,3 +110,57 @@ test("allows only citations exposed in this turn and present in the catalog", ()
     warn.mockRestore();
   }
 });
+
+test("previews mixed shelf changes and leaves the catalog and shelf intact", () => {
+  const alpha = [9, 10, 11, 12].map((volume) => book({ volume, book_id: `a-${volume}` }));
+  const beta = book({ book_id: "b-14", series_id: "series-b", title: "Beta", aliases: [], volume: 14 });
+  const context = fixtures([...alpha, beta], ["a-9", "b-14"]);
+  const before = structuredClone(context);
+  const turn = createChatToolRegistry(context);
+
+  const result = turn.tools.propose_shelf_update({
+    user_text: "Add Alpha 9–13 and remove Beta 14–15",
+    items: [
+      { title_query: "อัลฟา", volumes: "๙–๑๓", action: "add" },
+      { title_query: "Alpha", volumes: "12", action: "add" },
+      { title_query: "Beta", volumes: "14–15", action: "remove" },
+    ],
+  });
+
+  expect(result).toMatchObject({
+    status: "proposal",
+    items: [
+      { series_id: "series-a", add: ["a-10", "a-11", "a-12"], already_owned: [9], not_found_volumes: [13] },
+      { series_id: "series-b", remove: ["b-14"], not_found_volumes: [15] },
+    ],
+    total: 4,
+  });
+  expect(turn.guardCitations({ book_ids: ["a-9", "a-10"], source_ids: ["source-a"] }))
+    .toEqual({ book_ids: ["a-10"], source_ids: [] });
+  expect(context).toEqual(before);
+});
+
+test("requires clarification for ambiguous editions, fuzzy-only matches, and conflicting actions", () => {
+  const { tools } = createChatToolRegistry(fixtures([
+    book(),
+    book({ book_id: "novel", edition: "light_novel" }),
+  ]));
+  const intent = { title_query: "Alpha", volumes: "9", action: "add" } as const;
+
+  expect(tools.propose_shelf_update({ user_text: "Add Alpha 9", items: [intent] })).toMatchObject({
+    status: "needs_clarification",
+    reason: "ambiguous_title",
+    options: [{ edition: "manga" }, { edition: "light_novel" }],
+  });
+  expect(tools.propose_shelf_update({
+    user_text: "Add Alpa 9",
+    items: [{ ...intent, title_query: "Alpa", edition: "manga" }],
+  })).toMatchObject({ status: "needs_clarification", reason: "ambiguous_title" });
+  const mangaIntent = { ...intent, edition: "manga" } as const;
+  expect(tools.propose_shelf_update({ user_text: "Add Alpha manga 9", items: [mangaIntent] }))
+    .toMatchObject({ status: "proposal", items: [{ add: ["a-9"] }] });
+  expect(tools.propose_shelf_update({
+    user_text: "Add and remove Alpha manga 9",
+    items: [mangaIntent, { ...mangaIntent, action: "remove" }],
+  })).toMatchObject({ status: "needs_clarification", reason: "conflicting_actions", volume: 9 });
+});

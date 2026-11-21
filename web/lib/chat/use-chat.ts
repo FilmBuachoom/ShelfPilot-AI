@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useCatalog } from "@/lib/data/catalog-provider";
-import type { ChatAnswer } from "@/types/generated/chat-answer";
+import type { ChatAnswer, ShelfProposal } from "@/types/generated/chat-answer";
 import { answerQuick, type QuickAction } from "./quick";
 import { CHAT_RATE_LIMITED, CHAT_UNAVAILABLE, MAX_CHAT_MESSAGES, MAX_MESSAGE_LENGTH, type ChatMessageInput } from "./shared";
 
@@ -12,11 +12,13 @@ type Message = {
   text: string;
   book_ids?: ChatAnswer["book_ids"];
   source_ids?: ChatAnswer["source_ids"];
+  proposal?: ShelfProposal;
 };
 
 export function useChat() {
   const { books, sources, collection } = useCatalog();
   const [messages, setMessages] = useState<Message[]>([]);
+  const proposal = messages.at(-1)?.proposal;
   const [pending, setPending] = useState(false);
   const [revealId, setRevealId] = useState<number>();
   const onRevealComplete = useCallback((id: number) => {
@@ -32,15 +34,16 @@ export function useChat() {
       id,
       role: "assistant",
       text,
+      proposal: answer.proposal,
       book_ids: book_ids.filter((bookId) => books.has(bookId)),
       source_ids: source_ids.filter((sourceId) => sources.has(sourceId)),
     }]);
-    if (animate && text !== CHAT_UNAVAILABLE.text) setRevealId(id);
+    if (!answer.proposal && animate && text !== CHAT_UNAVAILABLE.text) setRevealId(id);
   }
 
   async function onSend(text: string) {
     const content = text.trim();
-    if (!content || content.length > MAX_MESSAGE_LENGTH || inFlight.current) return;
+    if (!content || content.length > MAX_MESSAGE_LENGTH || inFlight.current || proposal) return;
 
     inFlight.current = true;
     setPending(true);
@@ -75,7 +78,7 @@ export function useChat() {
   }
 
   function onQuick(label: string, action?: QuickAction) {
-    if (inFlight.current) return;
+    if (inFlight.current || proposal) return;
     if (!action) {
       void onSend(label);
       return;
@@ -87,5 +90,17 @@ export function useChat() {
     appendReply(answerQuick(action, books, collection.series));
   }
 
-  return { messages, pending, revealId, onRevealComplete, onSend, onQuick };
+  function finishProposal(outcome: "confirmed" | "cancelled" | "editing") {
+    if (!proposal) return;
+    const text = {
+      confirmed: "บันทึกการปรับคลังแล้ว " + proposal.total + " เล่ม",
+      cancelled: "ยกเลิกรายการแล้ว",
+      editing: "แก้ไขคำขอแล้วส่งใหม่เพื่อตรวจรายการ",
+    }[outcome];
+    setMessages((current) => current.map((message) =>
+      message.proposal === proposal ? { ...message, proposal: undefined, text } : message,
+    ));
+  }
+
+  return { messages, finishProposal, pending, revealId, onRevealComplete, onSend, onQuick };
 }

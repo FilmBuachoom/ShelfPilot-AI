@@ -10,6 +10,7 @@ import {
   type SearchCatalogArgs,
   type ToolBook,
 } from "./catalog";
+import { proposeShelfUpdate, type ProposeShelfUpdateArgs } from "./propose-shelf-update";
 
 interface ChatToolContext {
   catalog: Catalog;
@@ -48,6 +49,16 @@ export function createChatToolRegistry({ catalog, shelf }: ChatToolContext) {
       list_releases(args: ListReleasesArgs) {
         const result = listReleases(catalog, args);
         if (result.books) recordBooks(result.books);
+        return result;
+      },
+      propose_shelf_update(args: ProposeShelfUpdateArgs) {
+        const result = proposeShelfUpdate(catalog, shelf, args);
+        if (result.status === "proposal") {
+          citations.record({
+            book_ids: result.items.flatMap(({ add, remove }) => [...add, ...remove]),
+            source_ids: [],
+          });
+        }
         return result;
       },
     },
