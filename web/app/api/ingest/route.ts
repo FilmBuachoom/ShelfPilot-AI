@@ -1,6 +1,8 @@
 import { LlmUnavailableError } from "@/lib/llm/client";
-import { allowsLocalIngestPost } from "@/lib/ingest/access";
+import { SupabaseIngestAccessError } from "@/lib/data/supabase-demo";
+import { allowsIngestPost } from "@/lib/ingest/access";
 import { runPipeline } from "@/lib/ingest/pipeline";
+import { IngestConflictError } from "@/lib/ingest/storage";
 import type { IngestInput } from "@/lib/ingest/contracts";
 
 export const runtime = "nodejs";
@@ -20,8 +22,8 @@ function validInput(value: unknown): value is IngestInput {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  if (!allowsLocalIngestPost(request)) {
-    return Response.json({ error: "Import / Extract ใช้งานได้บนเซิร์ฟเวอร์ทดลองในเครื่องที่ใช้แค็ตตาล็อกแบบไฟล์" }, { status: 404 });
+  if (!allowsIngestPost(request)) {
+    return Response.json({ error: "Import / Extract ใช้งานได้บน localhost หรือ Vercel Preview ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว" }, { status: 404 });
   }
   const contentType = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
   if (contentType !== "application/json") {
@@ -57,6 +59,8 @@ export async function POST(request: Request): Promise<Response> {
   try {
     return Response.json(await runPipeline(input));
   } catch (error) {
+    if (error instanceof IngestConflictError) return Response.json({ error: error.message }, { status: 409 });
+    if (error instanceof SupabaseIngestAccessError) return Response.json({ error: error.message }, { status: 403 });
     return Response.json({
       error: error instanceof LlmUnavailableError
         ? "ยังประมวลผลประกาศไม่ได้ตอนนี้ กรุณาลองอีกครั้ง ข้อความของคุณยังอยู่"

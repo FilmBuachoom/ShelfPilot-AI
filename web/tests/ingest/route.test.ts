@@ -7,6 +7,8 @@ vi.mock("@/lib/ingest/pipeline", () => ({ runPipeline: vi.fn() }));
 beforeEach(() => {
   vi.stubEnv("NODE_ENV", "development");
   vi.stubEnv("VERCEL", undefined);
+  vi.stubEnv("VERCEL_ENV", undefined);
+  vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", undefined);
   vi.stubEnv("SHELFPILOT_DATA_BACKEND", undefined);
 });
 afterEach(() => {
@@ -32,6 +34,41 @@ test("deployed and production requests never reach the extractor", async () => {
   expect(runPipeline).not.toHaveBeenCalled();
 });
 
+test("allows import on Vercel Preview with Supabase, team sign-in and a same-origin request", async () => {
+  vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("VERCEL_ENV", "preview");
+  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase");
+  vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
+  const host = "preview.example.test";
+  const authorization = "Basic " + Buffer.from("shelfpilot:test-team-password").toString("base64");
+  const sameOrigin = { Host: host, Authorization: authorization, Origin: `https://${host}` };
+
+  expect((await POST(request(input, { ...sameOrigin, Authorization: "" }))).status).toBe(404);
+  expect((await POST(request(input, { Host: host, Authorization: authorization }))).status).toBe(404);
+  expect((await POST(request(input, { ...sameOrigin, Origin: "https://other.example.test" }))).status).toBe(404);
+  vi.stubEnv("VERCEL_ENV", "production");
+  expect((await POST(request(input, sameOrigin))).status).toBe(404);
+  vi.stubEnv("VERCEL_ENV", "preview");
+  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "json");
+  expect((await POST(request(input, sameOrigin))).status).toBe(404);
+  expect(runPipeline).not.toHaveBeenCalled();
+
+  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase");
+  vi.mocked(runPipeline).mockResolvedValue({
+    status: "not_imported", message: "ok", extraction: { items: [] }, decisions: [],
+    source: { ...input, source_id: "src_test", publisher: "", imported_at: "2026-01-01T00:00:00Z" },
+  });
+  expect((await POST(request(input, sameOrigin))).status).toBe(200);
+  expect(runPipeline).toHaveBeenCalledExactlyOnceWith(input);
+
+  vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", "true");
+  const judge = { Host: host, Origin: `https://${host}` };
+  expect((await POST(request(input, { ...judge, Origin: "https://other.example.test" }))).status).toBe(404);
+  expect((await POST(request(input, judge))).status).toBe(200);
+  expect(runPipeline).toHaveBeenCalledTimes(2);
+});
+
 test.each<Record<string, string>>([
   { Host: "public.example.test" },
   { Origin: "https://other.example.test" },
@@ -42,7 +79,7 @@ test.each<Record<string, string>>([
   expect(runPipeline).not.toHaveBeenCalled();
 });
 
-test("Supabase demo mode rejects imports before calling the pipeline", async () => {
+test("Supabase mode requires an explicit same-origin request before calling the pipeline", async () => {
   vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase");
   expect((await POST(request(input))).status).toBe(404);
   expect(runPipeline).not.toHaveBeenCalled();

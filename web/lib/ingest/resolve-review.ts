@@ -1,10 +1,10 @@
 import "server-only";
 
-import { readCatalog, readReviewQueue, updateJsonAtomic } from "@/lib/data/store";
 import type { Book, Catalog } from "@/types/generated";
 import { createReviewedBook, mergeReviewedBook } from "./apply";
 import type { ReviewResolution } from "./contracts";
-import { findCompletedReviewSource, withReviewWrite } from "./review-queue";
+import { findCompletedReviewSource } from "./review-queue";
+import { withIngestWrite, type UpdateReviewQueue } from "./storage";
 import {
   canCreateFromReview, parseReviewResolution, pendingReviewResolution, reviewDraft, reviewPublicationBooks, type ReviewItem,
 } from "./review-record";
@@ -80,7 +80,7 @@ function creationReference(
   return relatedBooks[0];
 }
 
-function reopenConflictingCreation(catalog: Catalog, item: ReviewItem) {
+function reopenConflictingCreation(catalog: Catalog, item: ReviewItem, updateReviewQueue: UpdateReviewQueue) {
   const confidence = new Map(item.candidates.map((candidate) => [candidate.book_id, candidate.confidence]));
   const candidates = reviewPublicationBooks(catalog.books, item)
     .filter(({ volume }) => volume === item.extracted.volume)
@@ -88,14 +88,14 @@ function reopenConflictingCreation(catalog: Catalog, item: ReviewItem) {
   const extracted = { ...item.extracted };
   delete extracted.resolution;
   delete extracted.resolution_reference_book_id;
-  return updateJsonAtomic("review_queue.json", (current) => ({
+  return updateReviewQueue((current) => ({
     items: current.items.map((record) => record.review_id === item.review_id
       ? { ...record, extracted, candidates } : record),
   }));
 }
 
-export function resolveReview(resolution: ReviewResolution) {
-  return withReviewWrite(async () => {
+export async function resolveReview(resolution: ReviewResolution) {
+  const conflict = await withIngestWrite(async ({ readCatalog, readReviewQueue, writeCatalog, updateReviewQueue }) => {
     const queue = await readReviewQueue();
     const item = queue.items.find(({ review_id }) => review_id === resolution.review_id);
     if (!item) throw new ReviewResolutionError("ไม่พบรายการตรวจสอบ", 404);
@@ -116,22 +116,23 @@ export function resolveReview(resolution: ReviewResolution) {
       if (!updated) {
         // The approved creation never reached the catalog and a related edition now exists.
         // Clear the recorded choice so the reviewer can select the updated catalog entry.
-        await reopenConflictingCreation(catalog, item);
-        throw new ReviewResolutionError("มีเล่มฉบับนี้อยู่แล้ว กรุณาเลือกตรวจและรวม", 409);
+        await reopenConflictingCreation(catalog, item, updateReviewQueue);
+        return new ReviewResolutionError("มีเล่มฉบับนี้อยู่แล้ว กรุณาเลือกตรวจและรวม", 409);
       }
       if (!previous) {
         // Record the validated choice before writing the catalog so retries can only complete that choice.
-        await updateJsonAtomic("review_queue.json", (current) => ({
+        await updateReviewQueue((current) => ({
           items: current.items.map((record) => record.review_id === item.review_id
             ? { ...record, extracted: { ...record.extracted, resolution, resolution_reference_book_id: referenceBookId } }
             : record),
         }));
       }
-      if (updated !== catalog) await updateJsonAtomic("catalog.json", () => updated);
+      if (updated !== catalog) await writeCatalog(updated);
     }
-    await updateJsonAtomic("review_queue.json", (current) => ({
+    await updateReviewQueue((current) => ({
       items: current.items.map((record) => record.review_id === item.review_id
         ? { ...record, status: "resolved" } : record),
     }));
   });
+  if (conflict) throw conflict;
 }

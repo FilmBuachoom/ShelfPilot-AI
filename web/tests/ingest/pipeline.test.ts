@@ -99,6 +99,50 @@ test("new books go through the API with no match call when the shortlist is empt
   expect(callStructured).toHaveBeenCalledTimes(1);
 });
 
+test("local Supabase admin imports with the team account and commits the book and review together", async () => {
+  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase");
+  vi.stubEnv("SHELFPILOT_SUPABASE_URL", "https://demo.example.test");
+  vi.stubEnv("SHELFPILOT_SUPABASE_PUBLISHABLE_KEY", "fixture-publishable-key");
+  vi.stubEnv("SHELFPILOT_SUPABASE_DEMO_EMAIL", "team@example.test");
+  vi.stubEnv("SHELFPILOT_SUPABASE_DEMO_PASSWORD", "fixture-test-password");
+  const snapshot = { revision: "3", catalog: catalog(), queue: { items: [] } };
+  const fetchMock = vi.spyOn(globalThis, "fetch")
+    .mockResolvedValueOnce(Response.json({ access_token: "fixture-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(new Response(null, { status: 403 }))
+    .mockResolvedValueOnce(Response.json(snapshot))
+    .mockResolvedValueOnce(Response.json(snapshot))
+    .mockResolvedValueOnce(Response.json(true));
+  const mixed = { ...input, raw_text: `${input.raw_text}\nfixture-second · เล่ม 13` };
+  const send = (origin: string) => POST(new Request("http://localhost:3000/api/ingest", {
+    method: "POST", headers: { Host: "localhost:3000", Origin: origin, "Content-Type": "application/json" },
+    body: JSON.stringify(mixed),
+  }));
+  expect((await send("https://other.example.test")).status).toBe(404);
+  expect(fetchMock).not.toHaveBeenCalled();
+
+  expect((await send("http://localhost:3000")).status).toBe(403);
+  expect(callStructured).not.toHaveBeenCalled();
+
+  vi.mocked(callStructured).mockResolvedValueOnce(reply({ items: [
+    { ...item, publisher: original.publisher },
+    { ...item, title: "fixture-second", publisher: original.publisher, edition_evidence: null },
+  ] }));
+  const result = await send("http://localhost:3000");
+  expect(result.status).toBe(200);
+  const sourceId = createSourceId(mixed.raw_text, mixed.source_url);
+  expect(fetchMock.mock.calls.map(([url]) => new URL(String(url)).pathname)).toEqual([
+    "/auth/v1/token", "/rest/v1/rpc/shelfpilot_admin_snapshot", "/rest/v1/rpc/shelfpilot_admin_snapshot",
+    "/rest/v1/rpc/shelfpilot_admin_snapshot", "/rest/v1/rpc/shelfpilot_admin_commit",
+  ]);
+  expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toMatchObject({ email: "team@example.test" });
+  expect(JSON.parse(String(fetchMock.mock.calls[4][1]?.body))).toMatchObject({
+    expected_revision: "3",
+    books: [{ title: item.title, sources: [sourceId] }],
+    sources: [{ source_id: sourceId }],
+    reviews: [{ source_id: sourceId, status: "open" }],
+  });
+});
+
 test("a review-only result and a provider failure leave the catalog unchanged", async () => {
   const before = await readFile(file, "utf8");
   vi.mocked(callStructured)

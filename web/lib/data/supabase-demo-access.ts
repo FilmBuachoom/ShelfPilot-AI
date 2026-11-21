@@ -8,6 +8,14 @@ export function isHostedDemo() {
   return process.env.NODE_ENV !== "development" || process.env.VERCEL === "1";
 }
 
+export function isSupabasePreview() {
+  return process.env.VERCEL === "1" && process.env.VERCEL_ENV === "preview" && usesSupabaseDemo();
+}
+
+export function allowsPreviewJudges() {
+  return isSupabasePreview() && process.env.SHELFPILOT_PREVIEW_JUDGE_ACCESS === "true";
+}
+
 export function hasDemoAccess(authorization: string | null, password: string) {
   const supplied = authorization?.match(/^Basic (\S+)$/i)?.[1];
   if (!supplied) return false;

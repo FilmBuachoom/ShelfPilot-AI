@@ -9,6 +9,7 @@ beforeEach(() => {
   vi.resetModules();
   vi.stubEnv("NODE_ENV", "development");
   vi.stubEnv("VERCEL", undefined);
+  vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", undefined);
   vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase");
   vi.stubEnv("SHELFPILOT_SUPABASE_URL", "https://demo.example.test");
   vi.stubEnv("SHELFPILOT_SUPABASE_PUBLISHABLE_KEY", "fixture-publishable-key");
@@ -49,6 +50,50 @@ test("uses Supabase for catalog reads and the shelf write and subsequent read", 
     headers: { Authorization: "Bearer fixture-token" },
     cache: "no-store",
   });
+});
+
+test("shares a replacement session across reads when a cached token is rejected", async () => {
+  const lateUnauthorized = Promise.withResolvers<Response>();
+  const shelfResponse = shelf();
+  const queueResponse = { items: [] };
+  const fetchMock = vi.fn<typeof fetch>()
+    .mockResolvedValueOnce(Response.json({ access_token: "old-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(Response.json(catalog()))
+    .mockReturnValueOnce(lateUnauthorized.promise)
+    .mockResolvedValueOnce(new Response(null, { status: 401 }))
+    .mockResolvedValueOnce(Response.json({ access_token: "new-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(Response.json(shelfResponse))
+    .mockResolvedValueOnce(Response.json(queueResponse));
+  vi.stubGlobal("fetch", fetchMock);
+
+  const { readSupabaseCatalog, readSupabaseShelf, readSupabaseReviewQueue } = await import("@/lib/data/supabase-demo");
+  await readSupabaseCatalog();
+  const queue = readSupabaseReviewQueue();
+  await expect(readSupabaseShelf()).resolves.toEqual(shelfResponse);
+  lateUnauthorized.resolve(new Response(null, { status: 401 }));
+  await expect(queue).resolves.toEqual(queueResponse);
+
+  expect(fetchMock.mock.calls.map(([url]) => new URL(String(url)).pathname)).toEqual([
+    "/auth/v1/token", "/rest/v1/rpc/shelfpilot_demo_catalog",
+    "/rest/v1/rpc/shelfpilot_demo_review_queue", "/rest/v1/rpc/shelfpilot_demo_shelf",
+    "/auth/v1/token", "/rest/v1/rpc/shelfpilot_demo_shelf", "/rest/v1/rpc/shelfpilot_demo_review_queue",
+  ]);
+  for (const [, options] of fetchMock.mock.calls.slice(-2)) {
+    expect(new Headers(options?.headers).get("Authorization")).toBe("Bearer new-token");
+  }
+});
+
+test("reports a second unauthorized response without replaying the request again", async () => {
+  const fetchMock = vi.fn()
+    .mockResolvedValueOnce(Response.json({ access_token: "old-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(new Response(null, { status: 401 }))
+    .mockResolvedValueOnce(Response.json({ access_token: "new-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(new Response(null, { status: 401 }));
+  vi.stubGlobal("fetch", fetchMock);
+
+  const { readSupabaseShelf } = await import("@/lib/data/supabase-demo");
+  await expect(readSupabaseShelf()).rejects.toThrow("Supabase demo shelf failed (401).");
+  expect(fetchMock).toHaveBeenCalledTimes(4);
 });
 
 test("rejects cross-origin shelf writes without contacting Supabase", async () => {
@@ -111,4 +156,76 @@ test("authorizes a hosted shelf write before calling the Supabase RPC", async ()
     .mockResolvedValueOnce(Response.json(updated));
   expect(await (await POST(request)).json()).toEqual(updated);
   expect(fetchMock.mock.calls[2][0].pathname).toBe("/rest/v1/rpc/shelfpilot_demo_update_shelf");
+});
+
+test("admits judges to the enabled Preview while requiring team sign-in in production", async () => {
+  vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("VERCEL_ENV", "preview");
+  vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
+  vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", "true");
+  requestHeaders.mockResolvedValue(new Headers());
+  const data = catalog();
+  const fetchMock = vi.fn()
+    .mockResolvedValueOnce(Response.json({ access_token: "fixture-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(Response.json(data));
+  vi.stubGlobal("fetch", fetchMock);
+
+  const { proxy } = await import("@/proxy");
+  const { readSupabaseCatalog } = await import("@/lib/data/supabase-demo");
+  const site = "https://preview.example.test";
+  expect(proxy(new NextRequest(site)).headers.get("x-middleware-next")).toBe("1");
+  expect(proxy(new NextRequest(`${site}/api/shelf`, { method: "POST", headers: { origin: "https://other.example.test" } })).status).toBe(403);
+  await expect(readSupabaseCatalog()).resolves.toEqual(data);
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+
+  vi.stubEnv("VERCEL_ENV", "production");
+  expect(proxy(new NextRequest(site)).status).toBe(401);
+  await expect(readSupabaseCatalog()).rejects.toThrow("Team demo sign-in required");
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+
+test.each(["team", "judges"])("lets Preview %s load and resolve the Supabase review queue", async (access) => {
+  vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("VERCEL_ENV", "preview");
+  vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
+  const authorization = "Basic " + Buffer.from("shelfpilot:test-team-password").toString("base64");
+  const site = "https://preview.example.test";
+  const inboundHeaders = new Headers({ origin: site, host: new URL(site).host, "Content-Type": "application/json" });
+  if (access === "team") inboundHeaders.set("authorization", authorization);
+  const request = new Request("http://localhost/api/review/resolve", {
+    method: "POST",
+    headers: inboundHeaders,
+    body: JSON.stringify({ review_id: "review-test", action: "skip" }),
+  });
+  const review = {
+    review_id: "review-test", source_id: "source-test", extracted: {}, candidates: [],
+    reason: "fixture", status: "open", created_at: "2026-11-21T00:00:00Z",
+  };
+  const snapshot = { revision: "2", catalog: catalog(), queue: { items: [review] } };
+  const fetchMock = vi.fn<typeof fetch>()
+    .mockResolvedValueOnce(Response.json({ access_token: "fixture-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(Response.json(snapshot))
+    .mockResolvedValueOnce(Response.json(snapshot))
+    .mockResolvedValueOnce(Response.json(true));
+  vi.stubGlobal("fetch", fetchMock);
+
+  const { readSupabaseIngest } = await import("@/lib/data/supabase-demo");
+  const { POST } = await import("@/app/api/review/resolve/route");
+  requestHeaders.mockResolvedValue(new Headers());
+  await expect(readSupabaseIngest()).rejects.toThrow("Team demo sign-in required");
+  expect(fetchMock).not.toHaveBeenCalled();
+
+  if (access === "judges") vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", "true");
+  requestHeaders.mockResolvedValue(request.headers);
+  await expect(readSupabaseIngest()).resolves.toEqual(snapshot);
+  expect(await (await POST(request)).json()).toEqual({ review_id: "review-test", status: "resolved" });
+  expect(fetchMock.mock.calls.map(([url]) => new URL(String(url)).pathname)).toEqual([
+    "/auth/v1/token", "/rest/v1/rpc/shelfpilot_admin_snapshot",
+    "/rest/v1/rpc/shelfpilot_admin_snapshot", "/rest/v1/rpc/shelfpilot_admin_commit",
+  ]);
+  expect(JSON.parse(String(fetchMock.mock.calls[3][1]?.body))).toEqual({
+    expected_revision: "2", books: [], sources: [], reviews: [{ ...review, status: "resolved" }],
+  });
 });

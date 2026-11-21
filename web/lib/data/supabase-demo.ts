@@ -2,11 +2,17 @@ import "server-only";
 
 import { headers } from "next/headers";
 import type { BookId, Catalog, ReviewQueue, UserShelf } from "@/types/generated";
-import { hasDemoAccess, isHostedDemo } from "./supabase-demo-access";
+import { allowsPreviewJudges, hasDemoAccess, isHostedDemo, isSupabasePreview } from "./supabase-demo-access";
 
 interface AuthSession {
   access_token: string;
   expires_in: number;
+}
+
+export class SupabaseIngestAccessError extends Error {
+  constructor() {
+    super("บัญชีทีมยังไม่มีสิทธิ์จัดการแค็ตตาล็อกใน Supabase");
+  }
 }
 
 function config() {
@@ -49,26 +55,42 @@ async function accessToken(settings: ReturnType<typeof config>) {
   return signIn;
 }
 
-async function rpc<T>(name: string, args: Record<string, unknown> = {}): Promise<T> {
+async function rpc<T>(name: string, args: Record<string, unknown> = {}, scope: "demo" | "admin" = "demo"): Promise<T> {
   if (isHostedDemo()) {
-    const authorization = (await headers()).get("authorization");
-    const password = process.env.SHELFPILOT_TEAM_PASSWORD;
-    if (!password || !hasDemoAccess(authorization, password)) {
-      throw new Error("Team demo sign-in required.");
+    if (scope === "admin" && !isSupabasePreview()) {
+      throw new Error("Hosted Supabase admin access requires Vercel Preview.");
+    }
+    if (!allowsPreviewJudges()) {
+      const authorization = (await headers()).get("authorization");
+      const password = process.env.SHELFPILOT_TEAM_PASSWORD;
+      if (!password || !hasDemoAccess(authorization, password)) {
+        throw new Error("Team demo sign-in required.");
+      }
     }
   }
   const settings = config();
-  const token = await accessToken(settings);
-  const response = await fetch(new URL(`/rest/v1/rpc/shelfpilot_demo_${name}`, settings.endpoint), {
+  const endpoint = new URL(`/rest/v1/rpc/shelfpilot_${scope}_${name}`, settings.endpoint);
+  const body = JSON.stringify(args);
+  const send = (token: string) => fetch(endpoint, {
     method: "POST",
     headers: { apikey: settings.key, Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify(args),
+    body,
     cache: "no-store",
     redirect: "error",
     signal: AbortSignal.timeout(10000),
   });
+  let token = await accessToken(settings);
+  let response = await send(token);
+  if (response.status === 401) {
+    // A late 401 for the previous token must leave a concurrent sign-in's session usable.
+    if (session?.token === token) session = undefined;
+    void response.body?.cancel().catch(() => undefined);
+    token = await accessToken(settings);
+    response = await send(token);
+  }
   if (!response.ok) {
-    if (response.status === 401) session = undefined;
+    if (response.status === 401 && session?.token === token) session = undefined;
+    if (scope === "admin" && response.status === 403) throw new SupabaseIngestAccessError();
     throw new Error(`Supabase demo ${name} failed (${response.status}).`);
   }
   const result: T | null = await response.json();
@@ -86,4 +108,16 @@ export function updateSupabaseShelf(add: BookId[], remove: BookId[]) {
 
 export function recordSupabaseStoreClick(bookId: BookId) {
   return rpc<boolean>("store_click", { clicked_book_id: bookId });
+}
+
+export function readSupabaseIngest() {
+  return rpc<{ revision: string; catalog: Catalog; queue: ReviewQueue }>("snapshot", {}, "admin");
+}
+
+export function writeSupabaseIngest(revision: string, changes: {
+  books: Catalog["books"];
+  sources: Catalog["sources"];
+  reviews: ReviewQueue["items"];
+}) {
+  return rpc<boolean>("commit", { expected_revision: revision, ...changes }, "admin");
 }
