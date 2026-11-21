@@ -32,7 +32,12 @@ const types = await compile(
 await mkdir(outputDir, { recursive: true });
 await writeFile(new URL("index.ts", outputDir), types);
 
-for (const [name, title] of [["extraction", "Extraction"], ["match_result", "MatchResult"]]) {
+const standaloneSchemas = [
+  ["extraction", "Extraction"],
+  ["match_result", "MatchResult"],
+  ["recommendation", "Recommendation"],
+];
+for (const [name, title] of standaloneSchemas) {
   const schema = JSON.parse(await readFile(new URL(`${name}.schema.json`, schemasDir), "utf8"));
   await writeFile(new URL(`${name}.ts`, outputDir), await compile(schema, title, {
     cwd: fileURLToPath(schemasDir),

@@ -1,0 +1,121 @@
+{
+  "items": [
+    {
+      "review_id": "review-demo-siam-inter-comics-bblist-1",
+      "source_id": "demo-siam-inter-comics-bblist",
+      "extracted": {
+        "title": "Tokyo Ghoul โตเกียว กูล",
+        "edition": "manga",
+        "publisher": "Siam Inter Comics"
+      },
+      "candidates": [],
+      "reason": "The fixture references the series without a volume number.",
+      "status": "open",
+      "created_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "review_id": "review-demo-siam-inter-comics-bblist-2",
+      "source_id": "demo-siam-inter-comics-bblist",
+      "extracted": {
+        "title": "ครูพิเศษจอมป่วน Reborn!",
+        "edition": "manga",
+        "publisher": "Siam Inter Comics"
+      },
+      "candidates": [],
+      "reason": "The fixture references the series without a volume number.",
+      "status": "open",
+      "created_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "review_id": "review-demo-siam-inter-comics-bblist-3",
+      "source_id": "demo-siam-inter-comics-bblist",
+      "extracted": {
+        "title": "Vinland Saga สงครามคนทมิฬ",
+        "edition": "manga",
+        "publisher": "Siam Inter Comics"
+      },
+      "candidates": [],
+      "reason": "The fixture references the series without a volume number.",
+      "status": "open",
+      "created_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "review_id": "review-demo-vibulkij-manga-4",
+      "source_id": "demo-vibulkij-manga",
+      "extracted": {
+        "title": "ฮายาเตะ พ่อบ้านประจัญบาน",
+        "edition": "manga",
+        "publisher": "Vibulkij"
+      },
+      "candidates": [],
+      "reason": "The fixture references the series without a volume number.",
+      "status": "open",
+      "created_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "review_id": "review-demo-vibulkij-manga-5",
+      "source_id": "demo-vibulkij-manga",
+      "extracted": {
+        "title": "คินดะอิจิ 37 กับคดีฆาตกรรมปริศนา",
+        "edition": "manga",
+        "publisher": "Vibulkij"
+      },
+      "candidates": [],
+      "reason": "The fixture references the series without a volume number.",
+      "status": "open",
+      "created_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "review_id": "review-demo-vibulkij-manga-6",
+      "source_id": "demo-vibulkij-manga",
+      "extracted": {
+        "title": "ยอดนักสืบจิ๋ว โคนัน วันสบายๆ ของซีโร่",
+        "edition": "manga",
+        "publisher": "Vibulkij"
+      },
+      "candidates": [],
+      "reason": "The fixture references the series without a volume number.",
+      "status": "open",
+      "created_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "review_id": "review-demo-vibulkij-manga-7",
+      "source_id": "demo-vibulkij-manga",
+      "extracted": {
+        "title": "โคนัน Wild Police Story ห้าพยัคฆ์นักเรียนตำรวจ",
+        "edition": "manga",
+        "publisher": "Vibulkij"
+      },
+      "candidates": [],
+      "reason": "The fixture references the series without a volume number.",
+      "status": "open",
+      "created_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "review_id": "review-demo-vibulkij-manga-8",
+      "source_id": "demo-vibulkij-manga",
+      "extracted": {
+        "title": "อันเดอร์นินจา UNDER NINJA",
+        "edition": "manga",
+        "publisher": "Vibulkij"
+      },
+      "candidates": [],
+      "reason": "The fixture references the series without a volume number.",
+      "status": "open",
+      "created_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "review_id": "review-demo-vibulkij-catalog-9",
+      "source_id": "demo-vibulkij-catalog",
+      "extracted": {
+        "title": "วันธรรมดาของแม่มดว้าวุ่น Flying Witch",
+        "edition": "manga",
+        "publisher": "Vibulkij"
+      },
+      "candidates": [],
+      "reason": "The fixture references the series without a volume number.",
+      "status": "open",
+      "created_at": "2026-11-21T00:00:00+07:00"
+    }
+  ]
+}
