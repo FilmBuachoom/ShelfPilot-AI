@@ -2,7 +2,7 @@ import "server-only";
 
 import { headers } from "next/headers";
 import type { BookId, Catalog, ReviewQueue, UserShelf } from "@/types/generated";
-import { allowsPreviewJudges, hasDemoAccess, isHostedDemo, isSupabasePreview } from "./supabase-demo-access";
+import { allowsPreviewJudges, hasDemoAccess, isHostedDemo, isVercelSupabaseDemo } from "./supabase-demo-access";
 
 interface AuthSession {
   access_token: string;
@@ -57,8 +57,8 @@ async function accessToken(settings: ReturnType<typeof config>) {
 
 async function rpc<T>(name: string, args: Record<string, unknown> = {}, scope: "demo" | "admin" = "demo"): Promise<T> {
   if (isHostedDemo()) {
-    if (scope === "admin" && !isSupabasePreview()) {
-      throw new Error("Hosted Supabase admin access requires Vercel Preview.");
+    if (scope === "admin" && !isVercelSupabaseDemo()) {
+      throw new Error("Hosted Supabase admin access requires Vercel Preview or Production.");
     }
     if (!allowsPreviewJudges()) {
       const authorization = (await headers()).get("authorization");

@@ -39,8 +39,8 @@ title, volume, stated edition, and publisher. The audit source uses the extracte
 publisher when available, then the optional user-supplied hint.
 
 Import runs through the loopback-bound development server (`npm run dev`) or a
-Vercel Preview signed in with the team account. The JSON backend needs a writable
-local data directory. Vercel Preview uses Supabase, which needs the ingestion
+Vercel Preview or Production deployment using the team sign-in. The JSON backend needs a writable
+local data directory. Vercel uses Supabase, which needs the ingestion
 admin grant described in the [web README](../../README.md).
 Supabase checks the admin role on each call and commits catalog and review
 changes together. If another write changes the snapshot first, retry from the

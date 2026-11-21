@@ -25,7 +25,7 @@ function rawRequest(body: string, headers: Record<string, string> = {}) {
 
 const request = (body: unknown, headers?: Record<string, string>) => rawRequest(JSON.stringify(body), headers);
 
-test("deployed and production requests never reach the extractor", async () => {
+test("rejects hosted requests outside Vercel Preview and Production", async () => {
   vi.stubEnv("NODE_ENV", "production");
   expect((await POST(request(input))).status).toBe(404);
   vi.stubEnv("NODE_ENV", "development");
@@ -34,10 +34,10 @@ test("deployed and production requests never reach the extractor", async () => {
   expect(runPipeline).not.toHaveBeenCalled();
 });
 
-test("allows import on Vercel Preview with Supabase, team sign-in and a same-origin request", async () => {
+test.each(["preview", "production"])("requires team sign-in and same-origin import on Vercel %s", async (environment) => {
   vi.stubEnv("NODE_ENV", "production");
   vi.stubEnv("VERCEL", "1");
-  vi.stubEnv("VERCEL_ENV", "preview");
+  vi.stubEnv("VERCEL_ENV", environment);
   vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase");
   vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
   const host = "preview.example.test";
@@ -47,9 +47,6 @@ test("allows import on Vercel Preview with Supabase, team sign-in and a same-ori
   expect((await POST(request(input, { ...sameOrigin, Authorization: "" }))).status).toBe(404);
   expect((await POST(request(input, { Host: host, Authorization: authorization }))).status).toBe(404);
   expect((await POST(request(input, { ...sameOrigin, Origin: "https://other.example.test" }))).status).toBe(404);
-  vi.stubEnv("VERCEL_ENV", "production");
-  expect((await POST(request(input, sameOrigin))).status).toBe(404);
-  vi.stubEnv("VERCEL_ENV", "preview");
   vi.stubEnv("SHELFPILOT_DATA_BACKEND", "json");
   expect((await POST(request(input, sameOrigin))).status).toBe(404);
   expect(runPipeline).not.toHaveBeenCalled();
@@ -65,8 +62,8 @@ test("allows import on Vercel Preview with Supabase, team sign-in and a same-ori
   vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", "true");
   const judge = { Host: host, Origin: `https://${host}` };
   expect((await POST(request(input, { ...judge, Origin: "https://other.example.test" }))).status).toBe(404);
-  expect((await POST(request(input, judge))).status).toBe(200);
-  expect(runPipeline).toHaveBeenCalledTimes(2);
+  expect((await POST(request(input, judge))).status).toBe(environment === "preview" ? 200 : 404);
+  expect(runPipeline).toHaveBeenCalledTimes(environment === "preview" ? 2 : 1);
 });
 
 test.each<Record<string, string>>([

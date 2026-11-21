@@ -185,10 +185,10 @@ test("admits judges to the enabled Preview while requiring team sign-in in produ
   expect(fetchMock).toHaveBeenCalledTimes(2);
 });
 
-test.each(["team", "judges"])("lets Preview %s load and resolve the Supabase review queue", async (access) => {
+test.each([["preview", "team"], ["preview", "judges"], ["production", "team"]])("lets Vercel %s %s resolve the Supabase review queue", async (environment, access) => {
   vi.stubEnv("NODE_ENV", "production");
   vi.stubEnv("VERCEL", "1");
-  vi.stubEnv("VERCEL_ENV", "preview");
+  vi.stubEnv("VERCEL_ENV", environment);
   vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
   const authorization = "Basic " + Buffer.from("shelfpilot:test-team-password").toString("base64");
   const site = "https://preview.example.test";
@@ -213,6 +213,7 @@ test.each(["team", "judges"])("lets Preview %s load and resolve the Supabase rev
 
   const { readSupabaseIngest } = await import("@/lib/data/supabase-demo");
   const { POST } = await import("@/app/api/review/resolve/route");
+  if (environment === "production") vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", "true");
   requestHeaders.mockResolvedValue(new Headers());
   await expect(readSupabaseIngest()).rejects.toThrow("Team demo sign-in required");
   expect(fetchMock).not.toHaveBeenCalled();

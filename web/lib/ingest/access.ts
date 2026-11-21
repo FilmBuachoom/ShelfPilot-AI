@@ -1,11 +1,11 @@
 import "server-only";
 
-import { allowsPreviewJudges, hasDemoAccess, isDemoWriteAllowed, isSupabasePreview, usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
+import { allowsPreviewJudges, hasDemoAccess, isDemoWriteAllowed, isVercelSupabaseDemo, usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
 
 const loopbackHost = /^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d{1,5})?$/i;
 
 export function isIngestAvailable(headers: Pick<Headers, "get">): boolean {
-  if (isSupabasePreview()) {
+  if (isVercelSupabaseDemo()) {
     if (allowsPreviewJudges()) return true;
     const password = process.env.SHELFPILOT_TEAM_PASSWORD;
     return Boolean(password && hasDemoAccess(headers.get("authorization"), password));
@@ -17,7 +17,7 @@ export function isIngestAvailable(headers: Pick<Headers, "get">): boolean {
 
 export function allowsIngestPost(request: Request): boolean {
   if (!isIngestAvailable(request.headers)) return false;
-  if (isSupabasePreview()) return isDemoWriteAllowed(request);
+  if (isVercelSupabaseDemo()) return isDemoWriteAllowed(request);
 
   const origin = request.headers.get("origin");
   if (origin === null) return !usesSupabaseDemo();

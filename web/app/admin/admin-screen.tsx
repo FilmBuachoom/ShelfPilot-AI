@@ -58,7 +58,7 @@ export function AdminScreen({ items, canManageIngest }: {
       {canManageIngest ? <ImportExtractForm onImported={() => router.refresh()} /> : (
         <section className="sp-section">
           <h2>นำเข้าประกาศหนังสือ</h2>
-          <p className="sp-muted">ใช้ Import / Extract บน localhost หรือ Vercel Preview ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว</p>
+          <p className="sp-muted">ใช้ Import / Extract บน localhost หรือ Vercel ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว</p>
         </section>
       )}
       <section className="sp-section">

@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request): Promise<Response> {
   if (!allowsIngestPost(request)) {
-    return Response.json({ error: "การอนุมัติใช้งานได้บน localhost หรือ Vercel Preview ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว" }, { status: 404 });
+    return Response.json({ error: "การอนุมัติใช้งานได้บน localhost หรือ Vercel ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว" }, { status: 404 });
   }
   if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
     return Response.json({ error: "คำขอต้องส่งข้อมูลแบบ JSON" }, { status: 415 });
