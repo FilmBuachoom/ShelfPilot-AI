@@ -23,6 +23,8 @@ export function AdminScreen({ items, canManageIngest }: {
   const inFlight = useRef(false);
   const openItems = items.filter(({ review_id }) => !resolved.includes(review_id));
   const catalogBooks = [...books.values()];
+  const reviewActive = canManageIngest && openItems.some((item) =>
+    selected[item.review_id] && !pendingReviewResolution(item) && reviewSource(item));
 
   async function approve(resolution: ReviewResolution) {
     if (inFlight.current) return;
@@ -55,7 +57,7 @@ export function AdminScreen({ items, canManageIngest }: {
   return (
     <div className="sp-screen sp-admin">
       <header className="sp-screen-head"><h1>แอดมิน</h1></header>
-      {canManageIngest ? <ImportExtractForm onImported={() => router.refresh()} /> : (
+      {canManageIngest ? <ImportExtractForm reviewActive={reviewActive} onImported={() => router.refresh()} /> : (
         <section className="sp-section">
           <h2>นำเข้าประกาศหนังสือ</h2>
           <p className="sp-muted">ใช้ Import / Extract บน localhost หรือ Vercel ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว</p>
@@ -75,7 +77,7 @@ export function AdminScreen({ items, canManageIngest }: {
           const canDecide = canManageIngest && !saved;
           const canCreate = canDecide && canCreateFromReview(item);
           return <ReviewQueueItem key={id} item={item} selected={book_id} pending={pending === id}
-            onSelect={(idOfBook) => setSelected((current) => ({ ...current, [id]: idOfBook }))}
+            onSelect={(idOfBook) => setSelected({ [id]: idOfBook })}
             onSkip={canDecide ? () => approve({ review_id: id, action: "skip" }) : undefined}
             createReferences={canCreate ? creationReferences(catalogBooks, item) : undefined}
             onCreate={canCreate
