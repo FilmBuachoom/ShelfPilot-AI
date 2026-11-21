@@ -1,0 +1,2488 @@
+{
+  "books": [
+    {
+      "book_id": "book-phoenix-bbcbd0a6abe0-light_novel-2",
+      "series_id": "series-phoenix-bbcbd0a6abe0",
+      "title": "ขอต้อนรับสู่ห้องเรียนนิยม (เฉพาะ) ยอดคน ปี 3",
+      "aliases": [
+        "ようこそ実力至上主義の教室へ 3年生編",
+        "Classroom of the Elite: Year 3"
+      ],
+      "volume": 2,
+      "edition": "light_novel",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-7a88cb12d6db-light_novel-7.5",
+      "series_id": "series-phoenix-7a88cb12d6db",
+      "title": "เพื่อนคนแรกของผมคือสาวสวยอันดับสองของห้อง",
+      "aliases": [
+        "クラスで2番目に可愛い女の子と友だちになった",
+        "I Became Friends with the Second Cutest Girl in My Class"
+      ],
+      "volume": 7.5,
+      "edition": "light_novel",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-0fb5c2e62ebf-light_novel-10",
+      "series_id": "series-phoenix-0fb5c2e62ebf",
+      "title": "เอาแล้วไง ยัยแฟนเก่าดันเป็นลูกสาวแม่ใหม่",
+      "aliases": [
+        "継母の連れ子が元カノだった",
+        "My Stepmom's Daughter Is My Ex"
+      ],
+      "volume": 10,
+      "edition": "light_novel",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-6b859dbab246-light_novel-13",
+      "series_id": "series-phoenix-6b859dbab246",
+      "title": "จอมมารเกิดใหม่ วิทยาลัยผู้พิทักษ์",
+      "aliases": [
+        "聖剣学院の魔剣使い",
+        "The Demon Sword Master of Excalibur Academy"
+      ],
+      "volume": 13,
+      "edition": "light_novel",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-a271094bf1ee-light_novel-13",
+      "series_id": "series-phoenix-a271094bf1ee",
+      "title": "นักสืบตายแล้ว",
+      "aliases": [
+        "探偵はもう、死んでいる。",
+        "The Detective Is Already Dead"
+      ],
+      "volume": 13,
+      "edition": "light_novel",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-cedbaf7e068f-light_novel-14",
+      "series_id": "series-phoenix-cedbaf7e068f",
+      "title": "ห้องเรียนจารชน",
+      "aliases": [
+        "スパイ教室",
+        "Spy Classroom"
+      ],
+      "volume": 14,
+      "edition": "light_novel",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-010d469afe95-light_novel-15",
+      "series_id": "series-phoenix-010d469afe95",
+      "title": "แง้มหัวใจยัยน้องสาวจำเป็น",
+      "aliases": [
+        "義妹生活",
+        "Days with My Stepsister"
+      ],
+      "volume": 15,
+      "edition": "light_novel",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-cdf9b96a8eb5-light_novel-16",
+      "series_id": "series-phoenix-cdf9b96a8eb5",
+      "title": "สืบคดีปริศนา หมอยาตำรับโคมแดง",
+      "aliases": [
+        "薬屋のひとりごと",
+        "The Apothecary Diaries"
+      ],
+      "volume": 16,
+      "edition": "light_novel",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-phoenix-sep",
+        "demo-phoenix-standard"
+      ],
+      "release_date": "2026-09-01",
+      "store_url": "https://www.phoenixnext.com/ln0837-01.html"
+    },
+    {
+      "book_id": "book-phoenix-090a4d0112d1-light_novel-23",
+      "series_id": "series-phoenix-090a4d0112d1",
+      "title": "ผมเนี่ยนะ...ชายแปด!",
+      "aliases": [
+        "八男って、それはないでしょう！",
+        "The 8th Son? Are You Kidding Me?"
+      ],
+      "volume": 23,
+      "edition": "light_novel",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-57786bb86757-manga-2",
+      "series_id": "series-phoenix-57786bb86757",
+      "title": "คุณดาระ ตำนานยุคเรวะ",
+      "aliases": [
+        "令和のダラさん"
+      ],
+      "volume": 2,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-5061e07999aa-manga-3",
+      "series_id": "series-phoenix-5061e07999aa",
+      "title": "THUNDER 3 สามสหายทะลุมิติ",
+      "aliases": [
+        "サンダー3",
+        "Thunder 3"
+      ],
+      "volume": 3,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-b20b9c210ac0-manga-5",
+      "series_id": "series-phoenix-b20b9c210ac0",
+      "title": "ทาวเวอร์ดันเจี้ยน พิชิตหอคอยมังกร",
+      "aliases": [
+        "タワーダンジョン",
+        "Tower Dungeon"
+      ],
+      "volume": 5,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-0e1ff4bc82fd-manga-5",
+      "series_id": "series-phoenix-0e1ff4bc82fd",
+      "title": "ชิโนะกับเร็น",
+      "aliases": [
+        "志乃と恋"
+      ],
+      "volume": 5,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-b61c8b468b66-manga-8",
+      "series_id": "series-phoenix-b61c8b468b66",
+      "title": "ฮันนี่แทรปแชร์เฮาส์",
+      "aliases": [
+        "ハニートラップ・シェアハウス",
+        "Honey Trap Shared House"
+      ],
+      "volume": 8,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-b8e072148ead-manga-9",
+      "series_id": "series-phoenix-b8e072148ead",
+      "title": "ELDEN RING เส้นทางสู่พฤกษาทอง",
+      "aliases": [
+        "ELDEN RING 黄金樹への道",
+        "Elden Ring: The Road to the Erdtree"
+      ],
+      "volume": 9,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-6bee2cbaaee3-manga-9",
+      "series_id": "series-phoenix-6bee2cbaaee3",
+      "title": "รักสุดฟินเลเวล 999 กับยามาดะคุง",
+      "aliases": [
+        "山田くんとLv999の恋をする",
+        "My Love Story with Yamada-kun at Lv999"
+      ],
+      "volume": 9,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-b2f1e0f53c53-manga-9",
+      "series_id": "series-phoenix-b2f1e0f53c53",
+      "title": "คุณอาเรียโต๊ะข้างๆ พูดรัสเซียหวานใส่ซะหัวใจจะวาย",
+      "aliases": [
+        "時々ボソッとロシア語でデレる隣のアーリャさん",
+        "Alya Sometimes Hides Her Feelings in Russian"
+      ],
+      "volume": 9,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-c2b9d6ed30de-manga-11",
+      "series_id": "series-phoenix-c2b9d6ed30de",
+      "title": "ซาซากิกับมิยาโนะ",
+      "aliases": [
+        "佐々木と宮野",
+        "Sasaki and Miyano"
+      ],
+      "volume": 11,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-beeb00e2b229-manga-12",
+      "series_id": "series-phoenix-beeb00e2b229",
+      "title": "ยมลแห่งยมโลก",
+      "aliases": [
+        "黄泉のツガイ",
+        "Daemons of the Shadow Realm"
+      ],
+      "volume": 12,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-6a6435a7bc25-manga-14",
+      "series_id": "series-phoenix-6a6435a7bc25",
+      "title": "มิเอรุโกะจัง ใครว่าหนูเห็นผี",
+      "aliases": [
+        "見える子ちゃん",
+        "Mieruko-chan"
+      ],
+      "volume": 14,
+      "edition": "manga",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-phoenix-sep"
+      ],
+      "release_date": "2026-09-01"
+    },
+    {
+      "book_id": "book-phoenix-cdf9b96a8eb5-special_set-16",
+      "series_id": "series-phoenix-cdf9b96a8eb5",
+      "title": "สืบคดีปริศนา หมอยาตำรับโคมแดง",
+      "aliases": [
+        "薬屋のひとりごと",
+        "The Apothecary Diaries"
+      ],
+      "volume": 16,
+      "edition": "special_set",
+      "publisher": "Phoenix Next",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-phoenix-special"
+      ],
+      "store_url": "https://www.phoenixnext.com/ln0837-02p.html"
+    },
+    {
+      "book_id": "book-bongkoch-9b9b35e7f51a-manga-6",
+      "series_id": "series-bongkoch-9b9b35e7f51a",
+      "title": "แดดดี๊มอนสเตอร์กับหนุ่มเยือกแข็ง",
+      "aliases": [],
+      "volume": 6,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-f9fefdd23d4c-manga-1",
+      "series_id": "series-bongkoch-f9fefdd23d4c",
+      "title": "รักที่ไม่มีทางสมหวังในการ์ตูนผู้หญิง",
+      "aliases": [],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-5b87bddd12bf-manga-5",
+      "series_id": "series-bongkoch-5b87bddd12bf",
+      "title": "รักนี้เกินต้านใจ",
+      "aliases": [],
+      "volume": 5,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-d39ae4b824e4-manga-20",
+      "series_id": "series-bongkoch-d39ae4b824e4",
+      "title": "12 years ~หลังจากนั้น~",
+      "aliases": [],
+      "volume": 20,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-3875a13c3f62-manga-4",
+      "series_id": "series-bongkoch-3875a13c3f62",
+      "title": "99% ซักคิวบัสจัง",
+      "aliases": [
+        "99％サキュバスちゃん"
+      ],
+      "volume": 4,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-4e8bc72de547-manga-6",
+      "series_id": "series-bongkoch-4e8bc72de547",
+      "title": "Mermaid Melody Pichi Pichi Pitch เจ้าหญิงเงือกน้อย Aqua (ภาคใหม่)",
+      "aliases": [
+        "ぴちぴちピッチ aqua",
+        "Mermaid Melody Pichi Pichi Pitch Aqua"
+      ],
+      "volume": 6,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-195ead427c08-manga-1",
+      "series_id": "series-bongkoch-195ead427c08",
+      "title": "Moon and Maple Syrup ความรักครั้งนี้รสน้ำผึ้ง",
+      "aliases": [
+        "月とメープルシロップ",
+        "Moon and Maple Syrup"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-696275b7bacc-manga-1",
+      "series_id": "series-bongkoch-696275b7bacc",
+      "title": "RETRY JULIET!! รีไทร์จูเลียต!!",
+      "aliases": [
+        "リトライジュリエット！！",
+        "Retry Juliet!!"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-6bbb9151cb67-manga-1",
+      "series_id": "series-bongkoch-6bbb9151cb67",
+      "title": "ROSE AND KILLER กุหลาบ & นักล่าสังหาร",
+      "aliases": [
+        "薔薇と殺し屋",
+        "Rose and Killer"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-66746a6c0807-manga-14",
+      "series_id": "series-bongkoch-66746a6c0807",
+      "title": "ขอโทษทีที่มีน้องชายจอมป่วน",
+      "aliases": [
+        "うちの弟どもがすみません",
+        "Sorry About My Younger Brothers"
+      ],
+      "volume": 14,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-c366b38dd3be-manga-11",
+      "series_id": "series-bongkoch-c366b38dd3be",
+      "title": "เขยตัวร้ายกับคุณหนูยากูซ่า",
+      "aliases": [
+        "来世は他人がいい",
+        "Yakuza Fiancé: Raise wa Tanin ga Ii"
+      ],
+      "volume": 11,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-30b6f8427de2-manga-1",
+      "series_id": "series-bongkoch-30b6f8427de2",
+      "title": "ความฝัน ความรัก และคืนไร้นิทรา",
+      "aliases": [],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-777ea599d6a6-manga-7",
+      "series_id": "series-bongkoch-777ea599d6a6",
+      "title": "เจ้าสาวผู้แปดเปื้อน",
+      "aliases": [
+        "傷モノの花嫁",
+        "The Ayakashi Hunter's Tainted Bride"
+      ],
+      "volume": 7,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-26ad2dd28a68-manga-6",
+      "series_id": "series-bongkoch-26ad2dd28a68",
+      "title": "เจ้าสาวสุดรักของราชาพยัคฆ์",
+      "aliases": [],
+      "volume": 6,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-04b6b42f151f-manga-12",
+      "series_id": "series-bongkoch-04b6b42f151f",
+      "title": "ชมหน่อยน้า คุณเลขาคุโรซากิ",
+      "aliases": [
+        "黒崎秘書に褒められたい"
+      ],
+      "volume": 12,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-43559f2a79ab-manga-6",
+      "series_id": "series-bongkoch-43559f2a79ab",
+      "title": "ไดฟุกุจังกับเจ้าชายจอมกวน",
+      "aliases": [
+        "大福ちゃんと王子さま"
+      ],
+      "volume": 6,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-f146a4e49bf8-manga-12",
+      "series_id": "series-bongkoch-f146a4e49bf8",
+      "title": "ทำไงได้ ก็คนมันรักไปแล้ว",
+      "aliases": [
+        "どうせ、恋してしまうんだ。",
+        "Anyway, I'm Falling in Love with You."
+      ],
+      "volume": 12,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-3d5e81237708-manga-9",
+      "series_id": "series-bongkoch-3d5e81237708",
+      "title": "เธอคือดวงดาวเคียงข้างใจ Stella Next to Me",
+      "aliases": [
+        "隣のステラ",
+        "Gazing at the Star Next Door"
+      ],
+      "volume": 9,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-1ee28ad8ba24-manga-13",
+      "series_id": "series-bongkoch-1ee28ad8ba24",
+      "title": "ร้อยเรียงรักจากหัวใจ",
+      "aliases": [
+        "ゆびさきと恋々",
+        "A Sign of Affection"
+      ],
+      "volume": 13,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-aec0135f95ac-manga-13",
+      "series_id": "series-bongkoch-aec0135f95ac",
+      "title": "รักละไม หวานใจหนุ่มเข้ม",
+      "aliases": [
+        "ひかえめに言っても、これは愛",
+        "Love, That's an Understatement"
+      ],
+      "volume": 13,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-195ead427c08-manga-2",
+      "series_id": "series-bongkoch-195ead427c08",
+      "title": "Moon and Maple Syrup ความรักครั้งนี้รสน้ำผึ้ง",
+      "aliases": [
+        "月とメープルシロップ",
+        "Moon and Maple Syrup"
+      ],
+      "volume": 2,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-bongkoch-195ead427c08-manga-3",
+      "series_id": "series-bongkoch-195ead427c08",
+      "title": "Moon and Maple Syrup ความรักครั้งนี้รสน้ำผึ้ง",
+      "aliases": [
+        "月とメープルシロップ",
+        "Moon and Maple Syrup"
+      ],
+      "volume": 3,
+      "edition": "manga",
+      "publisher": "Bongkoch Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-bongkoch-aug"
+      ],
+      "release_date": "2026-08-01"
+    },
+    {
+      "book_id": "book-luckpim-c417fe184308-light_novel-3",
+      "series_id": "series-luckpim-c417fe184308",
+      "title": "กลยุทธ์เอาตัวรอดของท่านลอร์ดวายร้าย",
+      "aliases": [],
+      "volume": 3,
+      "edition": "light_novel",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-02"
+    },
+    {
+      "book_id": "book-luckpim-a0af5f1a6c4d-manga-31",
+      "series_id": "series-luckpim-a0af5f1a6c4d",
+      "title": "โฉมงามพูดไม่เก่งกับผองเพื่อนไม่เต็มเต็ง",
+      "aliases": [
+        "古見さんは、コミュ症です。",
+        "Komi Can't Communicate"
+      ],
+      "volume": 31,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-07"
+    },
+    {
+      "book_id": "book-luckpim-56d6634493cc-manga-14",
+      "series_id": "series-luckpim-56d6634493cc",
+      "title": "ตรงนี้ให้ฉันจัดการเอง แต่พอ 10 ปีผ่านไปก็กลายเป็นตำนานไปซะแล้ว",
+      "aliases": [
+        "ここは俺に任せて先に行けと言ってから10年がたったら伝説になっていた。"
+      ],
+      "volume": 14,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-07"
+    },
+    {
+      "book_id": "book-luckpim-f5831336e60c-manga-21",
+      "series_id": "series-luckpim-f5831336e60c",
+      "title": "กล่องรักวัยใส",
+      "aliases": [
+        "アオのハコ",
+        "Blue Box"
+      ],
+      "volume": 21,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-09"
+    },
+    {
+      "book_id": "book-luckpim-a247ed450271-manga-17",
+      "series_id": "series-luckpim-a247ed450271",
+      "title": "นักเขียนหน้าตายนายโนซากิคุง",
+      "aliases": [
+        "月刊少女野崎くん",
+        "Monthly Girls' Nozaki-kun"
+      ],
+      "volume": 17,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-09"
+    },
+    {
+      "book_id": "book-luckpim-96ea9a36bd83-manga-17",
+      "series_id": "series-luckpim-96ea9a36bd83",
+      "title": "ด้ายแดงผูกรักบ้านอามากามิ",
+      "aliases": [
+        "甘神さんちの縁結び",
+        "Tying the Knot with an Amagami Sister"
+      ],
+      "volume": 17,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-09"
+    },
+    {
+      "book_id": "book-luckpim-f6b66f95ae99-manga-25",
+      "series_id": "series-luckpim-f6b66f95ae99",
+      "title": "DARWIN'S GAME",
+      "aliases": [
+        "ダーウィンズゲーム"
+      ],
+      "volume": 25,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-14"
+    },
+    {
+      "book_id": "book-luckpim-0fccc94d2ffc-manga-9",
+      "series_id": "series-luckpim-0fccc94d2ffc",
+      "title": "เหล่าพ่อแม่ผู้วิงวอน \"ให้ลูกของฉันหายไป\"",
+      "aliases": [
+        "「子供を殺してください」という親たち"
+      ],
+      "volume": 9,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-14"
+    },
+    {
+      "book_id": "book-luckpim-edd09f0fa5c4-manga-1",
+      "series_id": "series-luckpim-edd09f0fa5c4",
+      "title": "ซัมวันเฮิรตซ์",
+      "aliases": [
+        "さむわんへるつ"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-16"
+    },
+    {
+      "book_id": "book-luckpim-60ca531d01f1-manga-15",
+      "series_id": "series-luckpim-60ca531d01f1",
+      "title": "เซนต์เซย์ย่า ~THE LOST CANVAS~ จ้าวนรกฮาเดส",
+      "aliases": [
+        "聖闘士星矢 THE LOST CANVAS 冥王神話",
+        "Saint Seiya: The Lost Canvas"
+      ],
+      "volume": 15,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-23"
+    },
+    {
+      "book_id": "book-luckpim-add89f652742-manga-4",
+      "series_id": "series-luckpim-add89f652742",
+      "title": "ภารกิจลับนินจาป่วน",
+      "aliases": [
+        "しのびごと",
+        "Shinobi Undercover"
+      ],
+      "volume": 4,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-23"
+    },
+    {
+      "book_id": "book-luckpim-f87a9a886368-manga-12",
+      "series_id": "series-luckpim-f87a9a886368",
+      "title": "ชุดกะลาสีของอาเคบิจัง",
+      "aliases": [
+        "明日ちゃんのセーラー服",
+        "Akebi's Sailor Uniform"
+      ],
+      "volume": 12,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-23"
+    },
+    {
+      "book_id": "book-luckpim-430c1e16af60-manga-25",
+      "series_id": "series-luckpim-430c1e16af60",
+      "title": "SAKAMOTO DAYS",
+      "aliases": [],
+      "volume": 25,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-23"
+    },
+    {
+      "book_id": "book-luckpim-df31c1e4a252-manga-20",
+      "series_id": "series-luckpim-df31c1e4a252",
+      "title": "คุณชิกิโมริไม่ได้น่ารักแค่อย่างเดียวนะ",
+      "aliases": [
+        "可愛いだけじゃない式守さん",
+        "Shikimori's Not Just a Cutie"
+      ],
+      "volume": 20,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-23"
+    },
+    {
+      "book_id": "book-luckpim-b878a696fee0-manga-41",
+      "series_id": "series-luckpim-b878a696fee0",
+      "title": "สะดุดรักยัยแฟนเช่า",
+      "aliases": [
+        "彼女、お借りします",
+        "Rent-A-Girlfriend"
+      ],
+      "volume": 41,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-23"
+    },
+    {
+      "book_id": "book-luckpim-7315d181c77b-manga-14",
+      "series_id": "series-luckpim-7315d181c77b",
+      "title": "ตำนานดาบและคทาแห่งวิสตอเรีย",
+      "aliases": [
+        "杖と剣のウィストリア",
+        "Wistoria: Wand and Sword"
+      ],
+      "volume": 14,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-28"
+    },
+    {
+      "book_id": "book-luckpim-c0c91582e59c-manga-24",
+      "series_id": "series-luckpim-c0c91582e59c",
+      "title": "แด่เธอผู้เป็นนิรันดร์",
+      "aliases": [
+        "不滅のあなたへ",
+        "To Your Eternity"
+      ],
+      "volume": 24,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-28"
+    },
+    {
+      "book_id": "book-luckpim-491c3bc215ef-manga-30",
+      "series_id": "series-luckpim-491c3bc215ef",
+      "title": "เกิดใหม่ทั้งทีก็เป็นสไลม์ไปซะแล้ว",
+      "aliases": [
+        "転生したらスライムだった件",
+        "That Time I Got Reincarnated as a Slime"
+      ],
+      "volume": 30,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-28"
+    },
+    {
+      "book_id": "book-luckpim-d73e687f5023-light_novel-11",
+      "series_id": "series-luckpim-d73e687f5023",
+      "title": "ชีวิตตัวประกอบอย่างตูช่างอยู่ยากเมื่ออยู่ในโลกเกมจีบหนุ่ม",
+      "aliases": [
+        "乙女ゲー世界はモブに厳しい世界です",
+        "Trapped in a Dating Sim: The World of Otome Games Is Tough for Mobs"
+      ],
+      "volume": 11,
+      "edition": "light_novel",
+      "publisher": "Luckpim",
+      "release_date_precision": "day",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-oct"
+      ],
+      "release_date": "2026-10-30"
+    },
+    {
+      "book_id": "book-luckpim-cf0080132cfe-manga-1",
+      "series_id": "series-luckpim-cf0080132cfe",
+      "title": "รุ่นน้องตัวป่วนอยากชวนเที่ยวเล่น",
+      "aliases": [
+        "宇崎ちゃんは遊びたい！",
+        "Uzaki-chan Wants to Hang Out!"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Luckpim",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-luckpim-uzaki"
+      ],
+      "store_url": "https://www.luckpim.com/product/detail/1359"
+    },
+    {
+      "book_id": "book-animag-524106dae0cb-manga-17",
+      "series_id": "series-animag-524106dae0cb",
+      "title": "ตำรับปริศนา หมอยาแห่งวังหลัง",
+      "aliases": [
+        "薬屋のひとりごと ～猫猫の後宮謎解き手帳～"
+      ],
+      "volume": 17,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-c81b1db14fc4-manga-11",
+      "series_id": "series-animag-c81b1db14fc4",
+      "title": "นัดบอดวันนี้ สาว ๆ อยู่ไหนครับ",
+      "aliases": [
+        "合コンに行ったら女がいなかった話",
+        "How I Attended an All-Guy's Mixer"
+      ],
+      "volume": 11,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-b50bb8ef29cb-manga-6",
+      "series_id": "series-animag-b50bb8ef29cb",
+      "title": "ขาดคุณนางฟ้าข้างห้องไป ผมคงมีชีวิตต่อไปไม่ได้อีกแล้ว",
+      "aliases": [
+        "お隣の天使様にいつの間にか駄目人間にされていた件",
+        "The Angel Next Door Spoils Me Rotten"
+      ],
+      "volume": 6,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-48f33410d09d-manga-4",
+      "series_id": "series-animag-48f33410d09d",
+      "title": "สารพันปัญหาวุ่นวาย ของยัยแวมไพร์ขี้จุ๊",
+      "aliases": [
+        "ひきこまり吸血姫の悶々",
+        "The Vexations of a Shut-In Vampire"
+      ],
+      "volume": 4,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-ff3838060333-manga-8",
+      "series_id": "series-animag-ff3838060333",
+      "title": "ให้เป็นแฟนได้ไง ไม่เอาไม่ไหวหรอก (หรือจะไหวนะ!?)",
+      "aliases": [
+        "わたしが恋人になれるわけないじゃん、ムリムリ!（※ムリじゃなかった!?）",
+        "There's No Freaking Way I'll Be Your Lover! Unless..."
+      ],
+      "volume": 8,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-661f6cc8547e-manga-3",
+      "series_id": "series-animag-661f6cc8547e",
+      "title": "Goblin Slayer! A Day in the Life",
+      "aliases": [
+        "ゴブリンスレイヤー：デイ・イン・ザ・ライフ",
+        "Goblin Slayer: A Day in the Life"
+      ],
+      "volume": 3,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-3b4cc3375ec1-manga-14",
+      "series_id": "series-animag-3b4cc3375ec1",
+      "title": "Goblin Slayer!",
+      "aliases": [
+        "ゴブリンスレイヤー",
+        "Goblin Slayer"
+      ],
+      "volume": 14,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-4bcb0e598b67-manga-3",
+      "series_id": "series-animag-4bcb0e598b67",
+      "title": "บทเพลงรักของผู้ทรยศ",
+      "aliases": [
+        "裏切り者のラブソング",
+        "Love Song for the Betrayer"
+      ],
+      "volume": 3,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-fb2f8b0c91d4-manga-3",
+      "series_id": "series-animag-fb2f8b0c91d4",
+      "title": "ดาวเหนือยามฟ้าสาง",
+      "aliases": [],
+      "volume": 3,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-13232ac6f402-light_novel-12",
+      "series_id": "series-animag-13232ac6f402",
+      "title": "ขาดคุณนางฟ้าข้างห้องไป ผมคงมีชีวิตต่อไปไม่ได้อีกแล้ว",
+      "aliases": [
+        "お隣の天使様にいつの間にか駄目人間にされていた件",
+        "The Angel Next Door Spoils Me Rotten"
+      ],
+      "volume": 12,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-566374dacd9c-light_novel-8",
+      "series_id": "series-animag-566374dacd9c",
+      "title": "ให้เป็นแฟนได้ไง ไม่เอาไม่ไหวหรอก! (※หรือว่าจะไหวนะ!?)",
+      "aliases": [
+        "わたしが恋人になれるわけないじゃん、ムリムリ!（※ムリじゃなかった!?）",
+        "There's No Freaking Way I'll Be Your Lover! Unless..."
+      ],
+      "volume": 8,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-cf215d8a5de7-light_novel-9",
+      "series_id": "series-animag-cf215d8a5de7",
+      "title": "ข้าคือขุนนางชั่วแห่งอาณาจักรดวงดาว",
+      "aliases": [
+        "俺は星間国家の悪徳領主！",
+        "I'm the Evil Lord of an Intergalactic Empire!"
+      ],
+      "volume": 9,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-c3f2383fee99-light_novel-4",
+      "series_id": "series-animag-c3f2383fee99",
+      "title": "ฉันคือยอดอัศวินหญิงแห่งอาณาจักรดวงดาว",
+      "aliases": [
+        "あたしは星間国家の英雄騎士！",
+        "I'm the Heroic Knight of an Intergalactic Empire!"
+      ],
+      "volume": 4,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-5a4b3f4f41cc-light_novel-18",
+      "series_id": "series-animag-5a4b3f4f41cc",
+      "title": "ยุทธศาสตร์กู้ชาติของราชามือใหม่",
+      "aliases": [
+        "現実主義勇者の王国再建記",
+        "How a Realist Hero Rebuilt the Kingdom"
+      ],
+      "volume": 18,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-96ed60a586bb-light_novel-13",
+      "series_id": "series-animag-96ed60a586bb",
+      "title": "No Game No Life (โนเกม โนไลฟ์)",
+      "aliases": [
+        "ノーゲーム・ノーライフ",
+        "No Game No Life"
+      ],
+      "volume": 13,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-aea6dec4a97c-light_novel-4",
+      "series_id": "series-animag-aea6dec4a97c",
+      "title": "หลังช่วยเด็กหลงทาง สาวสวยข้างบ้านก็แวะมาเที่ยว",
+      "aliases": [
+        "迷子になっていた幼女を助けたら、お隣に住む美少女留学生が家に遊びに来るようになった"
+      ],
+      "volume": 4,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-5eeb70eb2a4c-light_novel-8",
+      "series_id": "series-animag-5eeb70eb2a4c",
+      "title": "ปรมาจารย์ดาบชั้นเซียนมาตบเกรียนถึงเมืองกรุง",
+      "aliases": [
+        "片田舎のおっさん、剣聖になる",
+        "From Old Country Bumpkin to Master Swordsman"
+      ],
+      "volume": 8,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-47918efe4fff-light_novel-11",
+      "series_id": "series-animag-47918efe4fff",
+      "title": "อินเดกซ์ คัมภีร์คาถาต้องห้าม พันธสัญญาใหม่",
+      "aliases": [
+        "新約 とある魔術の禁書目録",
+        "A Certain Magical Index NT"
+      ],
+      "volume": 11,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-f26223beab0b-light_novel-8",
+      "series_id": "series-animag-f26223beab0b",
+      "title": "การเดินทางของคิโนะ",
+      "aliases": [
+        "キノの旅 -the Beautiful World-",
+        "Kino's Journey"
+      ],
+      "volume": 8,
+      "edition": "light_novel",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-animag-d977bbff4100-manga-3",
+      "series_id": "series-animag-d977bbff4100",
+      "title": "10 เช็กลิสต์หัวใจก่อนถึงวัย 40",
+      "aliases": [
+        "40までにしたい10のこと",
+        "10 Things I Want to Do Before I Turn 40"
+      ],
+      "volume": 3,
+      "edition": "manga",
+      "publisher": "Animag",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-animag-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-6bca2497c734-manga-10",
+      "series_id": "series-dexpress-6bca2497c734",
+      "title": "เส้นทางพลิกผันของราชันอมตะ",
+      "aliases": [
+        "望まぬ不死の冒険者",
+        "The Unwanted Undead Adventurer"
+      ],
+      "volume": 10,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop",
+        "demo-dexpress-new"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-6c7195eb5bd2-manga-5",
+      "series_id": "series-dexpress-6c7195eb5bd2",
+      "title": "โดนไล่ออกจากปาร์ตี้เพราะเป็นจอมเวทหญิงเลยไปจับคู่สุดแกร่งกับแม่มดในตำนาน",
+      "aliases": [],
+      "volume": 5,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-fa80e7ac789e-manga-2",
+      "series_id": "series-dexpress-fa80e7ac789e",
+      "title": "ต้องทำยังไงถึงจะได้เป็นหวานใจเพื่อนวัยเด็ก!?",
+      "aliases": [
+        "幼馴染と恋人になる方法",
+        "How Do I Turn My Best Friend Into My Girlfriend?"
+      ],
+      "volume": 2,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-0147695abc83-manga-11",
+      "series_id": "series-dexpress-0147695abc83",
+      "title": "จอมมารอย่างข้าควรรักภรรยาเอลฟ์อย่างไรดี?",
+      "aliases": [
+        "魔王の俺が奴隷エルフを嫁にしたんだが、どう愛でればいい？",
+        "An Archdemon's Dilemma: How to Love Your Elf Bride"
+      ],
+      "volume": 11,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-89dc87972252-manga-2",
+      "series_id": "series-dexpress-89dc87972252",
+      "title": "งานรื่นเริงกับเหล่าเดรัจฉาน",
+      "aliases": [],
+      "volume": 2,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-1fb1c99be0db-manga-18",
+      "series_id": "series-dexpress-1fb1c99be0db",
+      "title": "OVER LORD",
+      "aliases": [
+        "オーバーロード",
+        "Overlord"
+      ],
+      "volume": 18,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-c389af7a1aaa-manga-3",
+      "series_id": "series-dexpress-c389af7a1aaa",
+      "title": "Shrink ~คลินิกสุขภาพใจของจิตแพทย์โยวาอิ~",
+      "aliases": [
+        "Shrink～精神科医ヨワイ～"
+      ],
+      "volume": 3,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-9652bef307ca-manga-13",
+      "series_id": "series-dexpress-9652bef307ca",
+      "title": "สูญสิ้นที่ต่างโลก",
+      "aliases": [
+        "異世界失格",
+        "No Longer Allowed in Another World"
+      ],
+      "volume": 13,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-db2f6ef5f496-manga-4",
+      "series_id": "series-dexpress-db2f6ef5f496",
+      "title": "แปลใจในฝ่ามือ",
+      "aliases": [],
+      "volume": 4,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-1528f0d24b01-manga-2",
+      "series_id": "series-dexpress-1528f0d24b01",
+      "title": "เอริโอกับตุ๊กตาสมองกล",
+      "aliases": [
+        "エリオと電気人形"
+      ],
+      "volume": 2,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-943fd57fdc4a-manga-7",
+      "series_id": "series-dexpress-943fd57fdc4a",
+      "title": "แกล้งนักรัก (แล้ว) นะรู้ยัง?",
+      "aliases": [
+        "からかい上手の（元）高木さん",
+        "Teasing Master Takagi-san (Former)"
+      ],
+      "volume": 7,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-8a8b508a36b0-manga-9",
+      "series_id": "series-dexpress-8a8b508a36b0",
+      "title": "เรื่องน่ากลุ้มของเจ้าเหมียวผู้สามารถ",
+      "aliases": [
+        "デキる猫は今日も憂鬱",
+        "The Masterful Cat Is Depressed Again Today"
+      ],
+      "volume": 9,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-1ddad5873d2c-manga-1",
+      "series_id": "series-dexpress-1ddad5873d2c",
+      "title": "เมื่อผมอยากพลิกชะตาเลยศึกษาเวทตั้งแต่ 8 ขวบ",
+      "aliases": [],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-943fd57fdc4a-manga-5",
+      "series_id": "series-dexpress-943fd57fdc4a",
+      "title": "แกล้งนักรัก (แล้ว) นะรู้ยัง?",
+      "aliases": [
+        "からかい上手の（元）高木さん",
+        "Teasing Master Takagi-san (Former)"
+      ],
+      "volume": 5,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-943fd57fdc4a-manga-6",
+      "series_id": "series-dexpress-943fd57fdc4a",
+      "title": "แกล้งนักรัก (แล้ว) นะรู้ยัง?",
+      "aliases": [
+        "からかい上手の（元）高木さん",
+        "Teasing Master Takagi-san (Former)"
+      ],
+      "volume": 6,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-shop"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-1ddad5873d2c-manga-3",
+      "series_id": "series-dexpress-1ddad5873d2c",
+      "title": "เมื่อผมอยากพลิกชะตาเลยศึกษาเวทตั้งแต่ 8 ขวบ",
+      "aliases": [],
+      "volume": 3,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-new"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-5871f3a040dc-manga-7",
+      "series_id": "series-dexpress-5871f3a040dc",
+      "title": "เพราะสมบูรณ์แบบจนไม่น่ารัก สตรีศักดิ์สิทธิ์จึงถูกถอนหมั้นและขายไปอาณาจักรข้างเคียง",
+      "aliases": [
+        "完璧すぎて可愛げがないと婚約破棄された聖女は隣国に売られる",
+        "The Too-Perfect Saint: Tossed Aside by My Fiancé and Sold to Another Kingdom"
+      ],
+      "volume": 7,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-new"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-45999e9fa519-manga-5",
+      "series_id": "series-dexpress-45999e9fa519",
+      "title": "โซอารากับบ้านมอนสเตอร์",
+      "aliases": [
+        "ソアラと魔物の家",
+        "Soara and the House of Monsters"
+      ],
+      "volume": 5,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-new"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-f8f4fa5a0097-manga-19",
+      "series_id": "series-dexpress-f8f4fa5a0097",
+      "title": "ปกรณัมของเหล่าภูต",
+      "aliases": [
+        "化物語",
+        "Bakemonogatari"
+      ],
+      "volume": 19,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-new"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-a45aa6b9e18c-light_novel-24",
+      "series_id": "series-dexpress-a45aa6b9e18c",
+      "title": "เกิดชาตินี้พี่ต้องเทพ",
+      "aliases": [
+        "無職転生 ～異世界行ったら本気だす～",
+        "Mushoku Tensei: Jobless Reincarnation"
+      ],
+      "volume": 24,
+      "edition": "light_novel",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-new"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-5066e3d0953b-manga-11",
+      "series_id": "series-dexpress-5066e3d0953b",
+      "title": "Skip and Loafer จังหวะวัยรุ่นว้าวุ่นหัวใจ",
+      "aliases": [
+        "スキップとローファー",
+        "Skip and Loafer"
+      ],
+      "volume": 11,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-new"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-cb7c3b57e2da-manga-21",
+      "series_id": "series-dexpress-cb7c3b57e2da",
+      "title": "อุลตร้าแมน",
+      "aliases": [
+        "ULTRAMAN",
+        "Ultraman"
+      ],
+      "volume": 21,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-new"
+      ]
+    },
+    {
+      "book_id": "book-dexpress-8507e00dff87-manga-4",
+      "series_id": "series-dexpress-8507e00dff87",
+      "title": "บันทึกสงครามโรเมเลีย",
+      "aliases": [
+        "ロメリア戦記"
+      ],
+      "volume": 4,
+      "edition": "manga",
+      "publisher": "DEXpress",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-dexpress-new"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-3d7422e0a957-manga-1",
+      "series_id": "series-siam-inter-comics-3d7422e0a957",
+      "title": "KAIJYU No.8 GO RELAX",
+      "aliases": [
+        "怪獣8号RELAX",
+        "Kaiju No. 8: Relax"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-store"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-1fbbbbdcebb5-manga-1",
+      "series_id": "series-siam-inter-comics-1fbbbbdcebb5",
+      "title": "มืออสูรล่าปีศาจ ตำนานพิศวง",
+      "aliases": [
+        "地獄先生ぬ～べ～怪談"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-store"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-38b002af1153-manga-1",
+      "series_id": "series-siam-inter-comics-38b002af1153",
+      "title": "มืออสูรล่าปีศาจ PLUS",
+      "aliases": [
+        "地獄先生ぬ～べ～PLUS"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-store"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-7115b122d104-manga-1",
+      "series_id": "series-siam-inter-comics-7115b122d104",
+      "title": "สิ่งเล็กๆ ที่ยังไม่เรียกว่ารัก",
+      "aliases": [],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-store"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-c45f0eae36ea-manga-1",
+      "series_id": "series-siam-inter-comics-c45f0eae36ea",
+      "title": "BLOOD BLOCKADE BATTLEFRONT Back 2 Back",
+      "aliases": [
+        "血界戦線 Back 2 Back",
+        "Blood Blockade Battlefront: Back 2 Back"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-store"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-5c914cd39396-manga-1",
+      "series_id": "series-siam-inter-comics-5c914cd39396",
+      "title": "เมื่อสาวมหาลัยสุดคูลแต่แสนเนือยมายืนข้างผมที่ร้านกินดื่ม",
+      "aliases": [],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-store"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-3e7d7ec5372e-manga-1",
+      "series_id": "series-siam-inter-comics-3e7d7ec5372e",
+      "title": "Panharmonicon",
+      "aliases": [
+        "パンハーモニコン"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-store"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-c69332b73593-manga-1",
+      "series_id": "series-siam-inter-comics-c69332b73593",
+      "title": "ยอดนักปรุงโซมะ",
+      "aliases": [
+        "食戟のソーマ",
+        "Food Wars!: Shokugeki no Soma"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-soma"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-c2dc201d510d-light_novel-8",
+      "series_id": "series-siam-inter-comics-c2dc201d510d",
+      "title": "สาวหมาป่ากับนายเครื่องเทศ",
+      "aliases": [
+        "狼と香辛料",
+        "Spice and Wolf"
+      ],
+      "volume": 8,
+      "edition": "light_novel",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "announced",
+      "sources": [
+        "demo-siam-inter-comics-post"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-0e87cb339422-manga-1",
+      "series_id": "series-siam-inter-comics-0e87cb339422",
+      "title": "มหาเวทย์ผนึกมาร",
+      "aliases": [
+        "呪術廻戦",
+        "Jujutsu Kaisen"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-jjk"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-7374a2eb862b-manga-1",
+      "series_id": "series-siam-inter-comics-7374a2eb862b",
+      "title": "ONE PIECE (วันพีซ)",
+      "aliases": [
+        "ONE PIECE",
+        "One Piece"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-piece"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-f3ca9e003e17-manga-1",
+      "series_id": "series-siam-inter-comics-f3ca9e003e17",
+      "title": "ดาบพิฆาตอสูร",
+      "aliases": [
+        "鬼滅の刃",
+        "Demon Slayer: Kimetsu no Yaiba"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-demon"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-8621cf9551c1-manga-17",
+      "series_id": "series-siam-inter-comics-8621cf9551c1",
+      "title": "ดี.เกรย์ แมน D.Gray - Man",
+      "aliases": [
+        "D.Gray-man"
+      ],
+      "volume": 17,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-retail"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-8f4c18f943ab-manga-1",
+      "series_id": "series-siam-inter-comics-8f4c18f943ab",
+      "title": "เมซงกับแมนชั่นกินคน",
+      "aliases": [],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-retail"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-e3fac0686bf0-manga-1",
+      "series_id": "series-siam-inter-comics-e3fac0686bf0",
+      "title": "เมื่อดาราพร่างพราวเหนือตะวัน A Star Brighter Than The Sun",
+      "aliases": [
+        "太陽よりも眩しい星",
+        "A Star Brighter Than the Sun"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-retail"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-55d22da467dd-manga-4",
+      "series_id": "series-siam-inter-comics-55d22da467dd",
+      "title": "COSMOS คอสมอส",
+      "aliases": [
+        "COSMOS",
+        "Cosmos"
+      ],
+      "volume": 4,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-retail"
+      ]
+    },
+    {
+      "book_id": "book-siam-inter-comics-4b9b91c6f7ba-manga-19",
+      "series_id": "series-siam-inter-comics-4b9b91c6f7ba",
+      "title": "ไฮคิว!! คู่ตบฟ้าประทาน",
+      "aliases": [
+        "ハイキュー!!",
+        "Haikyu!!"
+      ],
+      "volume": 19,
+      "edition": "manga",
+      "publisher": "Siam Inter Comics",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-siam-inter-comics-haikyu"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-5ca67d4e307b-manga-105",
+      "series_id": "series-vibulkij-5ca67d4e307b",
+      "title": "ยอดนักสืบจิ๋วโคนัน",
+      "aliases": [
+        "名探偵コナン",
+        "Case Closed"
+      ],
+      "volume": 105,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-conan"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-f6cba81f56c9-manga-1",
+      "series_id": "series-vibulkij-f6cba81f56c9",
+      "title": "BLUE LOCK ขังดวลแข้ง",
+      "aliases": [
+        "ブルーロック",
+        "Blue Lock"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-blue"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-05f8db938eac-manga-1",
+      "series_id": "series-vibulkij-05f8db938eac",
+      "title": "The Fighting ก้าวแรกสู่สังเวียน",
+      "aliases": [
+        "はじめの一歩",
+        "Hajime no Ippo"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-ippo"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-5b3168498f2b-manga-3",
+      "series_id": "series-vibulkij-5b3168498f2b",
+      "title": "EDENS ZERO",
+      "aliases": [],
+      "volume": 3,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-c052c4491800-manga-33",
+      "series_id": "series-vibulkij-c052c4491800",
+      "title": "ศึกตำนาน 7 อัศวิน",
+      "aliases": [
+        "七つの大罪",
+        "The Seven Deadly Sins"
+      ],
+      "volume": 33,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-def2e3145f33-manga-2",
+      "series_id": "series-vibulkij-def2e3145f33",
+      "title": "ไซเบอร์เพชฌฆาต GUNNM Last Order (ภาค2)",
+      "aliases": [
+        "銃夢 Last Order",
+        "Battle Angel Alita: Last Order"
+      ],
+      "volume": 2,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-7655cc7e3cfe-manga-1",
+      "series_id": "series-vibulkij-7655cc7e3cfe",
+      "title": "ไซเบอร์เพชฌฆาต GUNNM MARS CHRONICLE (ภาค3)",
+      "aliases": [
+        "銃夢火星戦記",
+        "Battle Angel Alita: Mars Chronicle"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-ce1434e00f31-manga-14",
+      "series_id": "series-vibulkij-ce1434e00f31",
+      "title": "GTO PARADISE LOST",
+      "aliases": [
+        "GTO パラダイス・ロスト",
+        "GTO: Paradise Lost"
+      ],
+      "volume": 14,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-26752719779d-manga-17",
+      "series_id": "series-vibulkij-26752719779d",
+      "title": "โตเกียว รีเวนเจอร์",
+      "aliases": [
+        "東京卍リベンジャーズ",
+        "Tokyo Revengers"
+      ],
+      "volume": 17,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-b15cb981566c-manga-1",
+      "series_id": "series-vibulkij-b15cb981566c",
+      "title": "ผ่าพิภพไททัน ATTACK ON TITAN",
+      "aliases": [
+        "進撃の巨人",
+        "Attack on Titan"
+      ],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-daaefb677cb8-manga-23",
+      "series_id": "series-vibulkij-daaefb677cb8",
+      "title": "หน่วยผจญคนไฟลุก",
+      "aliases": [
+        "炎炎ノ消防隊",
+        "Fire Force"
+      ],
+      "volume": 23,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-61d0a563670f-manga-16",
+      "series_id": "series-vibulkij-61d0a563670f",
+      "title": "MIX มิกซ์",
+      "aliases": [
+        "MIX",
+        "Mix"
+      ],
+      "volume": 16,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-c2476c731b1d-manga-30",
+      "series_id": "series-vibulkij-c2476c731b1d",
+      "title": "ยุ่งนักหนา เลขาพญายม",
+      "aliases": [
+        "鬼灯の冷徹",
+        "Hozuki's Coolheadedness"
+      ],
+      "volume": 30,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    },
+    {
+      "book_id": "book-vibulkij-91c331c251c2-manga-1",
+      "series_id": "series-vibulkij-91c331c251c2",
+      "title": "ผ่า ม.ปลายไททัน",
+      "aliases": [],
+      "volume": 1,
+      "edition": "manga",
+      "publisher": "Vibulkij",
+      "release_date_precision": "month",
+      "sale_status": "released",
+      "sources": [
+        "demo-vibulkij-manga"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "demo-phoenix-sep",
+      "source_url": "https://www.phoenixnext.com/guild/new-release-sep-26",
+      "raw_text": "ประกาศหนังสือใหม่ประจำเดือนกันยายน 2026\nขอต้อนรับสู่ห้องเรียนนิยม (เฉพาะ) ยอดคน ปี 3 — ไลต์โนเวล · เล่ม 2\nเพื่อนคนแรกของผมคือสาวสวยอันดับสองของห้อง — ไลต์โนเวล · เล่ม 7.5\nเอาแล้วไง ยัยแฟนเก่าดันเป็นลูกสาวแม่ใหม่ — ไลต์โนเวล · เล่ม 10\nจอมมารเกิดใหม่ วิทยาลัยผู้พิทักษ์ — ไลต์โนเวล · เล่ม 13\nนักสืบตายแล้ว — ไลต์โนเวล · เล่ม 13\nห้องเรียนจารชน — ไลต์โนเวล · เล่ม 14\nแง้มหัวใจยัยน้องสาวจำเป็น — ไลต์โนเวล · เล่ม 15\nสืบคดีปริศนา หมอยาตำรับโคมแดง — ไลต์โนเวล · เล่ม 16\nผมเนี่ยนะ...ชายแปด! — ไลต์โนเวล · เล่ม 23\nคุณดาระ ตำนานยุคเรวะ — มังงะ · เล่ม 2\nTHUNDER 3 สามสหายทะลุมิติ — มังงะ · เล่ม 3\nทาวเวอร์ดันเจี้ยน พิชิตหอคอยมังกร — มังงะ · เล่ม 5\nชิโนะกับเร็น — มังงะ · เล่ม 5\nฮันนี่แทรปแชร์เฮาส์ — มังงะ · เล่ม 8\nELDEN RING เส้นทางสู่พฤกษาทอง — มังงะ · เล่ม 9\nรักสุดฟินเลเวล 999 กับยามาดะคุง — มังงะ · เล่ม 9\nคุณอาเรียโต๊ะข้างๆ พูดรัสเซียหวานใส่ซะหัวใจจะวาย — มังงะ · เล่ม 9\nซาซากิกับมิยาโนะ — มังงะ · เล่ม 11\nยมลแห่งยมโลก — มังงะ · เล่ม 12\nมิเอรุโกะจัง ใครว่าหนูเห็นผี — มังงะ · เล่ม 14",
+      "publisher": "Phoenix Next",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-phoenix-standard",
+      "source_url": "https://www.phoenixnext.com/ln0837-01.html",
+      "raw_text": "รายการไลต์โนเวลแบบปกติ\nสืบคดีปริศนา หมอยาตำรับโคมแดง — ไลต์โนเวล · เล่ม 16",
+      "publisher": "Phoenix Next",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-phoenix-special",
+      "source_url": "https://www.phoenixnext.com/ln0837-02p.html",
+      "raw_text": "รายการชุดพิเศษ\nสืบคดีปริศนา หมอยาตำรับโคมแดง — ชุดพิเศษ (ไลต์โนเวล) · เล่ม 16",
+      "publisher": "Phoenix Next",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-bongkoch-aug",
+      "source_url": "https://www.bongkoch.com/shop/index.php?route=simple_blog/article/view&simple_blog_article_id=826",
+      "raw_text": "หนังสือบงกชออกใหม่เดือนสิงหาคม 2569\nแดดดี๊มอนสเตอร์กับหนุ่มเยือกแข็ง — มังงะ · เล่ม 6\nรักที่ไม่มีทางสมหวังในการ์ตูนผู้หญิง — มังงะ · เล่ม 1\nรักนี้เกินต้านใจ — มังงะ · เล่ม 5\n12 years ~หลังจากนั้น~ — มังงะ · เล่ม 20\n99% ซักคิวบัสจัง — มังงะ · เล่ม 4\nMermaid Melody Pichi Pichi Pitch เจ้าหญิงเงือกน้อย Aqua (ภาคใหม่) — มังงะ · เล่ม 6\nMoon and Maple Syrup ความรักครั้งนี้รสน้ำผึ้ง — มังงะ · เล่ม 1\nRETRY JULIET!! รีไทร์จูเลียต!! — มังงะ · เล่ม 1\nROSE AND KILLER กุหลาบ & นักล่าสังหาร — มังงะ · เล่ม 1\nขอโทษทีที่มีน้องชายจอมป่วน — มังงะ · เล่ม 14\nเขยตัวร้ายกับคุณหนูยากูซ่า — มังงะ · เล่ม 11\nความฝัน ความรัก และคืนไร้นิทรา — มังงะ · เล่ม 1\nเจ้าสาวผู้แปดเปื้อน — มังงะ · เล่ม 7\nเจ้าสาวสุดรักของราชาพยัคฆ์ — มังงะ · เล่ม 6\nชมหน่อยน้า คุณเลขาคุโรซากิ — มังงะ · เล่ม 12\nไดฟุกุจังกับเจ้าชายจอมกวน — มังงะ · เล่ม 6\nทำไงได้ ก็คนมันรักไปแล้ว — มังงะ · เล่ม 12\nเธอคือดวงดาวเคียงข้างใจ Stella Next to Me — มังงะ · เล่ม 9\nร้อยเรียงรักจากหัวใจ — มังงะ · เล่ม 13\nรักละไม หวานใจหนุ่มเข้ม — มังงะ · เล่ม 13\nMoon and Maple Syrup ความรักครั้งนี้รสน้ำผึ้ง — มังงะ · เล่ม 2\nMoon and Maple Syrup ความรักครั้งนี้รสน้ำผึ้ง — มังงะ · เล่ม 3",
+      "publisher": "Bongkoch Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-luckpim-oct",
+      "source_url": "https://www.luckpimshop.com/blog/%E0%B8%95%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%87%E0%B8%AB%E0%B8%99%E0%B8%B1%E0%B8%87%E0%B8%AA%E0%B8%B7%E0%B8%AD%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%88%E0%B8%B3%E0%B9%80%E0%B8%94%E0%B8%B7%E0%B8%AD%E0%B8%99-%E0%B8%95%E0%B8%B8%E0%B8%A5%E0%B8%B2%E0%B8%84%E0%B8%A1-2026/12",
+      "raw_text": "ตารางหนังสือประจำเดือนตุลาคม 2026\nกลยุทธ์เอาตัวรอดของท่านลอร์ดวายร้าย — ไลต์โนเวล · เล่ม 3 · วันที่ตามประกาศ 2026-10-02\nโฉมงามพูดไม่เก่งกับผองเพื่อนไม่เต็มเต็ง — มังงะ · เล่ม 31 · วันที่ตามประกาศ 2026-10-07\nตรงนี้ให้ฉันจัดการเอง แต่พอ 10 ปีผ่านไปก็กลายเป็นตำนานไปซะแล้ว — มังงะ · เล่ม 14 · วันที่ตามประกาศ 2026-10-07\nกล่องรักวัยใส — มังงะ · เล่ม 21 · วันที่ตามประกาศ 2026-10-09\nนักเขียนหน้าตายนายโนซากิคุง — มังงะ · เล่ม 17 · วันที่ตามประกาศ 2026-10-09\nด้ายแดงผูกรักบ้านอามากามิ — มังงะ · เล่ม 17 · วันที่ตามประกาศ 2026-10-09\nDARWIN'S GAME — มังงะ · เล่ม 25 · วันที่ตามประกาศ 2026-10-14\nเหล่าพ่อแม่ผู้วิงวอน \"ให้ลูกของฉันหายไป\" — มังงะ · เล่ม 9 · วันที่ตามประกาศ 2026-10-14\nซัมวันเฮิรตซ์ — มังงะ · เล่ม 1 · วันที่ตามประกาศ 2026-10-16\nเซนต์เซย์ย่า ~THE LOST CANVAS~ จ้าวนรกฮาเดส — มังงะ · เล่ม 15 · วันที่ตามประกาศ 2026-10-23\nภารกิจลับนินจาป่วน — มังงะ · เล่ม 4 · วันที่ตามประกาศ 2026-10-23\nชุดกะลาสีของอาเคบิจัง — มังงะ · เล่ม 12 · วันที่ตามประกาศ 2026-10-23\nSAKAMOTO DAYS — มังงะ · เล่ม 25 · วันที่ตามประกาศ 2026-10-23\nคุณชิกิโมริไม่ได้น่ารักแค่อย่างเดียวนะ — มังงะ · เล่ม 20 · วันที่ตามประกาศ 2026-10-23\nสะดุดรักยัยแฟนเช่า — มังงะ · เล่ม 41 · วันที่ตามประกาศ 2026-10-23\nตำนานดาบและคทาแห่งวิสตอเรีย — มังงะ · เล่ม 14 · วันที่ตามประกาศ 2026-10-28\nแด่เธอผู้เป็นนิรันดร์ — มังงะ · เล่ม 24 · วันที่ตามประกาศ 2026-10-28\nเกิดใหม่ทั้งทีก็เป็นสไลม์ไปซะแล้ว — มังงะ · เล่ม 30 · วันที่ตามประกาศ 2026-10-28\nชีวิตตัวประกอบอย่างตูช่างอยู่ยากเมื่ออยู่ในโลกเกมจีบหนุ่ม — ไลต์โนเวล · เล่ม 11 · วันที่ตามประกาศ 2026-10-30",
+      "publisher": "Luckpim",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-luckpim-uzaki",
+      "source_url": "https://www.luckpim.com/product/detail/1359",
+      "raw_text": "รายการหนังสือพร้อม ISBN\nรุ่นน้องตัวป่วนอยากชวนเที่ยวเล่น — มังงะ · เล่ม 1 · ISBN 9786165740791",
+      "publisher": "Luckpim",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-animag-shop",
+      "source_url": "https://www.animagshop.com/category",
+      "raw_text": "รายการหนังสือ Animag\nตำรับปริศนา หมอยาแห่งวังหลัง — มังงะ · เล่ม 17\nนัดบอดวันนี้ สาว ๆ อยู่ไหนครับ — มังงะ · เล่ม 11\nขาดคุณนางฟ้าข้างห้องไป ผมคงมีชีวิตต่อไปไม่ได้อีกแล้ว — มังงะ · เล่ม 6\nสารพันปัญหาวุ่นวาย ของยัยแวมไพร์ขี้จุ๊ — มังงะ · เล่ม 4\nให้เป็นแฟนได้ไง ไม่เอาไม่ไหวหรอก (หรือจะไหวนะ!?) — มังงะ · เล่ม 8\nGoblin Slayer! A Day in the Life — มังงะ · เล่ม 3\nGoblin Slayer! — มังงะ · เล่ม 14\nบทเพลงรักของผู้ทรยศ — มังงะ · เล่ม 3\nดาวเหนือยามฟ้าสาง — มังงะ · เล่ม 3\nขาดคุณนางฟ้าข้างห้องไป ผมคงมีชีวิตต่อไปไม่ได้อีกแล้ว — ไลต์โนเวล · เล่ม 12\nให้เป็นแฟนได้ไง ไม่เอาไม่ไหวหรอก! (※หรือว่าจะไหวนะ!?) — ไลต์โนเวล · เล่ม 8\nข้าคือขุนนางชั่วแห่งอาณาจักรดวงดาว — ไลต์โนเวล · เล่ม 9\nฉันคือยอดอัศวินหญิงแห่งอาณาจักรดวงดาว — ไลต์โนเวล · เล่ม 4\nยุทธศาสตร์กู้ชาติของราชามือใหม่ — ไลต์โนเวล · เล่ม 18\nNo Game No Life (โนเกม โนไลฟ์) — ไลต์โนเวล · เล่ม 13\nหลังช่วยเด็กหลงทาง สาวสวยข้างบ้านก็แวะมาเที่ยว — ไลต์โนเวล · เล่ม 4\nปรมาจารย์ดาบชั้นเซียนมาตบเกรียนถึงเมืองกรุง — ไลต์โนเวล · เล่ม 8\nอินเดกซ์ คัมภีร์คาถาต้องห้าม พันธสัญญาใหม่ — ไลต์โนเวล · เล่ม 11\nการเดินทางของคิโนะ — ไลต์โนเวล · เล่ม 8\n10 เช็กลิสต์หัวใจก่อนถึงวัย 40 — มังงะ · เล่ม 3",
+      "publisher": "Animag",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-dexpress-shop",
+      "source_url": "https://www.dexpress-shop.com/category",
+      "raw_text": "แค็ตตาล็อกหนังสือ DEXpress\nเส้นทางพลิกผันของราชันอมตะ — มังงะ · เล่ม 10\nโดนไล่ออกจากปาร์ตี้เพราะเป็นจอมเวทหญิงเลยไปจับคู่สุดแกร่งกับแม่มดในตำนาน — มังงะ · เล่ม 5\nต้องทำยังไงถึงจะได้เป็นหวานใจเพื่อนวัยเด็ก!? — มังงะ · เล่ม 2\nจอมมารอย่างข้าควรรักภรรยาเอลฟ์อย่างไรดี? — มังงะ · เล่ม 11\nงานรื่นเริงกับเหล่าเดรัจฉาน — มังงะ · เล่ม 2\nOVER LORD — มังงะ · เล่ม 18\nShrink ~คลินิกสุขภาพใจของจิตแพทย์โยวาอิ~ — มังงะ · เล่ม 3\nสูญสิ้นที่ต่างโลก — มังงะ · เล่ม 13\nแปลใจในฝ่ามือ — มังงะ · เล่ม 4\nเอริโอกับตุ๊กตาสมองกล — มังงะ · เล่ม 2\nแกล้งนักรัก (แล้ว) นะรู้ยัง? — มังงะ · เล่ม 7\nเรื่องน่ากลุ้มของเจ้าเหมียวผู้สามารถ — มังงะ · เล่ม 9\nเมื่อผมอยากพลิกชะตาเลยศึกษาเวทตั้งแต่ 8 ขวบ — มังงะ · เล่ม 1\nแกล้งนักรัก (แล้ว) นะรู้ยัง? — มังงะ · เล่ม 5\nแกล้งนักรัก (แล้ว) นะรู้ยัง? — มังงะ · เล่ม 6",
+      "publisher": "DEXpress",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-dexpress-new",
+      "source_url": "https://www.dexpress-shop.com/showroom/new",
+      "raw_text": "รายการหนังสือมาใหม่ DEXpress\nเมื่อผมอยากพลิกชะตาเลยศึกษาเวทตั้งแต่ 8 ขวบ — มังงะ · เล่ม 3\nเพราะสมบูรณ์แบบจนไม่น่ารัก สตรีศักดิ์สิทธิ์จึงถูกถอนหมั้นและขายไปอาณาจักรข้างเคียง — มังงะ · เล่ม 7\nโซอารากับบ้านมอนสเตอร์ — มังงะ · เล่ม 5\nปกรณัมของเหล่าภูต — มังงะ · เล่ม 19\nเกิดชาตินี้พี่ต้องเทพ — ไลต์โนเวล · เล่ม 24\nSkip and Loafer จังหวะวัยรุ่นว้าวุ่นหัวใจ — มังงะ · เล่ม 11\nอุลตร้าแมน — มังงะ · เล่ม 21\nบันทึกสงครามโรเมเลีย — มังงะ · เล่ม 4\nเส้นทางพลิกผันของราชันอมตะ — มังงะ · เล่ม 10",
+      "publisher": "DEXpress",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-siam-inter-comics-store",
+      "source_url": "https://www.yaakz.com/",
+      "raw_text": "รายการหนังสือ Siam Inter Shop\nKAIJYU No.8 GO RELAX — มังงะ · เล่ม 1\nมืออสูรล่าปีศาจ ตำนานพิศวง — มังงะ · เล่ม 1\nมืออสูรล่าปีศาจ PLUS — มังงะ · เล่ม 1\nสิ่งเล็กๆ ที่ยังไม่เรียกว่ารัก — มังงะ · เล่ม 1\nBLOOD BLOCKADE BATTLEFRONT Back 2 Back — มังงะ · เล่ม 1\nเมื่อสาวมหาลัยสุดคูลแต่แสนเนือยมายืนข้างผมที่ร้านกินดื่ม — มังงะ · เล่ม 1\nPanharmonicon — มังงะ · เล่ม 1",
+      "publisher": "Siam Inter Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-siam-inter-comics-soma",
+      "source_url": "https://www.yaakz.com/product/%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-%E0%B8%A2%E0%B8%AD%E0%B8%94%E0%B8%99%E0%B8%B1%E0%B8%81%E0%B8%9B%E0%B8%A3%E0%B8%B8%E0%B8%87%E0%B9%82%E0%B8%8B%E0%B8%A1%E0%B8%B0-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-36-%E0%B8%88%E0%B8%9A/11000408800002941",
+      "raw_text": "รายการยอดนักปรุงโซมะ\nยอดนักปรุงโซมะ — มังงะ · เล่ม 1",
+      "publisher": "Siam Inter Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-siam-inter-comics-post",
+      "source_url": "https://www.siaminterbook.com/blog/blog/1936",
+      "raw_text": "ตารางวางจำหน่าย สาวหมาป่ากับนายเครื่องเทศ\nสาวหมาป่ากับนายเครื่องเทศ — ไลต์โนเวล · เล่ม 8",
+      "publisher": "Siam Inter Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-siam-inter-comics-jjk",
+      "source_url": "https://www.yaakz.com/product/11000408800013627",
+      "raw_text": "รายการมหาเวทย์ผนึกมาร ฉบับพิมพ์ใหม่\nมหาเวทย์ผนึกมาร — มังงะ · เล่ม 1",
+      "publisher": "Siam Inter Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-siam-inter-comics-piece",
+      "source_url": "https://www.yaakz.com/product/11000408800018243",
+      "raw_text": "รายการ ONE PIECE ฉบับพิมพ์ใหม่\nONE PIECE (วันพีซ) — มังงะ · เล่ม 1",
+      "publisher": "Siam Inter Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-siam-inter-comics-demon",
+      "source_url": "https://www.yaakz.com/product/11000408800008537",
+      "raw_text": "รายการดาบพิฆาตอสูร\nดาบพิฆาตอสูร — มังงะ · เล่ม 1",
+      "publisher": "Siam Inter Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-siam-inter-comics-retail",
+      "source_url": "https://www.phanpha.com/publisher/siam-inter-comics-%E0%B8%AA%E0%B8%A2%E0%B8%B2%E0%B8%A1",
+      "raw_text": "รายการสำนักพิมพ์ Siam Inter Comics ที่ Phanpha\nดี.เกรย์ แมน D.Gray - Man — มังงะ · เล่ม 17\nเมซงกับแมนชั่นกินคน — มังงะ · เล่ม 1\nเมื่อดาราพร่างพราวเหนือตะวัน A Star Brighter Than The Sun — มังงะ · เล่ม 1\nCOSMOS คอสมอส — มังงะ · เล่ม 4",
+      "publisher": "Siam Inter Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-siam-inter-comics-haikyu",
+      "source_url": "https://www.phanpha.com/cartoon/Siam-Inter-Comics---%E0%B8%AA%E0%B8%A2%E0%B8%B2%E0%B8%A1/all?destination=cartoon%2FSiam-Inter-Comics---%E0%B8%AA%E0%B8%A2%E0%B8%B2%E0%B8%A1%2Fall%3Fpage%3D70&page=7",
+      "raw_text": "รายการไฮคิวที่ Phanpha\nไฮคิว!! คู่ตบฟ้าประทาน — มังงะ · เล่ม 19",
+      "publisher": "Siam Inter Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-siam-inter-comics-bblist",
+      "source_url": "https://www.bbcomiccenter.com/siam-inter-comics-sic-comic-list/",
+      "raw_text": "รายชื่อเรื่อง Siam Inter Comics ที่ B&b Comic Center\nTokyo Ghoul โตเกียว กูล — มังงะ\nครูพิเศษจอมป่วน Reborn! — มังงะ\nVinland Saga สงครามคนทมิฬ — มังงะ",
+      "publisher": "Siam Inter Comics",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-vibulkij-conan",
+      "source_url": "https://www.vibulkijshop.com/category/60/%E0%B8%AA%E0%B8%B7%E0%B8%9A%E0%B8%AA%E0%B8%A7%E0%B8%99-%E0%B8%9B%E0%B8%A3%E0%B8%B4%E0%B8%A8%E0%B8%99%E0%B8%B2-detective-mystery/%E0%B8%A2%E0%B8%AD%E0%B8%94%E0%B8%99%E0%B8%B1%E0%B8%81%E0%B8%AA%E0%B8%B7%E0%B8%9A%E0%B8%88%E0%B8%B4%E0%B9%8B%E0%B8%A7-%E0%B9%82%E0%B8%84%E0%B8%99%E0%B8%B1%E0%B8%99",
+      "raw_text": "รายการยอดนักสืบจิ๋วโคนัน\nยอดนักสืบจิ๋วโคนัน — มังงะ · เล่ม 105",
+      "publisher": "Vibulkij",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-vibulkij-blue",
+      "source_url": "https://www.vibulkijshop.com/category?tskp=181",
+      "raw_text": "รายการ BLUE LOCK ขังดวลแข้ง\nBLUE LOCK ขังดวลแข้ง — มังงะ · เล่ม 1",
+      "publisher": "Vibulkij",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-vibulkij-ippo",
+      "source_url": "https://www.vibulkijshop.com/product/5979/%E0%B8%81%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B9%81%E0%B8%A3%E0%B8%81%E0%B8%AA%E0%B8%B9%E0%B9%88%E0%B8%AA%E0%B8%B1%E0%B8%87%E0%B9%80%E0%B8%A7%E0%B8%B5%E0%B8%A2%E0%B8%99-1-2",
+      "raw_text": "รายการก้าวแรกสู่สังเวียน\nThe Fighting ก้าวแรกสู่สังเวียน — มังงะ · เล่ม 1",
+      "publisher": "Vibulkij",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-vibulkij-manga",
+      "source_url": "https://www.vibulkijshop.com/product/tag/manga",
+      "raw_text": "รายการมังงะของวิบูลย์กิจ\nEDENS ZERO — มังงะ · เล่ม 3\nศึกตำนาน 7 อัศวิน — มังงะ · เล่ม 33\nไซเบอร์เพชฌฆาต GUNNM Last Order (ภาค2) — มังงะ · เล่ม 2\nไซเบอร์เพชฌฆาต GUNNM MARS CHRONICLE (ภาค3) — มังงะ · เล่ม 1\nGTO PARADISE LOST — มังงะ · เล่ม 14\nโตเกียว รีเวนเจอร์ — มังงะ · เล่ม 17\nผ่าพิภพไททัน ATTACK ON TITAN — มังงะ · เล่ม 1\nหน่วยผจญคนไฟลุก — มังงะ · เล่ม 23\nMIX มิกซ์ — มังงะ · เล่ม 16\nยุ่งนักหนา เลขาพญายม — มังงะ · เล่ม 30\nผ่า ม.ปลายไททัน — มังงะ · เล่ม 1\nฮายาเตะ พ่อบ้านประจัญบาน — มังงะ\nคินดะอิจิ 37 กับคดีฆาตกรรมปริศนา — มังงะ\nยอดนักสืบจิ๋ว โคนัน วันสบายๆ ของซีโร่ — มังงะ\nโคนัน Wild Police Story ห้าพยัคฆ์นักเรียนตำรวจ — มังงะ\nอันเดอร์นินจา UNDER NINJA — มังงะ",
+      "publisher": "Vibulkij",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "source_id": "demo-vibulkij-catalog",
+      "source_url": "https://www.vibulkijshop.com/category",
+      "raw_text": "แค็ตตาล็อกวิบูลย์กิจ\nวันธรรมดาของแม่มดว้าวุ่น Flying Witch — มังงะ",
+      "publisher": "Vibulkij",
+      "imported_at": "2026-11-21T00:00:00+07:00"
+    }
+  ],
+  "updated_at": "2026-11-21T00:00:00+07:00"
+}

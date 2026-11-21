@@ -1,0 +1,25 @@
+{
+  "owned": [
+    {
+      "book_id": "book-dexpress-943fd57fdc4a-manga-5",
+      "added_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "book_id": "book-dexpress-943fd57fdc4a-manga-7",
+      "added_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "book_id": "book-bongkoch-195ead427c08-manga-1",
+      "added_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "book_id": "book-luckpim-cf0080132cfe-manga-1",
+      "added_at": "2026-11-21T00:00:00+07:00"
+    },
+    {
+      "book_id": "book-phoenix-cdf9b96a8eb5-light_novel-16",
+      "added_at": "2026-11-21T00:00:00+07:00"
+    }
+  ],
+  "updated_at": "2026-11-21T00:00:00+07:00"
+}
