@@ -156,3 +156,45 @@ test("authorizes a hosted shelf write before calling the Supabase RPC", async ()
   expect(await (await POST(request)).json()).toEqual(updated);
   expect(fetchMock.mock.calls[2][0].pathname).toBe("/rest/v1/rpc/shelfpilot_demo_update_shelf");
 });
+
+test("lets the signed-in Preview team load and resolve the Supabase review queue", async () => {
+  vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("VERCEL_ENV", "preview");
+  vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
+  const authorization = "Basic " + Buffer.from("shelfpilot:test-team-password").toString("base64");
+  const site = "https://preview.example.test";
+  const request = new Request("http://localhost/api/review/resolve", {
+    method: "POST",
+    headers: { authorization, origin: site, host: new URL(site).host, "Content-Type": "application/json" },
+    body: JSON.stringify({ review_id: "review-test", action: "skip" }),
+  });
+  const review = {
+    review_id: "review-test", source_id: "source-test", extracted: {}, candidates: [],
+    reason: "fixture", status: "open", created_at: "2026-11-21T00:00:00Z",
+  };
+  const snapshot = { revision: "2", catalog: catalog(), queue: { items: [review] } };
+  const fetchMock = vi.fn<typeof fetch>()
+    .mockResolvedValueOnce(Response.json({ access_token: "fixture-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(Response.json(snapshot))
+    .mockResolvedValueOnce(Response.json(snapshot))
+    .mockResolvedValueOnce(Response.json(true));
+  vi.stubGlobal("fetch", fetchMock);
+
+  const { readSupabaseIngest } = await import("@/lib/data/supabase-demo");
+  const { POST } = await import("@/app/api/review/resolve/route");
+  requestHeaders.mockResolvedValue(new Headers());
+  await expect(readSupabaseIngest()).rejects.toThrow("Team demo sign-in required");
+  expect(fetchMock).not.toHaveBeenCalled();
+
+  requestHeaders.mockResolvedValue(request.headers);
+  await expect(readSupabaseIngest()).resolves.toEqual(snapshot);
+  expect(await (await POST(request)).json()).toEqual({ review_id: "review-test", status: "resolved" });
+  expect(fetchMock.mock.calls.map(([url]) => new URL(String(url)).pathname)).toEqual([
+    "/auth/v1/token", "/rest/v1/rpc/shelfpilot_admin_snapshot",
+    "/rest/v1/rpc/shelfpilot_admin_snapshot", "/rest/v1/rpc/shelfpilot_admin_commit",
+  ]);
+  expect(JSON.parse(String(fetchMock.mock.calls[3][1]?.body))).toEqual({
+    expected_revision: "2", books: [], sources: [], reviews: [{ ...review, status: "resolved" }],
+  });
+});

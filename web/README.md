@@ -55,4 +55,6 @@ To enable `/admin` writes in local Supabase mode, apply the [ingestion admin mig
 2. In Project Settings → Environment Variables, set the same five `SHELFPILOT_*` connection settings for Production. Set `SHELFPILOT_TEAM_PASSWORD` to a separate, randomly generated team password. Set Preview variables too if the team uses Preview deployments.
 3. Deploy the updated commit. Open the HTTPS production URL and sign in with username `shelfpilot` and the team password. The browser uses this sign-in for pages and API requests. Each signed-in teammate uses the same fixture shelf.
 
-The catalog, shelf, and review queue load from Supabase. Confirmed shelf changes and store clicks persist in Supabase. Enable announcement import from a loopback-bound development server using local JSON files or a Supabase account with the ingestion admin grant.
+The catalog, shelf, and review queue load from Supabase. Confirmed shelf changes and store clicks persist in Supabase.
+
+On Vercel Preview, the team can import announcements and resolve reviews through `/admin` after signing in as `shelfpilot`. Enable **Automatically expose System Environment Variables** in the Vercel project and apply the ingestion admin migration and grant to the Supabase account configured for Preview. Preview changes write to the Supabase project configured in the Preview environment. The production admin page displays the review queue in read-only mode.

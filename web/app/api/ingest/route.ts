@@ -1,6 +1,6 @@
 import { LlmUnavailableError } from "@/lib/llm/client";
 import { SupabaseIngestAccessError } from "@/lib/data/supabase-demo";
-import { allowsLocalIngestPost } from "@/lib/ingest/access";
+import { allowsIngestPost } from "@/lib/ingest/access";
 import { runPipeline } from "@/lib/ingest/pipeline";
 import { IngestConflictError } from "@/lib/ingest/storage";
 import type { IngestInput } from "@/lib/ingest/contracts";
@@ -22,8 +22,8 @@ function validInput(value: unknown): value is IngestInput {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  if (!allowsLocalIngestPost(request)) {
-    return Response.json({ error: "Import / Extract ใช้งานได้บน localhost ด้วยแค็ตตาล็อกแบบไฟล์หรือบัญชีแอดมิน Supabase ที่ตั้งค่าไว้" }, { status: 404 });
+  if (!allowsIngestPost(request)) {
+    return Response.json({ error: "Import / Extract ใช้งานได้บน localhost หรือ Vercel Preview ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว" }, { status: 404 });
   }
   const contentType = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
   if (contentType !== "application/json") {

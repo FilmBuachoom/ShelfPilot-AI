@@ -2,7 +2,7 @@ import "server-only";
 
 import { headers } from "next/headers";
 import type { BookId, Catalog, ReviewQueue, UserShelf } from "@/types/generated";
-import { hasDemoAccess, isHostedDemo } from "./supabase-demo-access";
+import { hasDemoAccess, isHostedDemo, isSupabasePreview } from "./supabase-demo-access";
 
 interface AuthSession {
   access_token: string;
@@ -57,7 +57,9 @@ async function accessToken(settings: ReturnType<typeof config>) {
 
 async function rpc<T>(name: string, args: Record<string, unknown> = {}, scope: "demo" | "admin" = "demo"): Promise<T> {
   if (isHostedDemo()) {
-    if (scope === "admin") throw new Error("Supabase admin access requires local development.");
+    if (scope === "admin" && !isSupabasePreview()) {
+      throw new Error("Hosted Supabase admin access requires Vercel Preview.");
+    }
     const authorization = (await headers()).get("authorization");
     const password = process.env.SHELFPILOT_TEAM_PASSWORD;
     if (!password || !hasDemoAccess(authorization, password)) {

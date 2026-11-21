@@ -1,4 +1,4 @@
-import { allowsLocalIngestPost } from "@/lib/ingest/access";
+import { allowsIngestPost } from "@/lib/ingest/access";
 import { SupabaseIngestAccessError } from "@/lib/data/supabase-demo";
 import { resolveReview, ReviewResolutionError } from "@/lib/ingest/resolve-review";
 import { parseReviewResolution } from "@/lib/ingest/review-record";
@@ -7,8 +7,8 @@ import { IngestConflictError } from "@/lib/ingest/storage";
 export const runtime = "nodejs";
 
 export async function POST(request: Request): Promise<Response> {
-  if (!allowsLocalIngestPost(request)) {
-    return Response.json({ error: "การอนุมัติใช้งานได้บน localhost ด้วยแค็ตตาล็อกแบบไฟล์หรือบัญชีแอดมิน Supabase ที่ตั้งค่าไว้" }, { status: 404 });
+  if (!allowsIngestPost(request)) {
+    return Response.json({ error: "การอนุมัติใช้งานได้บน localhost หรือ Vercel Preview ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว" }, { status: 404 });
   }
   if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
     return Response.json({ error: "คำขอต้องส่งข้อมูลแบบ JSON" }, { status: 415 });

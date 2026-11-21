@@ -1,17 +1,22 @@
 import "server-only";
 
-import { usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
+import { hasDemoAccess, isDemoWriteAllowed, isSupabasePreview, usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
 
 const loopbackHost = /^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d{1,5})?$/i;
 
-export function isLocalIngestAvailable(headers: Pick<Headers, "get">): boolean {
+export function isIngestAvailable(headers: Pick<Headers, "get">): boolean {
+  if (isSupabasePreview()) {
+    const password = process.env.SHELFPILOT_TEAM_PASSWORD;
+    return Boolean(password && hasDemoAccess(headers.get("authorization"), password));
+  }
   return process.env.NODE_ENV === "development"
     && !process.env.VERCEL
     && loopbackHost.test(headers.get("host") ?? "");
 }
 
-export function allowsLocalIngestPost(request: Request): boolean {
-  if (!isLocalIngestAvailable(request.headers)) return false;
+export function allowsIngestPost(request: Request): boolean {
+  if (!isIngestAvailable(request.headers)) return false;
+  if (isSupabasePreview()) return isDemoWriteAllowed(request);
 
   const origin = request.headers.get("origin");
   if (origin === null) return !usesSupabaseDemo();
