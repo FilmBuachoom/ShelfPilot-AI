@@ -3,6 +3,7 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import Ajv from "ajv";
+import OpenAI from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { callStructured } from "@/lib/llm/client";
 import { chatModel } from "@/lib/llm/models";
@@ -22,7 +23,15 @@ const schema = { name: "chat_answer", schema: { type, properties: modelPropertie
 const isChatAnswer = new Ajv().compile<Omit<ChatAnswer, "proposal">>(schema.schema);
 const maxToolRounds = 3;
 const maxCallsPerRound = 4;
-const turnTimeout = 15_000;
+const turnTimeout = 28_000;
+const requestTimeout = 12_000;
+
+function isTransientFailure(error: unknown) {
+  const cause = error instanceof Error ? error.cause : undefined;
+  if (cause instanceof OpenAI.APIConnectionError) return true;
+  if (!(cause instanceof OpenAI.APIError)) return false;
+  return cause.status === 408 || cause.status === 409 || cause.status === 429 || (cause.status !== undefined && cause.status >= 500);
+}
 
 async function loadPrompt() {
   const cwd = process.cwd();
@@ -51,21 +60,31 @@ export async function runChat(
     const userText = history.at(-1)?.content ?? "";
     const editionClarifier = createEditionClarifier(context.catalog, history);
     const deadline = Date.now() + turnTimeout;
+    let retriesLeft = 1;
 
     for (let round = 0; round <= maxToolRounds; round++) {
       const timeoutMs = deadline - Date.now();
       if (timeoutMs <= 0) break;
 
-      const { data, message } = await callStructured<unknown>({
-        model: chatModel,
-        messages,
-        schema,
-        tools: round < maxToolRounds ? chatToolDefinitions : undefined,
-        timeoutMs,
-        maxRetries: 0,
-        maxCompletionTokens: 700,
-        reasoningEffort: /^gpt-6-luna(?:-|$)/.test(chatModel) ? "none" : undefined,
-      });
+      let result;
+      try {
+        result = await callStructured<unknown>({
+          model: chatModel,
+          messages,
+          schema,
+          tools: round < maxToolRounds ? chatToolDefinitions : undefined,
+          timeoutMs: Math.min(timeoutMs, requestTimeout),
+          maxRetries: 0,
+          maxCompletionTokens: 700,
+          reasoningEffort: /^gpt-6-luna(?:-|$)/.test(chatModel) ? "none" : undefined,
+        });
+      } catch (error) {
+        if (!retriesLeft || !isTransientFailure(error) || Date.now() >= deadline) throw error;
+        retriesLeft--;
+        round--;
+        continue;
+      }
+      const { data, message } = result;
       if (isChatAnswer(data)) {
         if (data.not_found) return CHAT_NOT_FOUND;
         const answer = data.text.trim();
