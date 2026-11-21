@@ -24,7 +24,22 @@ Each book carries a list of source IDs. One publisher post can support several v
 
 The [demo source fixtures](demo-data-sources.md) are inputs to extraction and matching. Publisher release posts supply volume updates. Shop listings and retailer references can support matching and identification.
 
+## Supabase development schema
+
+The [initial migration](../supabase/migrations/20261121054050_create_shelfpilot_data_model.sql) defines persistent storage in the private `shelfpilot` Postgres schema. The JSON contracts above still describe the application's current data.
+
+| Tables | What they store |
+|---|---|
+| `publishers`, `series`, `series_titles` | Publishers, publication lines, and titles tagged by language such as `th`, `ja`, and `en`. |
+| `books`, `sources`, `book_sources` | One book per series, edition, and volume, with many-to-many links to source evidence. |
+| `shelves`, `shelf_items` | One shelf per Supabase Auth user, with one ownership entry per book. |
+| `review_items`, `review_candidates`, `store_clicks` | Ingestion review and store click events. |
+
+Book and source IDs carry over from the JSON contracts. The database accepts fractional volume numbers and an optional, unique ISBN-13 stored as digits. Month-only dates use the first of the month with `release_date_precision = 'month'`. The day is a storage convention.
+
+All tables have row level security. The underlying schema stays outside the Data API. The [demo connection migration](../supabase/migrations/20261121060134_connect_demo_app.sql) exposes a small set of functions to authenticated fixture accounts. The database derives the shelf owner from the Auth token and applies shelf changes and the timestamp update in one transaction. The [local demo instructions](../web/README.md#local-supabase-demo) describe how to enable the Supabase backend.
+
 ## Future extensions
 
-- **ISBN.** The ingestion pipeline can capture an ISBN when an authorized source supplies it for the exact edition and format. Keep it in the source evidence until the catalog contract supports a dedicated field. A future `Book.isbn` should be optional. Keep `book_id` as the stable identifier used by the app.
+- **ISBN in the app.** Ingestion can populate the optional database field when an authorized source identifies the exact publication. A future catalog contract can expose that field to the app while keeping `book_id` as the stable identifier.
 - **Licensing.** A separate workflow could track rights holders, local publishers, language, territory, and format. A license announcement can precede any volume details, so model it separately from the volume announcement workflow.
