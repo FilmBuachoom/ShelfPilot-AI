@@ -2,7 +2,7 @@
 .sp-import textarea { font-family: var(--font-mono); }
 .sp-import :is(input, textarea):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .sp-import__fields { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); }
-.sp-import__result { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+.sp-import__result { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); margin-top: var(--space-3); }
 .sp-import__result-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .sp-import__result-head h3 { margin: 0; font-size: var(--text-body-size); }
 .sp-import__source { font: 13px/1.6 var(--font-mono); overflow-wrap: anywhere; color: var(--ink-muted); }
@@ -12,6 +12,6 @@
 .sp-import :is(th, td) { padding: var(--space-2) var(--space-3) var(--space-2) 0; border-bottom: 1px solid var(--line); vertical-align: top; }
 .sp-import th { text-align: start; white-space: nowrap; }
 .sp-import__match { display: grid; justify-items: start; gap: var(--space-1); min-width: 13rem; }
-.sp-import__match code { font-family: var(--font-mono); }
+.sp-import__match code { font-family: var(--font-mono); overflow-wrap: anywhere; }
 .sp-import__error { padding: var(--space-3); border: 1px dashed var(--review-line); color: var(--review-ink); background: var(--review-soft); }
-@media (max-width: 640px) { .sp-import__fields { grid-template-columns: 1fr; } }
+@container (max-width: 38rem) { .sp-import__fields { grid-template-columns: minmax(0, 1fr); } }

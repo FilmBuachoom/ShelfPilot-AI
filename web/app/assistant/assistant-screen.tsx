@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ComponentProps } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type RefObject } from "react";
 import { ApprovalSheet } from "@/components/ApprovalSheet/ApprovalSheet";
 import { ChatMessage } from "@/components/ChatMessage/ChatMessage";
 import { Composer } from "@/components/Composer/Composer";
@@ -19,7 +19,8 @@ const quickChips: { label: string; action: QuickAction }[] = [
   { label: "ใกล้ออก", action: "upcoming" },
 ];
 
-export function AssistantScreen({ messages = [], finishProposal, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
+export function AssistantScreen({ inputRef, messages = [], finishProposal, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
+  inputRef: RefObject<HTMLTextAreaElement | null>;
   messages?: Message[];
   finishProposal?: (outcome: "confirmed" | "cancelled" | "editing") => void;
   onSend?: (message: string) => void;
@@ -31,9 +32,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
   const reviewing = Boolean(messages.at(-1)?.proposal);
   const [addingBooks, setAddingBooks] = useState(false);
   const [draft, setDraft] = useState("");
-  const input = useRef<HTMLTextAreaElement>(null);
   const log = useRef<HTMLDivElement>(null);
-  useEffect(() => { input.current?.focus(); }, []);
   useEffect(() => {
     const container = log.current;
     if (!container) return;
@@ -48,7 +47,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
   return (
     <div className="sp-assistant">
       {messages.length > 0 ? (
-        <div ref={log} className="sp-chat" role="log" aria-label="บทสนทนา">
+        <div ref={log} className="sp-chat" role="log" aria-label="บทสนทนา" tabIndex={0}>
           {messages.map(({ id, proposal, ...message }) => (
             <ChatMessage key={id} {...message}
               reveal={id === revealId && onRevealComplete ? { id, onComplete: onRevealComplete } : undefined}>
@@ -60,7 +59,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
                   setAddingBooks(addRequest);
                   setDraft(addRequest ? proposal.user_text.slice(addRequestPrefix.length) : proposal.user_text);
                   finishProposal("editing");
-                  requestAnimationFrame(() => input.current?.focus());
+                  requestAnimationFrame(() => inputRef.current?.focus());
                 }} />}
             </ChatMessage>
           ))}
@@ -81,7 +80,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
           <button type="button" className="sp-chip" aria-pressed={addingBooks} disabled={!onSend || pending || reviewing}
             onClick={() => {
               setAddingBooks(!addingBooks);
-              input.current?.focus();
+              inputRef.current?.focus();
             }}>เพิ่มหนังสือ</button>
         </div>
         <Composer
@@ -89,7 +88,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
           placeholder={addingBooks ? "เช่น เพิ่งซื้อ OVER LORD เล่ม 18" : undefined}
           hint={addingBooks ? "พิมพ์ชื่อเรื่องและเลขเล่ม แล้วตรวจรายการก่อนยืนยันเข้าคลัง" : undefined}
           maxLength={MAX_MESSAGE_LENGTH - (addingBooks ? addRequestPrefix.length : 0)}
-          inputRef={input}
+          inputRef={inputRef}
           value={draft}
           onChange={setDraft}
           onSend={onSend && ((message) => {
