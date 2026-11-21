@@ -29,6 +29,29 @@ test("uses Structured Outputs with a resolvable shared enum and normalizes the r
   expect(request.messages[0].content).toContain("untrusted source data");
 });
 
+test("declares explicit types for enums sent to strict Structured Outputs", async () => {
+  vi.mocked(callStructured).mockResolvedValue({
+    data: { items: [] },
+    message: { role: "assistant", content: null, refusal: null },
+  });
+
+  await extractAnnouncement(input);
+
+  expect(vi.mocked(callStructured).mock.calls[0][0].schema.schema).toMatchObject({
+    properties: {
+      items: {
+        items: {
+          properties: {
+            release_date_precision: { type: ["string", "null"] },
+            sale_status: { type: ["string", "null"] },
+          },
+        },
+      },
+    },
+    $defs: { edition: { type: "string" } },
+  });
+});
+
 test("month-only dates stay at month precision without an invented day", () => {
   expect(normalizeItem({ ...item, release_date: null, release_date_precision: "month" }, input.raw_text))
     .toMatchObject({ release_date: null, release_date_precision: "month" });
