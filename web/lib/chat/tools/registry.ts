@@ -1,0 +1,55 @@
+import "server-only";
+
+import { createCitationGuard } from "@/lib/chat/citation-guard";
+import type { Catalog, UserShelf } from "@/types/generated";
+import {
+  listReleases,
+  searchCatalogTool,
+  type ListReleasesArgs,
+  type SearchCatalogArgs,
+  type ToolBook,
+} from "./catalog";
+import { proposeShelfUpdate, type ProposeShelfUpdateArgs } from "./propose-shelf-update";
+
+interface ChatToolContext {
+  catalog: Catalog;
+  shelf: UserShelf;
+}
+
+// Create one registry for each chat turn so citation evidence cannot carry over.
+export function createChatToolRegistry({ catalog, shelf }: ChatToolContext) {
+  const citations = createCitationGuard(catalog);
+
+  function recordBooks(books: ToolBook[]) {
+    citations.record({
+      book_ids: books.map(({ book_id }) => book_id),
+      source_ids: books.flatMap(({ source_ids }) => source_ids),
+    });
+  }
+
+  return {
+    tools: {
+      search_catalog(args: SearchCatalogArgs) {
+        const result = searchCatalogTool(catalog, args);
+        recordBooks(result.groups.flatMap(({ books }) => books));
+        return result;
+      },
+      list_releases(args: ListReleasesArgs) {
+        const result = listReleases(catalog, args);
+        if (result.books) recordBooks(result.books);
+        return result;
+      },
+      propose_shelf_update(args: ProposeShelfUpdateArgs) {
+        const result = proposeShelfUpdate(catalog, shelf, args);
+        if (result.status === "proposal") {
+          citations.record({
+            book_ids: result.items.flatMap(({ add, remove }) => [...add, ...remove]),
+            source_ids: [],
+          });
+        }
+        return result;
+      },
+    },
+    guardCitations: citations.filter,
+  };
+}

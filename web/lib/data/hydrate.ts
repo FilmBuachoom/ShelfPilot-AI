@@ -3,7 +3,7 @@ import "server-only";
 import type { Book, BookId, Source, SourceId } from "@/types/generated";
 import { readCatalog } from "./store";
 
-function logUnknownId(field: "book_id" | "source_id", id: string): void {
+export function logUnknownId(field: "book_id" | "source_id", id: string): void {
   console.warn("Unknown catalog ID", { field, id });
 }
 
