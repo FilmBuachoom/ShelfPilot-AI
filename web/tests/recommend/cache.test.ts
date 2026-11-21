@@ -68,16 +68,22 @@ test("returns a cited reason using the structured model output", async () => {
   });
   vi.mocked(readShelf).mockResolvedValue(shelf("owned"));
   vi.mocked(readCatalog).mockResolvedValue({
-    ...catalog(book("owned", 1), book("next", 2, { sale_status: "announced", sources: [source.source_id] })),
+    ...catalog(book("owned", 1), book("next", 2, {
+      sale_status: "announced",
+      release_date: "2026-08-01",
+      release_date_precision: "month",
+      sources: [source.source_id],
+    })),
     sources: [source],
   });
 
   expect(await (await GET()).json()).toMatchObject({ fallback: false, continue: [item] });
   const [input] = model.mock.lastCall!;
   expect(input.schema).toMatchObject({ name: "recommendation" });
+  expect(input).toMatchObject({ timeoutMs: 20_000, maxRetries: 0 });
   expect(JSON.parse(input.messages[1].content as string)).toMatchObject({
     shelf: [{ owned_count: 1 }],
-    continue: [{ book_id: "next", status: "upcoming", source_ids: ["verified"] }],
+    continue: [{ book_id: "next", status: "upcoming", release_date: "2026-08", source_ids: ["verified"] }],
   });
   expect(JSON.stringify(input.messages)).not.toContain(source.raw_text);
 });

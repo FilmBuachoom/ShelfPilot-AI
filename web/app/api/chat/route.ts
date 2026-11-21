@@ -1,3 +1,4 @@
+import { answerBudget, parseBudgetTurn } from "@/lib/chat/budget";
 import { checkChatRateLimit } from "@/lib/chat/rate-limit";
 import { runChat } from "@/lib/chat/run";
 import {
@@ -29,21 +30,24 @@ export async function POST(request: Request) {
   const messages = parseMessages(await request.json().catch(() => null));
   if (!messages) return Response.json({ error: "Invalid chat messages" }, { status: 400 });
 
-  try {
-    const limit = await checkChatRateLimit(request);
-    if (!limit.allowed) {
-      return Response.json(CHAT_RATE_LIMITED, {
-        status: 429,
-        headers: { "Retry-After": String(limit.retryAfter), "Cache-Control": "no-store" },
-      });
+  const budget = parseBudgetTurn(messages);
+  if (!budget) {
+    try {
+      const limit = await checkChatRateLimit(request);
+      if (!limit.allowed) {
+        return Response.json(CHAT_RATE_LIMITED, {
+          status: 429,
+          headers: { "Retry-After": String(limit.retryAfter), "Cache-Control": "no-store" },
+        });
+      }
+    } catch {
+      return Response.json(CHAT_UNAVAILABLE, { status: 503, headers: { "Cache-Control": "no-store" } });
     }
-  } catch {
-    return Response.json(CHAT_UNAVAILABLE, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 
   try {
     const [catalog, shelf] = await Promise.all([readCatalog(), readShelf()]);
-    return Response.json(await runChat(messages, { catalog, shelf }));
+    return Response.json(budget ? answerBudget(budget, { catalog, shelf }) : await runChat(messages, { catalog, shelf }));
   } catch {
     return Response.json(CHAT_UNAVAILABLE);
   }

@@ -7,12 +7,13 @@ import { POST } from "@/app/api/chat/route";
 import { CHAT_NOT_FOUND, CHAT_UNAVAILABLE } from "@/lib/chat/shared";
 import { book, catalog, shelf, timestamp } from "./shelf-fixture";
 
-const { call, readCatalog, readShelf } = vi.hoisted(() => ({
+const { call, readCatalog, readShelf, checkChatRateLimit } = vi.hoisted(() => ({
   call: vi.fn(),
   readCatalog: vi.fn(),
   readShelf: vi.fn(),
+  checkChatRateLimit: vi.fn(),
 }));
-vi.mock("@/lib/chat/rate-limit", () => ({ checkChatRateLimit: async () => ({ allowed: true }) }));
+vi.mock("@/lib/chat/rate-limit", () => ({ checkChatRateLimit }));
 vi.mock("@/lib/llm/client", () => ({ callStructured: call }));
 vi.mock("@/lib/data/store", () => ({ readCatalog, readShelf }));
 
@@ -26,6 +27,7 @@ function toolCall(name: string, args: object, id: string) {
 
 beforeEach(() => {
   call.mockReset();
+  checkChatRateLimit.mockReset().mockResolvedValue({ allowed: true });
   readCatalog.mockReset().mockResolvedValue({
     ...catalog(
       book("b1", 1),
@@ -41,6 +43,36 @@ beforeEach(() => {
     }],
   });
   readShelf.mockReset().mockResolvedValue(shelf("b1"));
+});
+
+test("shows missing books and asks for store prices when the user taps the budget shortcut", async () => {
+  const response = await POST(request([{ role: "user", content: "จัดงบ 500 บาท" }]));
+  const answer = await response.json();
+  expect(answer).toMatchObject({
+    book_ids: ["b2"], source_ids: ["s2"], not_found: false, needs_clarification: true,
+  });
+  expect(answer.text).toContain("แค็ตตาล็อกยังไม่มีราคาหนังสือ");
+  expect(answer.text).toContain("ราคา 180 + 250 บาท");
+  expect(call).not.toHaveBeenCalled();
+  expect(checkChatRateLimit).not.toHaveBeenCalled();
+});
+
+test.each([
+  ["ราคา 180.50 + 250 บาท", "รวมตามราคาที่คุณให้ 430.5 บาท", "เหลืองบ 69.5 บาท", false],
+  ["ราคา ๓๕๐ บาท + ๒๐๐ บาท", "รวมตามราคาที่คุณให้ 550 บาท", "เกินงบ 50 บาท", false],
+  ["ราคา 500 บาท", "รวมตามราคาที่คุณให้ 500 บาท", "พอดีกับงบ", false],
+  ["ราคา 180 + ยังไม่ทราบ บาท", "ส่งราคาที่ร้านแจ้งมา", "ราคา 180 + 250 บาท", true],
+])("compares the user's store quotes with their earlier budget: %s", async (content, total, balance, needsClarification) => {
+  const response = await POST(request([
+    { role: "user", content: "ช่วยจัดงบซื้อหนังสือ 500 บาท" },
+    { role: "assistant", content: "ส่งราคาที่ร้านแจ้งมา" },
+    { role: "user", content },
+  ]));
+  const answer = await response.json();
+  expect(answer.text).toContain(total);
+  expect(answer.text).toContain(balance);
+  expect(answer).toMatchObject({ not_found: false, needs_clarification: needsClarification, book_ids: [], source_ids: [] });
+  expect(call).not.toHaveBeenCalled();
 });
 
 test("runs the read tools, computes shelf status, and returns only citations seen in the turn", async () => {

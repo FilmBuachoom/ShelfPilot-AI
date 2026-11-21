@@ -14,8 +14,9 @@ import { buildCandidates, type Candidate } from "./candidates";
 import { catalogVersion, type RecommendationResponse } from "./contracts";
 import { guardRecommendations } from "./guard";
 
-const PROMPT_VERSION = 2;
+const PROMPT_VERSION = 3;
 const CACHE_LIMIT = 32;
+const RECOMMEND_TIMEOUT_MS = 20_000;
 const cache = new Map<string, Promise<RecommendationResponse>>();
 
 // Structured Outputs resolves references within the supplied schema only.
@@ -43,7 +44,9 @@ function candidateIds({ book, source_ids }: Candidate) {
 }
 
 function candidateInput({ book, source_ids }: Candidate) {
-  return { ...pruneBook(book), source_ids };
+  const pruned = pruneBook(book);
+  const release_date = book.release_date_precision === "month" ? pruned.release_date?.slice(0, 7) : pruned.release_date;
+  return { ...pruned, release_date, source_ids };
 }
 
 async function generate(catalog: Catalog, shelf: UserShelf, version: string): Promise<RecommendationResponse> {
@@ -57,7 +60,8 @@ async function generate(catalog: Catalog, shelf: UserShelf, version: string): Pr
     const { data } = await callStructured<Recommendation>({
       model: chatModel,
       schema: { name: "recommendation", schema },
-      timeoutMs: 5_000,
+      timeoutMs: RECOMMEND_TIMEOUT_MS,
+      maxRetries: 0,
       messages: [
         { role: "system", content: prompt },
         {
