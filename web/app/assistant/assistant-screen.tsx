@@ -8,14 +8,14 @@ import { QuickChip } from "@/components/QuickChip/QuickChip";
 import { MAX_MESSAGE_LENGTH } from "@/lib/chat/shared";
 import type { ShelfProposal } from "@/types/generated/chat-answer";
 import type { QuickAction } from "@/lib/chat/quick";
+import { AddSeriesForm } from "../add-series-form";
 
 type Message = ComponentProps<typeof ChatMessage> & { id: number; proposal?: ShelfProposal };
 
-const quickChips: { label: string; action?: QuickAction }[] = [
+const quickChips: { label: string; action: QuickAction }[] = [
   { label: "เล่มที่ขาด", action: "missing" },
   { label: "ออกใหม่เดือนนี้", action: "this_month" },
   { label: "ใกล้ออก", action: "upcoming" },
-  { label: "จัดงบ 500 บาท" },
 ];
 
 export function AssistantScreen({ messages = [], finishProposal, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
@@ -28,6 +28,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
   onRevealComplete?: (id: number) => void;
 }) {
   const reviewing = Boolean(messages.at(-1)?.proposal);
+  const [addOpen, setAddOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const input = useRef<HTMLTextAreaElement>(null);
   const log = useRef<HTMLDivElement>(null);
@@ -71,15 +72,17 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
       <div className="sp-assistant-input">
         <div className="sp-chips">
           {quickChips.map(({ label, action }) => (
-            <QuickChip key={label} label={label} zeroToken={Boolean(action)}
+            <QuickChip key={label} label={label}
               onClick={onQuick && !pending && !reviewing ? () => onQuick(label, action) : undefined} />
           ))}
+          <QuickChip label="เพิ่มหนังสือ" onClick={pending || reviewing ? undefined : () => setAddOpen(true)} />
         </div>
         <Composer disabled={pending || reviewing} maxLength={MAX_MESSAGE_LENGTH} inputRef={input} value={draft} onChange={setDraft} onSend={onSend && ((message) => {
           onSend(message);
           setDraft("");
         })} />
       </div>
+      {addOpen && <AddSeriesForm onClose={() => setAddOpen(false)} />}
     </div>
   );
 }
