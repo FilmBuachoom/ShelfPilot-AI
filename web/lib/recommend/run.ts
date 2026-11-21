@@ -8,13 +8,13 @@ import contract from "../../../schemas/recommendation.schema.json";
 import { callStructured } from "@/lib/llm/client";
 import { chatModel } from "@/lib/llm/models";
 import { pruneBook } from "@/lib/llm/prune";
-import type { Catalog, UserShelf } from "@/types/generated";
+import type { Book, Catalog, UserShelf } from "@/types/generated";
 import type { Recommendation } from "@/types/generated/recommendation";
 import { buildCandidates, type Candidate } from "./candidates";
 import { catalogVersion, type RecommendationResponse } from "./contracts";
 import { guardRecommendations } from "./guard";
 
-const PROMPT_VERSION = 2;
+const PROMPT_VERSION = 3;
 const CACHE_LIMIT = 32;
 const cache = new Map<string, Promise<RecommendationResponse>>();
 
@@ -46,9 +46,29 @@ function candidateInput({ book, source_ids }: Candidate) {
   return { ...pruneBook(book), source_ids };
 }
 
+function similarReason(book: Book, owned: readonly Book[]): string | undefined {
+  const publisher = book.publisher.trim();
+  const samePublisher = (other: Book) => Boolean(publisher) && other.publisher.trim().toLocaleLowerCase() === publisher.toLocaleLowerCase();
+  const match = owned.find((other) => other.edition === book.edition && samePublisher(other))
+    ?? owned.find((other) => other.edition === book.edition)
+    ?? owned.find(samePublisher);
+  if (!match) return undefined;
+  const editions: Record<Book["edition"], string> = {
+    manga: "มังงะ", light_novel: "ไลต์โนเวล", special_set: "ชุดพิเศษ", big_book: "บิ๊กบุ๊ก",
+  };
+  const attributes = [
+    ...(match.edition === book.edition ? [`ฉบับ${editions[book.edition]}`] : []),
+    ...(samePublisher(match) ? [`สำนักพิมพ์ ${publisher}`] : []),
+  ];
+  return `${attributes.join("และ")} เช่นเดียวกับ ${match.title} ในคลังของคุณ`;
+}
+
 async function generate(catalog: Catalog, shelf: UserShelf, version: string): Promise<RecommendationResponse> {
   const candidates = buildCandidates(catalog, shelf);
-  if (!candidates.continue.length && !candidates.similar.length) {
+  const ownedIds = new Set(shelf.owned.map(({ book_id }) => book_id));
+  const ownedBooks = catalog.books.filter(({ book_id }) => ownedIds.has(book_id));
+  const similarCandidates = candidates.similar.filter(({ book }) => similarReason(book, ownedBooks));
+  if (!candidates.continue.length && !similarCandidates.length) {
     return { continue: [], similar: [], catalogVersion: version, fallback: false };
   }
 
@@ -70,7 +90,7 @@ async function generate(catalog: Catalog, shelf: UserShelf, version: string): Pr
             continue: candidates.continue.map((candidate) => ({
               ...candidateInput(candidate), status: candidate.status,
             })),
-            similar: candidates.similar.map(candidateInput),
+            similar: similarCandidates.map(candidateInput),
           }),
         },
       ],
@@ -78,15 +98,16 @@ async function generate(catalog: Catalog, shelf: UserShelf, version: string): Pr
     if (!data) throw new Error("Recommendation model returned no results");
 
     return {
-      continue: guardRecommendations(data.continue, candidates.continue),
-      similar: guardRecommendations(data.similar, candidates.similar),
+      continue: guardRecommendations(data.continue, candidates.continue, ({ book, status }) =>
+        status === "missing" ? `เล่ม ${book.volume} ที่ขาดในชุดที่คุณสะสม` : `เล่ม ${book.volume} ที่มีประกาศในชุดที่คุณสะสม`),
+      similar: guardRecommendations(data.similar, similarCandidates, ({ book }) => similarReason(book, ownedBooks)),
       catalogVersion: version,
       fallback: false,
     };
   } catch {
     return {
       continue: candidates.continue.map(candidateIds),
-      similar: candidates.similar.map(candidateIds),
+      similar: similarCandidates.map(candidateIds),
       catalogVersion: version,
       fallback: true,
     };
