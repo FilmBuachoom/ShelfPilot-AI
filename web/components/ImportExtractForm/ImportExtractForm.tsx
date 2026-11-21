@@ -23,7 +23,7 @@ function MatchDetails({ decision }: { decision: MatchDecision }) {
   </div>;
 }
 
-export function ImportExtractForm() {
+export function ImportExtractForm({ onImported }: { onImported?: () => void }) {
   const [rawText, setRawText] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [publisher, setPublisher] = useState("");
@@ -52,6 +52,7 @@ export function ImportExtractForm() {
         return;
       }
       setResult(data);
+      onImported?.();
     } catch {
       setError("เชื่อมต่อไม่สำเร็จ กรุณาลองอีกครั้ง");
     } finally {

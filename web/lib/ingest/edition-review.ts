@@ -4,7 +4,7 @@ import type { NormalizedItem } from "./contracts";
 import { locateSourceQuote } from "./source-id";
 
 type EditionSignals = Pick<NormalizedItem, "edition" | "edition_evidence" | "edition_confidence">;
-type EditionReview = { status: "needs_review"; reason: string };
+export type EditionReview = { status: "needs_review"; reason: string };
 
 // Only direct format labels qualify. Unrecognized or mixed labels need a human.
 const editionLabels: Record<Edition, RegExp> = {
@@ -49,4 +49,24 @@ export function getEditionReview(item: EditionSignals, rawText: string): Edition
   }
 
   return null;
+}
+
+/** Keep evidence from one title from clearing another title in a multi-book announcement. */
+export function getItemEditionReview(item: NormalizedItem, items: readonly NormalizedItem[], rawText: string, matchConfidence?: number): EditionReview | null {
+  let evidenceText = rawText;
+  if (items.length > 1) {
+    const title = item.title?.normalize("NFC").toLowerCase();
+    const otherTitles = items.filter((other) => other !== item)
+      .map((other) => other.title?.normalize("NFC").toLowerCase());
+    const lines = title && rawText.normalize("NFC").split(/\r?\n/).filter((line) => {
+      const lower = line.toLowerCase();
+      return lower.includes(title) && !otherTitles.some((other) => other && lower.includes(other));
+    });
+    if (!lines || lines.length !== 1) {
+      return { status: "needs_review", reason: "ต้องยืนยันว่าหลักฐานฉบับเป็นของรายการนี้" };
+    }
+    evidenceText = lines[0];
+  }
+  return getEditionReview(item, evidenceText)
+    ?? (matchConfidence === undefined ? null : getEditionReview({ ...item, edition_confidence: matchConfidence }, evidenceText));
 }

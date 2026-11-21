@@ -1,5 +1,5 @@
 import type { Extraction } from "@/types/generated/extraction";
-import type { BookId, MatchStatus, Source } from "@/types/generated";
+import type { BookId, Edition, MatchStatus, Source } from "@/types/generated";
 
 export interface IngestInput {
   raw_text: string;
@@ -29,3 +29,8 @@ export interface PipelineResult extends IngestContext {
   message: string;
   decisions: MatchDecision[];
 }
+
+export type ReviewResolution =
+  | { review_id: string; action: "skip" }
+  | { review_id: string; action: "merge"; book_id: BookId }
+  | { review_id: string; action: "create"; edition: Edition };
