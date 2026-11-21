@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { getEditionReview } from "@/lib/ingest/edition-review";
+import { getEditionReview, getItemEditionReview } from "@/lib/ingest/edition-review";
 import { normalizeItem } from "@/lib/ingest/normalize";
 import { item } from "./fixtures";
 
@@ -41,6 +41,7 @@ test.each([
   ["รายการทดสอบ · ไม่ใช่มังงะ", "มังงะ"],
   ["รายการทดสอบ · ไม่ใช่ฉบับมังงะ", "มังงะ"],
   ["Test item · not a manga", "manga"],
+  ["Test item · non-manga", "manga"],
 ])("rejects an edition quote shortened from a negated source phrase (%s)", (rawText, edition_evidence) => {
   expect(getEditionReview({ ...statedEdition, edition_evidence }, rawText))
     .toEqual({ status: "needs_review", reason: "หลักฐานไม่ยืนยันฉบับที่ระบุ" });
@@ -49,6 +50,23 @@ test.each([
 test("looks for a positive occurrence if an earlier mention was negated", () => {
   const rawText = "รายการทดสอบ · ไม่ใช่มังงะปกแข็ง · ฉบับมังงะ · เล่ม 12";
   expect(getEditionReview({ ...statedEdition, edition_evidence: "มังงะ" }, rawText)).toBeNull();
+});
+
+test.each(["Life of a mangaka", "My manga story"])("a title containing manga is not edition evidence (%s)", (title) => {
+  const signals = { ...statedEdition, title, edition_evidence: "manga" };
+  expect(getEditionReview(signals, `${title} · Vol. 13`)).toMatchObject({ status: "needs_review" });
+  expect(getEditionReview(signals, `${title} · manga · Vol. 13`)).toBeNull();
+});
+
+test("keeps evidence with the right volume when a title appears twice", () => {
+  const rawText = "fixture-a · มังงะ · เล่ม ๑๓\nfixture-a · ไลต์โนเวล · Vol. 14";
+  const first = normalizeItem(item, rawText);
+  const second = normalizeItem({ ...item, volume: 14, edition: "light_novel", edition_evidence: "ไลต์โนเวล" }, rawText);
+  expect(getItemEditionReview(first, [first, second], rawText)).toBeNull();
+  expect(getItemEditionReview(second, [first, second], rawText)).toBeNull();
+
+  const wrong = { ...second, edition: first.edition, edition_evidence: first.edition_evidence };
+  expect(getItemEditionReview(wrong, [first, wrong], rawText)).toMatchObject({ status: "needs_review" });
 });
 
 test.each([

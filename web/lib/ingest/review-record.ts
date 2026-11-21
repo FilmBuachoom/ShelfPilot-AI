@@ -1,7 +1,30 @@
-import type { ReviewQueue, Source } from "@/types/generated";
-import type { NormalizedItem } from "./contracts";
+import common from "../../../schemas/common.schema.json";
+import type { Edition, ReviewQueue, Source } from "@/types/generated";
+import type { NormalizedItem, ReviewResolution } from "./contracts";
 
 export type ReviewItem = ReviewQueue["items"][number];
+
+function isRecordId(value: unknown): value is string {
+  return typeof value === "string" && !!value.trim() && value.length <= 200;
+}
+
+export function parseReviewResolution(value: unknown): ReviewResolution | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return;
+  const { review_id, action, book_id, edition } = value as Record<string, unknown>;
+  if (!isRecordId(review_id)) return;
+  if (action === "skip") return { review_id, action };
+  if (action === "merge" && isRecordId(book_id)) return { review_id, action, book_id };
+  if (action === "create" && typeof edition === "string" && common.$defs.edition.enum.includes(edition)
+    && (book_id === undefined || isRecordId(book_id))) {
+    return { review_id, action, edition: edition as Edition, book_id };
+  }
+}
+
+export function pendingReviewResolution(item: ReviewItem): ReviewResolution | undefined {
+  if (item.status !== "open") return;
+  const resolution = parseReviewResolution(item.extracted.resolution);
+  if (resolution?.review_id === item.review_id) return resolution;
+}
 
 export function reviewSource({ source_id, extracted }: ReviewItem): Source | undefined {
   const value = extracted.source;

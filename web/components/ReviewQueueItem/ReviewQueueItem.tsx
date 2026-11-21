@@ -10,13 +10,14 @@ const editions = Object.keys(editionLabels) as Edition[];
 
 type ReviewItem = ReviewQueue["items"][number];
 
-export function ReviewQueueItem({ item, selected, onSelect, onSkip, onCreate, onMerge, pending = false }: {
+export function ReviewQueueItem({ item, selected, onSelect, onSkip, onCreate, onMerge, onResume, pending = false }: {
   item: ReviewItem;
   selected?: BookId;
   onSelect: (book_id: BookId) => void;
   onSkip?: () => void;
   onCreate?: (edition: Edition) => void;
   onMerge?: () => void;
+  onResume?: () => void;
   pending?: boolean;
 }) {
   const group = useId();
@@ -39,7 +40,7 @@ export function ReviewQueueItem({ item, selected, onSelect, onSkip, onCreate, on
             </div>
           )}
         </div>
-        <fieldset className="sp-review__options" disabled={pending}>
+        <fieldset className="sp-review__options" disabled={pending || !!onResume}>
           <legend className="sp-label">ฉบับที่อาจตรงกัน</legend>
           {item.candidates.length === 0 && <p className="sp-muted">ยังไม่พบฉบับที่ตรงกัน</p>}
           {item.candidates.map(({ book_id, edition, confidence }) => (
@@ -52,23 +53,29 @@ export function ReviewQueueItem({ item, selected, onSelect, onSkip, onCreate, on
         </fieldset>
       </div>
       <footer className="sp-review__foot">
-        <Button variant="ghost" size="sm" disabled={pending || !onSkip} onClick={onSkip}>ข้าม</Button>
-        {onCreate && <div className="sp-field">
-          <label htmlFor={`${group}-edition`}>ฉบับสำหรับรายการใหม่</label>
-          <select id={`${group}-edition`} value={edition} disabled={pending}
-            onChange={(event) => {
-              const value = editions.find((option) => option === event.currentTarget.value);
-              setEdition(value ?? "");
-            }}>
-            <option value="">เลือกฉบับ</option>
-            {editions.map((value) => <option key={value} value={value}>{editionLabels[value]}</option>)}
-          </select>
-        </div>}
-        <Button size="sm" disabled={pending || !onCreate || !edition}
-          onClick={() => { if (edition) onCreate?.(edition); }}>สร้างรายการใหม่</Button>
-        <Button size="sm" disabled={pending || !onMerge || !selected} onClick={onMerge}>
-          ตรวจและรวม
-        </Button>
+        {onResume ? (
+          <Button size="sm" disabled={pending} onClick={onResume}>บันทึกการอนุมัติเดิมต่อ</Button>
+        ) : (
+          <>
+            <Button variant="ghost" size="sm" disabled={pending || !onSkip} onClick={onSkip}>ข้าม</Button>
+            {onCreate && <div className="sp-field">
+              <label htmlFor={`${group}-edition`}>ฉบับสำหรับรายการใหม่</label>
+              <select id={`${group}-edition`} value={edition} disabled={pending}
+                onChange={(event) => {
+                  const value = editions.find((option) => option === event.currentTarget.value);
+                  setEdition(value ?? "");
+                }}>
+                <option value="">เลือกฉบับ</option>
+                {editions.map((value) => <option key={value} value={value}>{editionLabels[value]}</option>)}
+              </select>
+            </div>}
+            <Button size="sm" disabled={pending || !onCreate || !edition}
+              onClick={() => { if (edition) onCreate?.(edition); }}>สร้างรายการใหม่</Button>
+            <Button size="sm" disabled={pending || !onMerge || !selected} onClick={onMerge}>
+              ตรวจและรวม
+            </Button>
+          </>
+        )}
       </footer>
     </article>
   );

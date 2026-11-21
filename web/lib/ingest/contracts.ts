@@ -33,4 +33,4 @@ export interface PipelineResult extends IngestContext {
 export type ReviewResolution =
   | { review_id: string; action: "skip" }
   | { review_id: string; action: "merge"; book_id: BookId }
-  | { review_id: string; action: "create"; edition: Edition };
+  | { review_id: string; action: "create"; edition: Edition; book_id?: BookId };

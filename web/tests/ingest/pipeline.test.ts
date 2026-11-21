@@ -289,6 +289,93 @@ test("creates a distinct human-approved edition and skips another without a writ
 });
 
 
+async function queueCrossSeriesReview() {
+  const novel = { ...original, book_id: "bk_novel", series_id: "sr_novel", edition: "light_novel" as const };
+  await writeFile(file, JSON.stringify(catalog(original, novel)));
+  vi.mocked(callStructured)
+    .mockResolvedValueOnce(reply({ items: [{ ...item, title: original.title, publisher: original.publisher, edition: null }] }))
+    .mockResolvedValueOnce(reply({ ...matchResult, edition: null }));
+  const response = await ingest({ ...input, raw_text: `${original.title} · เล่ม ๑๓` });
+  expect(response.status).toBe(200);
+  const { items: [review] } = await readReviewQueue();
+  expect(review.candidates.map(({ book_id }) => book_id)).toEqual([original.book_id, novel.book_id]);
+  return { review, novel };
+}
+
+test("creates a new edition under the explicitly selected publication line", async () => {
+  const { review, novel } = await queueCrossSeriesReview();
+  const before = await readFile(file, "utf8");
+  const create = { review_id: review.review_id, action: "create", edition: "special_set" };
+  expect((await approve(create)).status).toBe(409);
+  expect((await approve({ ...create, book_id: "bk_not_offered" })).status).toBe(409);
+  expect(await readFile(file, "utf8")).toBe(before);
+  expect((await readReviewQueue()).items[0].extracted.resolution).toBeUndefined();
+
+  expect((await approve({ ...create, book_id: novel.book_id })).status).toBe(200);
+  const after = await readCatalog();
+  expect(after.books).toHaveLength(3);
+  expect(after.books.find(({ edition }) => edition === "special_set")).toMatchObject({
+    series_id: novel.series_id, sources: [review.source_id],
+  });
+  expect((await readReviewQueue()).items[0].status).toBe("resolved");
+});
+
+test("retries the recorded approval after a queue write failure without attaching the source elsewhere", async () => {
+  const { review, novel } = await queueCrossSeriesReview();
+  const update = store.updateJsonAtomic;
+  let queueWrites = 0;
+  vi.spyOn(store, "updateJsonAtomic").mockImplementation((name, transform) => {
+    if (name === "review_queue.json" && ++queueWrites === 2) {
+      return Promise.reject(new Error("Fixture queue write failure after saving the catalog"));
+    }
+    return update(name, transform);
+  });
+  const choice = { review_id: review.review_id, action: "merge", book_id: original.book_id };
+  expect((await approve(choice)).status).toBe(500);
+  expect((await readReviewQueue()).items[0]).toMatchObject({ status: "open", extracted: { resolution: choice } });
+  expect((await readCatalog()).books[0].sources).toEqual([review.source_id]);
+
+  expect((await approve({ ...choice, book_id: novel.book_id })).status).toBe(409);
+  expect((await approve({ review_id: review.review_id, action: "skip" })).status).toBe(409);
+  const savedCatalog = await readFile(file, "utf8");
+  expect((await approve(choice)).status).toBe(200);
+  expect(await readFile(file, "utf8")).toBe(savedCatalog);
+  expect((await readCatalog()).books[1].sources).toEqual([]);
+  expect((await readReviewQueue()).items[0].status).toBe("resolved");
+});
+
+test("retries creation under the recorded publication line after the catalog changes", async () => {
+  await writeFile(file, JSON.stringify(catalog({ ...original, volume: 12 })));
+  vi.mocked(callStructured)
+    .mockResolvedValueOnce(reply({ items: [{ ...item, title: original.title, publisher: original.publisher, edition: null }] }))
+    .mockResolvedValueOnce(reply({ ...matchResult, edition: null, same_volume: false }));
+  expect((await ingest({ ...input, raw_text: `${original.title} · เล่ม ๑๓` })).status).toBe(200);
+  const { items: [review] } = await readReviewQueue();
+  expect(review.candidates).toEqual([]);
+
+  const update = store.updateJsonAtomic;
+  let failCatalog = true;
+  vi.spyOn(store, "updateJsonAtomic").mockImplementation((name, transform) => {
+    if (name === "catalog.json" && failCatalog) {
+      failCatalog = false;
+      return Promise.reject(new Error("Fixture catalog write failure"));
+    }
+    return update(name, transform);
+  });
+  const create = { review_id: review.review_id, action: "create", edition: "special_set" };
+  expect((await approve(create)).status).toBe(500);
+  expect((await readReviewQueue()).items[0].extracted.resolution_reference_book_id).toBe(original.book_id);
+
+  await update("catalog.json", (current) => ({
+    ...current, books: [...current.books, { ...original, book_id: "bk_new_line", series_id: "sr_new_line" }],
+  }));
+  expect((await approve(create)).status).toBe(200);
+  expect((await readCatalog()).books.find(({ edition }) => edition === "special_set")).toMatchObject({
+    series_id: original.series_id, sources: [review.source_id],
+  });
+  expect((await readReviewQueue()).items[0].status).toBe("resolved");
+});
+
 test("a catalog write failure leaves a mixed import retryable without losing or duplicating its review item", async () => {
   const raw_text = `${original.title} · มังงะ · เล่ม 13\nfixture-second · เล่ม 13`;
   const mixed = { ...input, raw_text };
