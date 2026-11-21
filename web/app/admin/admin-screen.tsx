@@ -9,10 +9,9 @@ import type { ReviewResolution } from "@/lib/ingest/contracts";
 import { canCreateFromReview, reviewSource } from "@/lib/ingest/review-record";
 import type { BookId, ReviewQueue } from "@/types/generated";
 
-export function AdminScreen({ items, canExtract, canResolve }: {
+export function AdminScreen({ items, canManageIngest }: {
   items: ReviewQueue["items"];
-  canExtract: boolean;
-  canResolve: boolean;
+  canManageIngest: boolean;
 }) {
   const router = useRouter();
   const [selected, setSelected] = useState<Record<string, BookId>>({});
@@ -51,7 +50,7 @@ export function AdminScreen({ items, canExtract, canResolve }: {
   return (
     <div className="sp-screen sp-admin">
       <header className="sp-screen-head"><h1>แอดมิน</h1></header>
-      {canExtract ? <ImportExtractForm onImported={() => router.refresh()} /> : (
+      {canManageIngest ? <ImportExtractForm onImported={() => router.refresh()} /> : (
         <section className="sp-section">
           <h2>นำเข้าประกาศหนังสือ</h2>
           <p className="sp-muted">Import / Extract ใช้งานได้บนเซิร์ฟเวอร์ทดลองในเครื่องที่ใช้แค็ตตาล็อกแบบไฟล์</p>
@@ -69,10 +68,10 @@ export function AdminScreen({ items, canExtract, canResolve }: {
           const book_id = selected[id];
           return <ReviewQueueItem key={id} item={item} selected={book_id} pending={pending === id}
             onSelect={(idOfBook) => setSelected((current) => ({ ...current, [id]: idOfBook }))}
-            onSkip={canResolve ? () => approve({ review_id: id, action: "skip" }) : undefined}
-            onCreate={canResolve && canCreateFromReview(item)
+            onSkip={canManageIngest ? () => approve({ review_id: id, action: "skip" }) : undefined}
+            onCreate={canManageIngest && canCreateFromReview(item)
               ? (edition) => approve({ review_id: id, action: "create", edition }) : undefined}
-            onMerge={canResolve && reviewSource(item) && book_id
+            onMerge={canManageIngest && reviewSource(item) && book_id
               ? () => approve({ review_id: id, action: "merge", book_id }) : undefined} />;
         })}
       </section>

@@ -1,5 +1,4 @@
 import common from "../../../../../schemas/common.schema.json";
-import { usesSupabaseDemo } from "@/lib/data/supabase-demo";
 import { allowsLocalIngestPost } from "@/lib/ingest/access";
 import type { ReviewResolution } from "@/lib/ingest/contracts";
 import { resolveReview, ReviewResolutionError } from "@/lib/ingest/resolve-review";
@@ -21,7 +20,7 @@ function parseResolution(value: unknown): ReviewResolution | undefined {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  if (!allowsLocalIngestPost(request) || usesSupabaseDemo()) {
+  if (!allowsLocalIngestPost(request)) {
     return Response.json({ error: "การอนุมัติใช้งานได้ผ่านเซิร์ฟเวอร์ JSON ในเครื่อง" }, { status: 404 });
   }
   if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
