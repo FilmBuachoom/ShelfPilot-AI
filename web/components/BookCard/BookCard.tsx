@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useBook, useCatalog } from "@/lib/data/catalog-provider";
 import { daysUntilRelease, formatReleaseDate } from "@/lib/shelf/releases";
 import { formatVolumes } from "@/lib/shelf/format";
 import type { ShelfVolume } from "@/lib/shelf/compute";
 import type { BookId, SourceId } from "@/types/generated";
 import { Badge, EditionBadge } from "../Badge/Badge";
+import { Button } from "../Button/Button";
+import { Dialog } from "../Dialog";
 import { CitationChip } from "../CitationChip/CitationChip";
 import { Cover } from "../Cover/Cover";
 import { seriesHref } from "../SeriesRow/SeriesRow";
@@ -21,6 +24,7 @@ export function BookCard({ book_id, reason, today, source_ids = [] }: {
 }) {
   const book = useBook(book_id);
   const { shelf } = useCatalog();
+  const [detailsOpen, setDetailsOpen] = useState(false);
   if (!book) return null;
 
   const isUpcoming = book.sale_status !== "released";
@@ -42,8 +46,23 @@ export function BookCard({ book_id, reason, today, source_ids = [] }: {
         {countdown !== null
           ? <span className="sp-countdown">{countdown === 0 ? "วางแผงวันนี้" : `อีก ${countdown} วันวางแผง`}</span>
           : release && <span className="sp-book__sub">{release}</span>}
-        {reason && <span className="sp-book__why" title={reason}>✦ {reason}</span>}
-        {source_ids.map((source_id) => <CitationChip key={source_id} source_id={source_id} />)}
+        {reason ? (
+          <button type="button" className="sp-book__why sp-book__why-button" aria-haspopup="dialog"
+            onClick={() => setDetailsOpen(true)}>✦ {reason}</button>
+        ) : source_ids.length > 0 && (
+          <Button size="sm" aria-haspopup="dialog" onClick={() => setDetailsOpen(true)}>ดูแหล่งอ้างอิง</Button>
+        )}
+        {detailsOpen && (
+          <Dialog title={`${book.title} ${formatVolumes(book.volume)}`} onDismiss={() => setDetailsOpen(false)}>
+            {reason && <p>✦ {reason}</p>}
+            <div className="sp-citations">
+              {source_ids.map((source_id) => <CitationChip key={source_id} source_id={source_id} />)}
+            </div>
+            <div className="sp-modal__actions">
+              <Button variant="ghost" data-dialog-focus onClick={() => setDetailsOpen(false)}>ปิด</Button>
+            </div>
+          </Dialog>
+        )}
         <StorePurchase book={book} size="sm" />
       </div>
     </article>

@@ -46,7 +46,7 @@ function useCatalogValue(catalog: Catalog, initialShelf: UserShelf) {
     }
   }
 
-  return { books, sources, shelf, collection, searchCatalog, updateShelf, saving, saveError };
+  return { books, sources, catalogUpdatedAt: catalog.updated_at, shelf, collection, searchCatalog, updateShelf, saving, saveError };
 }
 
 const CatalogContext = createContext<ReturnType<typeof useCatalogValue> | null>(null);

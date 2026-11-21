@@ -31,3 +31,10 @@ const types = await compile(
 
 await mkdir(outputDir, { recursive: true });
 await writeFile(new URL("index.ts", outputDir), types);
+
+const recommendation = JSON.parse(await readFile(new URL("recommendation.schema.json", schemasDir), "utf8"));
+const recommendationTypes = await compile(recommendation, "Recommendation", {
+  cwd: fileURLToPath(schemasDir),
+  bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
+});
+await writeFile(new URL("recommendation.ts", outputDir), recommendationTypes);
