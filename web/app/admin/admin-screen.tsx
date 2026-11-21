@@ -13,7 +13,7 @@ export function AdminScreen({ items, canExtract }: { items: ReviewQueue["items"]
       {canExtract ? <ImportExtractForm /> : (
         <section className="sp-section">
           <h2>นำเข้าประกาศหนังสือ</h2>
-          <p className="sp-muted">Import / Extract ใช้งานได้ผ่านเซิร์ฟเวอร์ทดลองในเครื่อง</p>
+          <p className="sp-muted">Import / Extract ใช้งานได้บนเซิร์ฟเวอร์ทดลองในเครื่องที่ใช้แค็ตตาล็อกแบบไฟล์</p>
         </section>
       )}
       <section className="sp-section">

@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve(__dirname, ".."),
   outputFileTracingIncludes: {
     "/*": ["../data/*.json"],
-    "/api/ingest": ["./prompts/extract-system.md"],
+    "/api/ingest": ["./prompts/extract-system.md", "./prompts/match-system.md"],
     "/api/chat": ["./prompts/chat-system.md"],
   },
 };

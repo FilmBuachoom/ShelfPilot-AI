@@ -1,5 +1,5 @@
 import type { Extraction } from "@/types/generated/extraction";
-import type { Source } from "@/types/generated";
+import type { BookId, MatchStatus, Source } from "@/types/generated";
 
 export interface IngestInput {
   raw_text: string;
@@ -17,7 +17,15 @@ export interface IngestContext {
   source: Source;
   extraction: NormalizedExtraction;
 }
+export interface MatchDecision {
+  match_status: MatchStatus;
+  candidate_book_id: BookId | null;
+  matched_alias: string | null;
+  reason: string;
+}
+
 export interface PipelineResult extends IngestContext {
-  status: "already_imported" | "dry_run" | "imported";
+  status: "already_imported" | "not_imported" | "imported";
   message: string;
+  decisions: MatchDecision[];
 }
