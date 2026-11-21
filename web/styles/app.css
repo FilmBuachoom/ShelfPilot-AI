@@ -169,6 +169,15 @@ button.sp-stat:hover { background: var(--line); }
 .sp-assistant-input { width: 100%; max-width: var(--content-max); padding: 0 var(--space-4) var(--space-4); margin: auto auto 0; }
 .sp-composer__send:disabled, .sp-chip:disabled { opacity: .55; cursor: not-allowed; }
 .sp-chat { overflow-wrap: anywhere; overflow: auto; }
+.sp-chat-proposal {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.sp-chat-proposal .sp-sheet__actions { flex-wrap: wrap; }
+.sp-chat-proposal .sp-btn--action { flex: 1 0 auto; }
+.sp-chat-proposal .sp-diff { max-width: 40%; }
 .sp-msg-user, .sp-msg-ai__body p { white-space: pre-wrap; }
 .sp-reply-caret {
   display: inline-block;

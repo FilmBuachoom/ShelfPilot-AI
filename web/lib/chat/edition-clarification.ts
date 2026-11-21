@@ -4,10 +4,10 @@ import { searchBooks } from "@/lib/search/fuse";
 import { normalizeTitle } from "@/lib/search/normalize";
 import type { Book, Catalog, Edition } from "@/types/generated";
 import type { ChatAnswer } from "@/types/generated/chat-answer";
+import type { ChatMessageInput } from "./shared";
+import { mentionsEdition, shelfEditionChoices, shelfEditionQuestion } from "./shelf-edition";
 
-const explicitEdition = /มังงะ|การ์ตูน|นิยาย|โนเวล|ชุดพิเศษ|บ็อกซ์เซ็ต|บ๊อกซ์เซ็ต|บิ๊กบุ๊ก|บิ๊กบุ๊ค|漫画|マンガ|小説|ライトノベル|特装版|\b(?:manga|(?:light[ -])?novel|(?:special[ -])?set|box[ -]?set|big[ -]?book)\b/i;
-
-const editionLabels: Record<Edition, string> = {
+export const editionLabels: Record<Edition, string> = {
   manga: "มังงะ",
   light_novel: "ไลต์โนเวล",
   special_set: "ชุดพิเศษ",
@@ -23,16 +23,16 @@ function bookNames(book: Book) {
   }).filter(Boolean);
 }
 
-export function createEditionClarifier(catalog: Catalog, userText: string) {
-  const hasEdition = explicitEdition.test(userText);
+export function createEditionClarifier(catalog: Catalog, history: readonly ChatMessageInput[]) {
+  const hasEdition = mentionsEdition(history.at(-1)?.content ?? "");
+  let choices: ReturnType<typeof shelfEditionChoices> | undefined;
 
-  function clarifyRelatedEditions(anchor: Book | undefined): ChatAnswer | null {
+  function clarifyRelatedEditions(anchor: Book | undefined, shelfUpdate = false): ChatAnswer | null {
     if (!anchor) return null;
 
     const names = new Set(bookNames(anchor));
-    const editions = new Set(catalog.books
-      .filter((book) => book.series_id === anchor.series_id || bookNames(book).some((name) => names.has(name)))
-      .map(({ edition }) => edition));
+    const related = catalog.books.filter((book) => book.series_id === anchor.series_id || bookNames(book).some((name) => names.has(name)));
+    const editions = new Set(related.map(({ edition }) => edition));
 
     if (editions.size < 2) return null;
 
@@ -40,8 +40,17 @@ export function createEditionClarifier(catalog: Catalog, userText: string) {
       .filter((edition) => editions.has(edition))
       .map((edition) => editionLabels[edition]);
 
+    if (shelfUpdate) {
+      choices ??= shelfEditionChoices(new Set(catalog.books.flatMap(bookNames)), history);
+      const aliases = new Set(related.flatMap(bookNames));
+      const choice = choices.findLast(({ name }) => aliases.has(name));
+      if (choice?.edition === anchor.edition) return null;
+    }
+
     return {
-      text: "พบเรื่องนี้หลายฉบับ คุณหมายถึงฉบับ" + labels.slice(0, -1).join(", ") + " หรือ" + labels.at(-1) + "คะ?",
+      text: shelfUpdate
+        ? shelfEditionQuestion(anchor.title, labels.join(" / "))
+        : "พบเรื่องนี้หลายฉบับ คุณหมายถึงฉบับ" + labels.slice(0, -1).join(", ") + " หรือ" + labels.at(-1) + "คะ?",
       book_ids: [],
       source_ids: [],
       not_found: false,
@@ -54,6 +63,9 @@ export function createEditionClarifier(catalog: Catalog, userText: string) {
       if (hasEdition) return null;
       // Search without an edition so a model-selected edition cannot hide an alternative.
       return clarifyRelatedEditions(searchBooks(catalog.books, query, { limit: 1 })[0]);
+    },
+    forShelfItem(seriesId: string, edition: Edition) {
+      return clarifyRelatedEditions(catalog.books.find((book) => book.series_id === seriesId && book.edition === edition), true);
     },
     forSeries(seriesId: string, edition: Edition) {
       if (hasEdition) return null;
