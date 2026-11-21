@@ -8,6 +8,7 @@ const { call, readCatalog, readShelf } = vi.hoisted(() => ({
   readCatalog: vi.fn(),
   readShelf: vi.fn(),
 }));
+vi.mock("@/lib/chat/rate-limit", () => ({ checkChatRateLimit: async () => ({ allowed: true }) }));
 vi.mock("@/lib/llm/client", () => ({ callStructured: call }));
 vi.mock("@/lib/data/store", () => ({ readCatalog, readShelf }));
 

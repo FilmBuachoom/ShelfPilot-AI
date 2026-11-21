@@ -23,3 +23,8 @@ export const CHAT_NOT_FOUND: ChatAnswer = {
   not_found: true,
   needs_clarification: false,
 };
+
+export const CHAT_RATE_LIMITED: ChatAnswer = {
+  ...CHAT_UNAVAILABLE,
+  text: "ส่งคำถามถี่เกินไป รอสักครู่แล้วลองอีกครั้ง หรือใช้ปุ่มลัดและคลังได้ตามปกติ",
+};

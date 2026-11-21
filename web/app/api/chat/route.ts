@@ -1,5 +1,8 @@
+import { checkChatRateLimit } from "@/lib/chat/rate-limit";
 import { runChat } from "@/lib/chat/run";
-import { CHAT_UNAVAILABLE, MAX_CHAT_MESSAGES, MAX_MESSAGE_LENGTH, type ChatMessageInput } from "@/lib/chat/shared";
+import {
+  CHAT_RATE_LIMITED, CHAT_UNAVAILABLE, MAX_CHAT_MESSAGES, MAX_MESSAGE_LENGTH, type ChatMessageInput,
+} from "@/lib/chat/shared";
 import { readCatalog, readShelf } from "@/lib/data/store";
 import { AI_ENABLED } from "@/lib/feature-flags";
 
@@ -25,6 +28,18 @@ export async function POST(request: Request) {
 
   const messages = parseMessages(await request.json().catch(() => null));
   if (!messages) return Response.json({ error: "Invalid chat messages" }, { status: 400 });
+
+  try {
+    const limit = await checkChatRateLimit(request);
+    if (!limit.allowed) {
+      return Response.json(CHAT_RATE_LIMITED, {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfter), "Cache-Control": "no-store" },
+      });
+    }
+  } catch {
+    return Response.json(CHAT_UNAVAILABLE, { status: 503, headers: { "Cache-Control": "no-store" } });
+  }
 
   try {
     const [catalog, shelf] = await Promise.all([readCatalog(), readShelf()]);

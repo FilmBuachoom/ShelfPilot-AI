@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { useCatalog } from "@/lib/data/catalog-provider";
 import type { ChatAnswer } from "@/types/generated/chat-answer";
 import { answerQuick, type QuickAction } from "./quick";
-import { CHAT_UNAVAILABLE, MAX_CHAT_MESSAGES, MAX_MESSAGE_LENGTH, type ChatMessageInput } from "./shared";
+import { CHAT_RATE_LIMITED, CHAT_UNAVAILABLE, MAX_CHAT_MESSAGES, MAX_MESSAGE_LENGTH, type ChatMessageInput } from "./shared";
 
 type Message = {
   id: number;
@@ -60,6 +60,10 @@ export function useChat() {
         body: JSON.stringify({ messages: history }),
         signal: AbortSignal.timeout(18_000),
       });
+      if (response.status === 429) {
+        appendReply(CHAT_RATE_LIMITED);
+        return;
+      }
       if (!response.ok) throw new Error("Chat request failed");
       appendReply(await response.json() as ChatAnswer, true);
     } catch {
