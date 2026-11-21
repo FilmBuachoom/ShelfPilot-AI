@@ -1,6 +1,6 @@
 import "server-only";
 
-import { usesSupabaseDemo } from "@/lib/data/supabase-demo";
+import { usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
 
 const loopbackHost = /^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d{1,5})?$/i;
 

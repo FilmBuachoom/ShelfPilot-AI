@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { NextRequest } from "next/server";
 import { book, catalog, shelf } from "./shelf-fixture";
+
+const { requestHeaders } = vi.hoisted(() => ({ requestHeaders: vi.fn() }));
+vi.mock("next/headers", () => ({ headers: requestHeaders }));
 
 beforeEach(() => {
   vi.resetModules();
@@ -13,6 +17,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  requestHeaders.mockReset();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
 });
@@ -59,8 +64,51 @@ test("rejects cross-origin shelf writes without contacting Supabase", async () =
   expect(fetchMock).not.toHaveBeenCalled();
 });
 
-test("refuses to use the shared demo shelf in production", async () => {
+test("protects hosted pages and API routes with team sign-in and same-origin writes", async () => {
   vi.stubEnv("NODE_ENV", "production");
-  const { usesSupabaseDemo } = await import("@/lib/data/supabase-demo");
-  expect(() => usesSupabaseDemo()).toThrow("local development server");
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", undefined);
+  const { proxy } = await import("@/proxy");
+  const site = "https://demo.example.test";
+  expect(proxy(new NextRequest(site)).status).toBe(503);
+
+  vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
+  const authorization = "Basic " + Buffer.from("shelfpilot:test-team-password").toString("base64");
+  const api = `${site}/api/shelf`;
+  expect(proxy(new NextRequest(api)).headers.get("WWW-Authenticate")).toContain("Basic ");
+  expect(proxy(new NextRequest(api, { headers: { authorization: "Basic incorrect" } })).status).toBe(401);
+  expect(proxy(new NextRequest(api, {
+    method: "POST", headers: { authorization, origin: "https://other.example.test" },
+  })).status).toBe(403);
+  expect(proxy(new NextRequest(api, {
+    method: "POST", headers: { authorization, origin: site },
+  })).headers.get("x-middleware-next")).toBe("1");
+});
+
+test("authorizes a hosted shelf write before calling the Supabase RPC", async () => {
+  vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
+  const fetchMock = vi.fn();
+  vi.stubGlobal("fetch", fetchMock);
+  requestHeaders.mockResolvedValue(new Headers());
+  const { GET, POST } = await import("@/app/api/shelf/route");
+  await expect(GET()).rejects.toThrow("Team demo sign-in required");
+  expect(fetchMock).not.toHaveBeenCalled();
+
+  const authorization = "Basic " + Buffer.from("shelfpilot:test-team-password").toString("base64");
+  const site = "https://demo.example.test";
+  const updated = shelf();
+  const request = new Request("http://localhost/api/shelf", {
+    method: "POST",
+    headers: { authorization, origin: site, host: new URL(site).host },
+    body: JSON.stringify({ add: ["fixture-1"] }),
+  });
+  requestHeaders.mockResolvedValue(request.headers);
+  fetchMock
+    .mockResolvedValueOnce(Response.json({ access_token: "fixture-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(Response.json(catalog(book("fixture-1", 1))))
+    .mockResolvedValueOnce(Response.json(updated));
+  expect(await (await POST(request)).json()).toEqual(updated);
+  expect(fetchMock.mock.calls[2][0].pathname).toBe("/rest/v1/rpc/shelfpilot_demo_update_shelf");
 });

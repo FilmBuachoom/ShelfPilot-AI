@@ -1,12 +1,13 @@
 import { getBook } from "@/lib/data/hydrate";
 import { httpUrl } from "@/lib/data/http-url";
 import { updateJsonAtomic } from "@/lib/data/store";
-import { isLocalDemoWrite, recordSupabaseStoreClick, usesSupabaseDemo } from "@/lib/data/supabase-demo";
+import { recordSupabaseStoreClick } from "@/lib/data/supabase-demo";
+import { isDemoWriteAllowed, usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
 
 export async function POST(request: Request) {
   const supabase = usesSupabaseDemo();
-  if (supabase && !isLocalDemoWrite(request)) {
-    return Response.json({ error: "Supabase demo writes require a local request" }, { status: 403 });
+  if (supabase && !isDemoWriteAllowed(request)) {
+    return Response.json({ error: "Supabase demo writes require a same-origin request" }, { status: 403 });
   }
   const body: unknown = await request.json().catch(() => null);
   if (!body || typeof body !== "object" || !("book_id" in body) || typeof body.book_id !== "string") {
