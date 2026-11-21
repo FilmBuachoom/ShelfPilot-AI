@@ -2,7 +2,7 @@ import { expect, test, vi } from "vitest";
 import { GET, POST } from "@/app/api/recommend/route";
 import { readCatalog, readShelf } from "@/lib/data/store";
 import { callStructured } from "@/lib/llm/client";
-import { book, catalog, shelf } from "../shelf-fixture";
+import { book, catalog, shelf, timestamp } from "../shelf-fixture";
 
 vi.mock("@/lib/data/store", () => ({ readCatalog: vi.fn(), readShelf: vi.fn() }));
 vi.mock("@/lib/llm/client", () => ({ callStructured: vi.fn() }));
@@ -72,7 +72,7 @@ test("returns a cited reason using the structured model output", async () => {
     sources: [source],
   });
 
-  expect(await (await GET()).json()).toMatchObject({ fallback: false, continue: [item] });
+  expect(await (await GET()).json()).toMatchObject({ fallback: false, continue: [{ ...item, reason: "เล่ม 2 ที่มีประกาศในชุดที่คุณสะสม" }] });
   const [input] = model.mock.lastCall!;
   expect(input.schema).toMatchObject({ name: "recommendation" });
   expect(input).toMatchObject({ timeoutMs: 30_000, maxRetries: 0, maxCompletionTokens: 2_000 });
@@ -81,4 +81,38 @@ test("returns a cited reason using the structured model output", async () => {
     continue: [{ book_id: "next", status: "upcoming", source_ids: ["verified"] }],
   });
   expect(JSON.stringify(input.messages)).not.toContain(source.raw_text);
+});
+
+test("replaces invented model reasons with verified shelf facts", async () => {
+  const source = { source_id: "verified-2", source_url: "https://example.test", raw_text: "fixture", publisher: "Animag", imported_at: timestamp };
+  const owned = book("owned-novel", 1, { title: "หมอยา", edition: "light_novel", publisher: "Phoenix" });
+  const matchingEdition = book("same-edition", 1, { title: "เรื่องใหม่", series_id: "other-1", edition: "light_novel", publisher: "Animag", sources: [source.source_id] });
+  const noMatch = book("unrelated", 1, { title: "อีกเรื่อง", series_id: "other-2", edition: "manga", publisher: "Animag", sources: [source.source_id] });
+  vi.mocked(readShelf).mockResolvedValue(shelf(owned.book_id));
+  vi.mocked(readCatalog).mockResolvedValue({ ...catalog(owned, matchingEdition, noMatch), sources: [source] });
+  vi.mocked(callStructured).mockResolvedValue({
+    data: { continue: [], similar: [
+      { book_id: matchingEdition.book_id, reason: "สำนักพิมพ์ Animag เหมือนหมอยาในคลัง", source_ids: [source.source_id] },
+      { book_id: noMatch.book_id, reason: "มังงะ Animag เหมือนหมอยาในคลัง", source_ids: [source.source_id] },
+    ] }, message: { role: "assistant", content: null, refusal: null },
+  });
+
+  const result = await (await refresh({ refresh: true })).json();
+  expect(result.similar).toEqual([{ book_id: "same-edition", reason: "ฉบับไลต์โนเวล เช่นเดียวกับ หมอยา ในคลังของคุณ", source_ids: ["verified-2"] }]);
+  const payload = JSON.parse(vi.mocked(callStructured).mock.lastCall![0].messages[1].content as string);
+  expect(payload.similar.map((entry: { book_id: string }) => entry.book_id)).toEqual(["same-edition"]);
+});
+
+test("matches both edition and publisher to the same owned book", async () => {
+  const source = { source_id: "verified-3", source_url: "https://example.test", raw_text: "fixture", publisher: "Phoenix", imported_at: timestamp };
+  const owned = book("owned-manga", 1, { title: "หนังสือในคลัง", publisher: "Phoenix" });
+  const candidate = book("candidate", 1, { title: "เรื่องอื่น", series_id: "other-3", publisher: "Phoenix", sources: [source.source_id] });
+  vi.mocked(readShelf).mockResolvedValue(shelf(owned.book_id));
+  vi.mocked(readCatalog).mockResolvedValue({ ...catalog(owned, candidate), sources: [source] });
+  vi.mocked(callStructured).mockResolvedValue({
+    data: { continue: [], similar: [{ book_id: candidate.book_id, reason: "untrusted", source_ids: [source.source_id] }] },
+    message: { role: "assistant", content: null, refusal: null },
+  });
+  const result = await (await refresh({ refresh: true })).json();
+  expect(result.similar[0].reason).toBe("ฉบับมังงะและสำนักพิมพ์ Phoenix เช่นเดียวกับ หนังสือในคลัง ในคลังของคุณ");
 });
