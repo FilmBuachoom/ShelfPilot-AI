@@ -9,7 +9,8 @@ export function useSingleActionGuard() {
     const check = () => {
       if (warned) return;
       const actions = [...document.querySelectorAll(".sp-btn--action")]
-        .filter((button) => button.getClientRects().length > 0);
+        .filter((button) => button.getClientRects().length > 0
+          && getComputedStyle(button).getPropertyValue("--sp-action-suppressed").trim() !== "1");
       if (actions.length > 1) {
         console.warn("ShelfPilot: use at most one action button per screen.");
         warned = true;

@@ -128,6 +128,23 @@ button.sp-stat:hover { background: var(--line); }
   overflow-y: auto;
 }
 .sp-dialog::backdrop { background: var(--scrim); }
+
+/* Keep the active confirmation as the only orange action on screen. */
+body:has(dialog:modal) .sp-btn--action:not(dialog:modal .sp-btn--action) {
+  --sp-action-suppressed: 1;
+  background: var(--surface-raised);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+@media (min-width: 1024px) {
+  body:has(.sp-assistant-panel .sp-chat-proposal .sp-btn--action) .sp-app-main .sp-btn--action:not(dialog:modal .sp-btn--action) {
+    --sp-action-suppressed: 1;
+    background: var(--surface-raised);
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+}
 .sp-dialog--sheet { margin-bottom: 0; padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); }
 .sp-confirm dd { overflow-wrap: anywhere; }
 .sp-diff { display: grid; white-space: normal; }
