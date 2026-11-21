@@ -50,7 +50,7 @@ export async function POST(request: Request): Promise<Response> {
   } catch (error) {
     return Response.json({
       error: error instanceof LlmUnavailableError
-        ? "ยังสกัดข้อมูลไม่ได้ตอนนี้ กรุณาลองอีกครั้ง ข้อความของคุณยังอยู่"
+        ? "ยังประมวลผลประกาศไม่ได้ตอนนี้ กรุณาลองอีกครั้ง ข้อความของคุณยังอยู่"
         : "นำเข้าข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง",
     }, { status: error instanceof LlmUnavailableError ? 503 : 500 });
   }

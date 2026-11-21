@@ -1,68 +1,113 @@
-import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { expect, test, vi } from "vitest";
-import type { Catalog } from "@/types/generated";
-import { runPipeline } from "@/lib/ingest/pipeline";
-import { normalizeItem } from "@/lib/ingest/normalize";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { POST } from "@/app/api/ingest/route";
+import { readCatalog } from "@/lib/data/store";
 import { createSourceId } from "@/lib/ingest/source-id";
-import { input, item } from "./fixtures";
+import { callStructured, LlmUnavailableError } from "@/lib/llm/client";
+import { book, catalog } from "../shelf-fixture";
+import { input, item, matchResult } from "./fixtures";
 
-const catalog: Catalog = { books: [], sources: [], updated_at: "2026-01-01T00:00:00.000Z" };
-const extraction = { items: [normalizeItem(item, input.raw_text)] };
-const now = () => new Date("2026-01-01T00:00:00.000Z");
+vi.mock("@/lib/llm/client", async (original) => ({
+  ...await original<typeof import("@/lib/llm/client")>(), callStructured: vi.fn(),
+}));
 
-test("dry-run preserves the audit source in the result and writes nothing", async () => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), "ingest-test-"));
-  const file = path.join(dir, "catalog.json");
-  const before = JSON.stringify(catalog);
-  try {
-    await writeFile(file, before);
-    const result = await runPipeline(input, {
-      readCatalog: async () => JSON.parse(await readFile(file, "utf8")),
-      extract: async () => extraction, now,
-    });
-    expect(result).toMatchObject({ status: "dry_run", extraction, source: {
-      raw_text: input.raw_text, source_url: input.source_url, source_id: createSourceId(input.raw_text, input.source_url),
-      publisher: "", imported_at: now().toISOString(),
-    } });
-    expect(await readFile(file, "utf8")).toBe(before);
-  } finally { await rm(dir, { recursive: true, force: true }); }
+const original = book("bk_target", 13, { aliases: ["テスト", "Tesuto", "ชุดฯ"], sale_status: "announced" });
+let dir: string;
+let file: string;
+beforeEach(async () => {
+  dir = await mkdtemp(path.join(os.tmpdir(), "ingest-test-"));
+  file = path.join(dir, "catalog.json");
+  await writeFile(file, JSON.stringify(catalog(original)));
+  vi.stubEnv("SHELFPILOT_DATA_DIR", dir);
+});
+afterEach(async () => {
+  vi.unstubAllEnvs();
+  vi.resetAllMocks();
+  await rm(dir, { recursive: true, force: true });
 });
 
-test("a persisted source skips extraction entirely", async () => {
-  const extract = vi.fn();
-  const source = { source_id: createSourceId(input.raw_text, input.source_url), source_url: input.source_url, raw_text: input.raw_text, publisher: "", imported_at: now().toISOString() };
-  const result = await runPipeline(input, { readCatalog: async () => ({ ...catalog, sources: [source] }), extract });
-  expect(result.status).toBe("already_imported");
-  expect(extract).not.toHaveBeenCalled();
-});
+const secondInput = { ...input, raw_text: "fixture-b · มังงะ · เล่ม ๑๓", source_url: "https://example.test/source-b" };
 
-test("partial pipeline stages cannot write", async () => {
-  const write = vi.fn();
-  const result = await runPipeline(input, { readCatalog: async () => catalog, extract: async () => extraction, stages: { write } });
-  expect(result.status).toBe("dry_run");
-  expect(write).not.toHaveBeenCalled();
-});
+function ingest(body = input) {
+  return POST(new Request("http://localhost/api/ingest", { method: "POST", body: JSON.stringify(body) }));
+}
 
-test("injected stages chain extract → match → disambiguate → write", async () => {
-  const order: string[] = [];
-  const result = await runPipeline(input, { readCatalog: async () => catalog,
-    extract: async () => { order.push("extract"); return extraction; },
-    stages: {
-      match: async (context) => { order.push("match"); expect(context.extraction).toEqual(extraction); return ["match-a"]; },
-      disambiguate: async (_context, matches) => { order.push("disambiguate"); expect(matches).toEqual(["match-a"]); return ["decision-a"]; },
-      write: async (_context, decisions) => { order.push("write"); expect(decisions).toEqual(["decision-a"]); },
-    },
+function reply(data: unknown) {
+  return { data, message: { role: "assistant" as const, content: null, refusal: null } };
+}
+
+test("imports pre-order and release posts under different titles into one book", async () => {
+  vi.mocked(callStructured)
+    .mockResolvedValueOnce(reply({ items: [{ ...item, title: original.title, sale_status: "preorder" }] }))
+    .mockResolvedValueOnce(reply(matchResult))
+    .mockResolvedValueOnce(reply({ items: [{ ...item, title: "テスト", sale_status: "released" }] }))
+    .mockResolvedValueOnce(reply({ ...matchResult, matched_alias: "テスト" }));
+
+  const preorder = await ingest();
+  expect(preorder.status).toBe(200);
+  expect((await readCatalog()).books[0].sale_status).toBe("preorder");
+
+  const released = await ingest(secondInput);
+  expect(released.status).toBe(200);
+  expect(await released.json()).toMatchObject({
+    status: "imported",
+    decisions: [{
+      match_status: "duplicate_merged", candidate_book_id: original.book_id, matched_alias: "テスト",
+    }],
   });
-  expect(order).toEqual(["extract", "match", "disambiguate", "write"]);
-  expect(result.status).toBe("imported");
+  const stored = await readCatalog();
+  expect(stored.books).toHaveLength(1);
+  expect(stored.books[0]).toMatchObject({
+    book_id: original.book_id,
+    sale_status: "released",
+    sources: [createSourceId(input.raw_text, input.source_url), createSourceId(secondInput.raw_text, secondInput.source_url)],
+  });
+  expect(stored.sources.map(({ source_url, raw_text }) => ({ source_url, raw_text }))).toEqual([input, secondInput]);
+
+  const beforeRetry = await readFile(file, "utf8");
+  expect(await (await ingest(secondInput)).json()).toMatchObject({ status: "already_imported" });
+  expect(callStructured).toHaveBeenCalledTimes(4);
+  expect(await readFile(file, "utf8")).toBe(beforeRetry);
 });
 
-test("extraction failure prevents later stages", async () => {
-  const match = vi.fn();
-  await expect(runPipeline(input, { readCatalog: async () => catalog,
-    extract: async () => { throw new Error("timeout"); }, stages: { match },
-  })).rejects.toThrow("timeout");
-  expect(match).not.toHaveBeenCalled();
+test("new books go through the API with no match call when the shortlist is empty", async () => {
+  vi.mocked(callStructured).mockResolvedValue(reply({ items: [{ ...item, publisher: original.publisher }] }));
+  const response = await ingest();
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({
+    status: "imported", decisions: [{ match_status: "distinct_edition", candidate_book_id: null }],
+  });
+  expect((await readCatalog()).books[1]).toMatchObject({
+    book_id: expect.stringMatching(/^bk_[0-9a-f]{12}$/), series_id: expect.stringMatching(/^sr_[0-9a-f]{12}$/),
+    title: item.title, volume: 13, edition: "manga",
+  });
+  expect(callStructured).toHaveBeenCalledTimes(1);
+});
+
+test("a review-only result and a provider failure leave the catalog unchanged", async () => {
+  const before = await readFile(file, "utf8");
+  vi.mocked(callStructured)
+    .mockResolvedValueOnce(reply({ items: [{ ...item, title: original.title, edition_evidence: null }] }))
+    .mockResolvedValueOnce(reply({ ...matchResult, edition: null }))
+    .mockResolvedValueOnce(reply({ items: [{ ...item, title: original.title }] }))
+    .mockRejectedValueOnce(new LlmUnavailableError(new Error("provider unavailable")));
+
+  expect(await (await ingest()).json()).toMatchObject({
+    status: "not_imported", decisions: [{ match_status: "needs_review" }],
+  });
+  expect((await ingest()).status).toBe(503);
+  expect(await readFile(file, "utf8")).toBe(before);
+});
+
+test("concurrent announcements for an unseen title produce one stable book and both sources", async () => {
+  vi.mocked(callStructured).mockResolvedValue(reply({ items: [{ ...item, publisher: original.publisher }] }));
+  const responses = await Promise.all([ingest(), ingest(secondInput)]);
+  const results = await Promise.all(responses.map((response) => response.json()));
+  expect(results.map((result) => result.decisions[0].match_status).sort()).toEqual(["distinct_edition", "duplicate_merged"]);
+  const stored = await readCatalog();
+  expect(stored.books).toHaveLength(2);
+  expect(stored.books[1].sources).toHaveLength(2);
+  expect(stored.sources).toHaveLength(2);
 });

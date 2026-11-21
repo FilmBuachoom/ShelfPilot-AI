@@ -3,8 +3,25 @@
 import { useRef, useState, type FormEvent } from "react";
 import { Badge, EditionBadge } from "@/components/Badge/Badge";
 import { Button } from "@/components/Button/Button";
-import type { PipelineResult } from "@/lib/ingest/contracts";
+import type { MatchDecision, PipelineResult } from "@/lib/ingest/contracts";
+import type { MatchStatus } from "@/types/generated";
 import "./import.css";
+
+const matchBadges = {
+  duplicate_merged: { variant: "muted", label: "รวมประกาศซ้ำ" },
+  distinct_edition: { variant: "info", label: "เพิ่มหนังสือ" },
+  needs_review: { variant: "review", label: "ต้องตรวจสอบ" },
+} as const satisfies Record<MatchStatus, { variant: "muted" | "info" | "review"; label: string }>;
+
+function MatchDetails({ decision }: { decision: MatchDecision }) {
+  const { variant, label } = matchBadges[decision.match_status];
+  return <div className="sp-import__match">
+    <Badge variant={variant}>{label}</Badge>
+    {decision.candidate_book_id && <code>{decision.candidate_book_id}</code>}
+    {decision.matched_alias && <span>ชื่อที่ตรงกัน · {decision.matched_alias}</span>}
+    <span>{decision.reason}</span>
+  </div>;
+}
 
 export function ImportExtractForm() {
   const [rawText, setRawText] = useState("");
@@ -63,27 +80,28 @@ export function ImportExtractForm() {
         </div>
         <div className="sp-inline">
           <Button type="submit" variant="action" disabled={pending || !rawText.trim() || !sourceUrl.trim()}>
-            {pending ? "กำลังสกัดข้อมูล…" : "Import / Extract"}
+            {pending ? "กำลังประมวลผลประกาศ…" : "Import / Extract"}
           </Button>
         </div>
       </form>
       {error && <p className="sp-import__error" role="alert">{error}</p>}
       <div aria-live="polite" aria-atomic="true">
-        {result && <section className="sp-import__result" aria-label="ผลการสกัดข้อมูล">
+        {result && <section className="sp-import__result" aria-label="ผลการนำเข้าประกาศ">
           <div className="sp-import__result-head">
-            <h3>ผลการสกัดข้อมูล</h3>
-            <Badge variant="muted">{result.status === "dry_run" ? "ยังไม่บันทึก" : "นำเข้าแล้ว"}</Badge>
+            <h3>ผลการนำเข้าประกาศ</h3>
+            <Badge variant="muted">{result.status === "not_imported" ? "ยังไม่บันทึก" : "นำเข้าแล้ว"}</Badge>
           </div>
           <p>{result.message}</p>
           <p className="sp-import__source">source_id · <code>{result.source.source_id}</code></p>
           {result.extraction.items.length > 0 ? <div className="sp-import__scroll" role="region" aria-label="รายการที่สกัดได้" tabIndex={0}>
             <table><caption>สกัดได้ {result.extraction.items.length} รายการ</caption>
-              <thead><tr><th scope="col">ชื่อเรื่อง</th><th scope="col">เล่ม</th><th scope="col">ฉบับ</th><th scope="col">วันวางจำหน่าย</th><th scope="col">ความละเอียดวันที่</th></tr></thead>
+              <thead><tr><th scope="col">ชื่อเรื่อง</th><th scope="col">เล่ม</th><th scope="col">ฉบับ</th><th scope="col">วันวางจำหน่าย</th><th scope="col">ความละเอียดวันที่</th><th scope="col">ผลจับคู่</th></tr></thead>
               <tbody>{result.extraction.items.map((item, index) => <tr key={index}>
                 <td>{item.title ?? "ไม่ระบุ"}</td><td>{item.volume ?? "ไม่ระบุ"}</td>
                 <td>{item.edition ? <EditionBadge edition={item.edition} /> : <Badge variant="review">ไม่ระบุ</Badge>}</td>
                 <td>{item.release_date ?? "ไม่ระบุวัน"}</td>
                 <td>{{ day: "วัน", month: "เดือน", unknown: "ไม่ระบุ" }[item.release_date_precision]}</td>
+                <td><MatchDetails decision={result.decisions[index]} /></td>
               </tr>)}</tbody>
             </table>
           </div> : result.status !== "already_imported" && <p>ไม่พบรายการเล่มหนังสือในข้อความ ลองตรวจข้อความต้นทางอีกครั้ง</p>}
