@@ -16,7 +16,7 @@ This file provides guidance to Codex (and other agents that read `AGENTS.md`) wh
 
 ## สถานะ Repository
 
-ณ ตอนสร้างไฟล์นี้ repo ยังว่าง (ยังไม่มีโค้ด, `package.json` หรือคำสั่ง build/test) — เมื่อเพิ่มโครงสร้างโปรเจกต์แล้วให้อัปเดตส่วน "คำสั่งที่ใช้บ่อย" ด้านล่างด้วยคำสั่งจริง อย่าเดาคำสั่งที่ยังไม่มีอยู่
+โครง Next.js อยู่ใน `web/` พร้อม JSON Schema ใน `schemas/` และไฟล์ข้อมูลเริ่มต้นใน `data/`
 
 ## ภาพรวมผลิตภัณฑ์
 
@@ -86,14 +86,16 @@ Skills ของโปรเจกต์อยู่ใน `.agents/skills/` (Co
 
 ## คำสั่งที่ใช้บ่อย
 
-_ยังไม่มี — เพิ่มเมื่อสร้างโปรเจกต์ Next.js แล้ว (dev server, build, lint, test, และวิธีรัน test เดี่ยว)_
+รันคำสั่งจาก `web/`
 
 | งาน | คำสั่ง |
 |---|---|
-| Dev (web) | _TBD_ |
-| รัน ingest | _TBD_ |
-| Test / Test เดี่ยว | _TBD_ |
-| Lint / typecheck | _TBD_ |
+| ติดตั้ง dependencies | `npm ci` |
+| Dev (web) | `npm run dev` |
+| Build / Start | `npm run build` / `npm start` |
+| Test / Test เดี่ยว | `npm test` / `npm test -- tests/normalize.test.ts` |
+| Lint / Typecheck | `npm run lint` / `npm run typecheck` |
+| สร้าง TypeScript types จาก schema | `npm run gen:types` |
 
 ## Git and PRs
 
