@@ -143,10 +143,30 @@ button.sp-stat:hover { background: var(--line); }
   font: inherit;
 }
 .sp-field textarea { resize: vertical; }
-.sp-checks { margin: 0; border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; gap: var(--space-2); }
-.sp-checks legend { font-size: var(--text-body-sm-size); padding: 0 var(--space-1); }
-.sp-checks label { display: flex; gap: var(--space-2); align-items: center; cursor: pointer; }
-.sp-checks input, .sp-review input { accent-color: var(--ink); }
+.sp-volume-picker { position: relative; }
+.sp-volume-trigger, .sp-volume-options button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  font: inherit;
+  color: var(--ink);
+  text-align: start;
+  cursor: pointer;
+}
+.sp-volume-trigger {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.sp-volume-trigger svg { flex: none; transform: rotate(90deg); }
+.sp-volume-trigger[aria-expanded="true"] svg { transform: rotate(-90deg); }
+.sp-volume-options button { border: 0; border-radius: var(--radius-sm); background: transparent; }
+.sp-volume-options button:is(:focus, :hover) { background: var(--surface-subtle); }
+.sp-volume-options [aria-selected="true"]::after { content: "✓" / ""; }
+.sp-review input { accent-color: var(--ink); }
 .sp-admin { container-type: inline-size; }
 .sp-review__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sp-review__options { min-width: 0; padding: 0; margin: 0; border: 0; }
@@ -306,3 +326,27 @@ button.sp-stat:hover { background: var(--line); }
     font-weight: 600;
   }
 }
+
+.sp-dialog:has(.sp-add-series) { width: min(32rem, calc(100% - 2 * var(--space-4))); }
+.sp-series-picker { position: relative; }
+.sp-series-options, .sp-volume-options {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + var(--space-1));
+  z-index: 1;
+  list-style: none;
+  margin: 0;
+  padding: var(--space-1);
+  max-height: min(7rem, 30dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.sp-add-series:has(.sp-volume-picker) .sp-series-options { max-height: min(10rem, 30dvh); }
+.sp-series-empty { padding: var(--space-2); }
+.sp-series-options li { padding: var(--space-2); cursor: pointer; border-radius: var(--radius-sm); }
+.sp-series-options li:is(:hover, [data-active="true"]) { background: var(--surface-subtle); }
+
+.sp-chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); }

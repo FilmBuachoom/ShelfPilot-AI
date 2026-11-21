@@ -4,15 +4,14 @@ import { useMemo, useState } from "react";
 import { AssistantIcon } from "@/components/AssistantIcon/AssistantIcon";
 import { editionLabels } from "@/components/Badge/Badge";
 import { Button } from "@/components/Button/Button";
-import { Dialog } from "@/components/Dialog";
 import { FilterTabs } from "@/components/FilterTabs/FilterTabs";
 import { SeriesRow } from "@/components/SeriesRow/SeriesRow";
 import { ShelfHeader } from "@/components/ShelfHeader/ShelfHeader";
 import { VolumeLegend } from "@/components/VolumeStrip/VolumeStrip";
 import { useCatalog } from "@/lib/data/catalog-provider";
 import { seriesKey, type ShelfSeries } from "@/lib/shelf/compute";
-import { formatVolumes } from "@/lib/shelf/format";
-import type { BookId, Edition } from "@/types/generated";
+import type { Edition } from "@/types/generated";
+import { AddSeriesForm } from "./add-series-form";
 import { useAssistantPanel } from "./assistant/panel";
 
 type Filter = "all" | "missing" | "upcoming" | Edition;
@@ -71,66 +70,5 @@ export function ShelfScreen() {
       )}
       {addOpen && <AddSeriesForm onClose={() => setAddOpen(false)} onAdded={() => { setQuery(""); setFilter("all"); }} />}
     </div>
-  );
-}
-
-function AddSeriesForm({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) {
-  const { collection: { allSeries }, updateShelf, saving, saveError } = useCatalog();
-  const [selected, setSelected] = useState("");
-  const [checked, setChecked] = useState<BookId[]>([]);
-  const options = allSeries.filter(({ volumes }) => volumes.some(({ status }) => status !== "owned"))
-    .sort((a, b) => a.representative.title.localeCompare(b.representative.title, "th"));
-  const series = options.find((row) => seriesKey(row.seriesId, row.edition) === selected);
-
-  return (
-    <Dialog title="เพิ่มเรื่องเข้าคลัง" onDismiss={() => { if (!saving) onClose(); }}>
-      {options.length === 0 ? (
-        <>
-          <p className="sp-muted">{allSeries.length === 0
-            ? "ยังไม่พบในแค็ตตาล็อก ลองกลับมาเมื่อมีประกาศใหม่"
-            : "เพิ่มหนังสือในแค็ตตาล็อกเข้าคลังครบแล้ว"}</p>
-          <Button variant="ghost" size="block" onClick={onClose}>ปิด</Button>
-        </>
-      ) : (
-        <form className="sp-form" onSubmit={async (event) => {
-          event.preventDefault();
-          if (checked.length && await updateShelf({ add: checked })) {
-            onAdded();
-            onClose();
-          }
-        }}>
-          <label className="sp-field">
-            <span>เลือกเรื่องและฉบับพิมพ์</span>
-            <select value={selected} disabled={saving} onChange={(event) => {
-              setSelected(event.target.value);
-              setChecked([]);
-            }}>
-              <option value="">เลือกจากแค็ตตาล็อก</option>
-              {options.map((row) => {
-                const key = seriesKey(row.seriesId, row.edition);
-                return <option key={key} value={key}>{row.representative.title} · {editionLabels[row.edition]}</option>;
-              })}
-            </select>
-          </label>
-          {series && <fieldset className="sp-checks">
-            <legend>เลือกเล่มที่มี</legend>
-            {series.volumes.filter(({ status }) => status !== "owned").map(({ book_id, volume }) => (
-              <label key={book_id}>
-                <input type="checkbox" checked={checked.includes(book_id)} disabled={saving} onChange={(event) => {
-                  const next = event.target.checked;
-                  setChecked((ids) => next ? [...ids, book_id] : ids.filter((id) => id !== book_id));
-                }} />
-                {formatVolumes(volume)}
-              </label>
-            ))}
-          </fieldset>}
-          {saveError && <p role="alert" className="sp-muted">{saveError}</p>}
-          <div className="sp-modal__actions">
-            <Button variant="action" size="block" type="submit" disabled={!checked.length || saving}>เพิ่ม {checked.length} เล่ม</Button>
-            <Button variant="ghost" disabled={saving} onClick={onClose}>ยกเลิก</Button>
-          </div>
-        </form>
-      )}
-    </Dialog>
   );
 }
