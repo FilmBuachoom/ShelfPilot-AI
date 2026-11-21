@@ -1,67 +1,30 @@
-# ShelfPilot AI — Conceptual data model
+# ShelfPilot AI data model
 
-This document describes the MVP entities and their relationships. It is a design note, not yet the JSON Schema contract. When implementation begins, define the canonical shapes in `schemas/` and keep the TypeScript types and fixtures aligned with them.
+The JSON schemas in [schemas/](../schemas/) define the MVP data contract. The [generated TypeScript types](../web/types/generated/index.ts) reflect those schemas.
 
-## Model overview
+## Stored records
 
-```mermaid
-erDiagram
-    SERIES ||--o{ BOOK : contains
-    PUBLISHER ||--o{ BOOK : publishes
-    PUBLISHER ||--o{ SOURCE : issues
-    SOURCE ||--o{ ANNOUNCEMENT : describes
-    SERIES o|--o{ ANNOUNCEMENT : concerns
-    BOOK }o--o{ ANNOUNCEMENT : concerns
-    BOOK ||--o{ BOOK_SOURCE : evidenced_by
-    SOURCE ||--o{ BOOK_SOURCE : supports
-    USER ||--o{ USER_SHELF_ITEM : has
-    BOOK ||--o{ USER_SHELF_ITEM : appears_on
-```
+| Record | Fields and relationships |
+|---|---|
+| `Catalog` | Contains `books[]`, `sources[]`, and `updated_at`. |
+| `Book` | Represents one volume in one edition. Required fields are `book_id`, `series_id`, `title`, `aliases[]`, numeric `volume`, `edition`, `publisher`, `release_date_precision`, `sale_status`, and `sources[]`. Optional fields are `release_date`, `store_url`, and `cover_url`. |
+| `Source` | Stores the evidence behind a catalog entry. Required fields are `source_id`, `source_url`, `raw_text`, `publisher`, and `imported_at`. `posted_at` is optional. |
+| `UserShelf` | Stores one shelf with `owned[]` and `updated_at`. Each entry records a `book_id` and `added_at`. |
+| `ReviewQueue` | Stores `items[]`. Each item records a `review_id`, `source_id`, extracted data, candidate books with edition and confidence, a reason, a status (`open` or `resolved`), and `created_at`. |
 
-`Series` describes a publication line/work. A series does not have to have one permanent publisher; each published `Book` records the publisher for that specific publication. For the MVP, announcements concern series and/or specific books, with emphasis on volume and release updates.
+Books in the same publication line share a `series_id`. Keep manga and light novel adaptations in separate publication lines so shelf checks compare the right volumes. Publisher names are stored as strings on books and sources. Use the book's `aliases[]` for Thai, Japanese, English, or abbreviated names as available.
 
-## Entities
+Each book carries a list of source IDs. One publisher post can support several volumes, and several posts can support the same volume. The source record preserves the original URL and text. Shelf entries and review candidates refer to books by their stable `book_id`.
 
-| Entity | Purpose | Core attributes |
-|---|---|---|
-| `Publisher` | Publisher/imprint that publishes a book or issues an announcement | `publisher_id`, `name`, `aliases[]`, optional `country`, optional `website_url` |
-| `Series` | A work or publication line, independent of a single publisher | `series_id`, `canonical_title`, language tagged `titles` (Thai `th`, Japanese `ja`, English `en` when available), `aliases[]` for alternate names and search, optional `original_language`, optional `original_publisher_id` |
-| `Book` | A specific volume in a specific publication/format | `book_id`, `series_id`, `publisher_id`, `volume`, `edition`, optional `title`, optional `isbn`, optional `release_date`, `release_status`, `sources[]` |
-| `Source` | Evidence from a publisher announcement | `source_id`, `publisher_id`, `source_url`, `raw_text`, optional `published_at`. The demo source index resolves each ID to a local HTML section. |
-| `Announcement` | The volume or release event described by a source | `announcement_id`, `source_id`, `type`, optional `series_id`, `book_ids[]`, `event_status`, optional `announced_at` |
-| `BookSource` | The association between a book and an announcement/source that supports its details | `book_id`, `source_id`, optional `match_status` |
-| `User` | A reader using the app | `user_id`, optional `display_name`, optional `preferences` |
-| `UserShelfItem` | A user's ownership entry for a catalog book | `user_id`, `book_id`, `ownership_status`, optional `date_added` |
+## Volume announcements and matching
 
-### Suggested controlled values
+- A book's `edition` is `manga`, `light_novel`, `special_set`, or `big_book`.
+- A book's `sale_status` is `announced`, `preorder`, or `released`. `release_date_precision` is `day` or `month`. When present, `release_date` must be an ISO date (`YYYY-MM-DD`). Preserve any month-only wording in the source text and avoid guessing a day.
+- One release post can yield several book candidates. For `duplicate_merged`, append the new source ID to the existing book and update its sale status when supported. For `distinct_edition`, use a separate book ID. For `needs_review`, queue the candidate without changing the catalog.
 
-- `Announcement.type`: `volume_release` for the MVP; it may cover an upcoming or newly available volume.
-- `Announcement.event_status`: values such as `announced`, `in_progress`, `on_sale`, `delayed`, `unknown`.
-- `Book.edition`: retain the project contract values `manga`, `light_novel`, `special_set`, `big_book`.
-- `Book.release_status`: `in_progress`, `announced`, `on_sale`, `delayed`, `unknown`.
-- `BookSource.match_status`: retain `duplicate_merged`, `distinct_edition`, `needs_review`.
+The [demo source fixtures](demo-data-sources.md) are inputs to extraction and matching. Publisher release posts supply volume updates. Shop listings and retailer references can support matching and identification.
 
-**ISBN note for the ingestion pipeline:** extract ISBN when it is present in an authorized source, and store it as optional metadata on the specific published `Book` edition/format. It may not be present in an early announcement; do not infer or generate it. Keep the internal `book_id` as the stable app identifier, and validate ISBN uniqueness for non-empty values in the catalog scope.
+## Future extensions
 
-**Future extension:** licensing announcements and license records are outside the MVP. They can be added later as a separate event/workflow, since a license announcement may precede any volume or ISBN and has its own rights and publication-progress data.
-
-## Relationship and identity rules
-
-- A `Series` has many `Book` records. Each book record represents one volume and one edition; a manga and light novel adaptation must be separate series when they are separate publication lines, and their relationship can be added later if recommendations need franchise grouping.
-- A `Book` points to the publisher actually publishing that specific volume/format.
-- An announcement may reference a series and one or more books. A post listing multiple new volumes maps to one source/announcement linked to multiple book records.
-- A source is the audit trail for an announcement. When a duplicate announcement confirms an existing book, append the source association to that book rather than creating another book. Uncertain matches go to review without changing the catalog.
-- `book_id` remains the stable internal identifier for one volume/edition. ISBN is optional and is not the primary key: it identifies a published product/edition/format, not an individual copy, and may be missing before release. Capture it from source data when available; enforce ISBN uniqueness only for non-empty values in the appropriate catalog scope.
-- `UserShelfItem` is a join record between users and books. Missing-volume calculations group owned books by the appropriate `series_id` and edition/publication line.
-
-## Example MVP flow
-
-1. A Thai publisher announces an upcoming volume. Resolve the `Series`, create or match the `Book` for its volume and format, and attach the announcement and source.
-2. Extract the release date, sale status, and ISBN if they are stated in the source. Leave ISBN empty when absent; later authorized announcements can enrich the same book record.
-3. If one post lists several volumes, link the same source/announcement to each corresponding book record.
-
-## Demo source replay
-
-The demo reads curated HTML pages stored in the repository. Each page recreates the factual fields needed for extraction and can contain several source sections. Read one section at a time and keep its original URL and source ID for provenance. Publisher volume announcements feed the release extraction flow. Shop listings and retailer references support catalog lookup and matching, with release details left empty unless backed by a release source.
-
-For the local file layout, extraction steps, and websites to evaluate for live collection later, see [Demo data sources](demo-data-sources.md).
+- **ISBN.** The ingestion pipeline can capture an ISBN when an authorized source supplies it for the exact edition and format. Keep it in the source evidence until the catalog contract supports a dedicated field. A future `Book.isbn` should be optional. Keep `book_id` as the stable identifier used by the app.
+- **Licensing.** A separate workflow could track rights holders, local publishers, language, territory, and format. A license announcement can precede any volume details, so model it separately from the volume announcement workflow.
