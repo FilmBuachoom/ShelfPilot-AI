@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { BottomNav } from "@/components/BottomNav/BottomNav";
 import { Button } from "@/components/Button/Button";
 import { useSingleActionGuard } from "@/components/Button/use-single-action-guard";
@@ -17,24 +17,47 @@ export function AppShell({ aiEnabled, children }: { aiEnabled: boolean; children
   const router = useRouter();
   const chat = useChat();
   const [panelOpen, setPanelOpen] = useState(false);
+  const assistantInput = useRef<HTMLTextAreaElement>(null);
+  const panelWasOpen = useRef(false);
+  const opener = useRef<HTMLButtonElement>(null);
+  const restoreFocus = useRef(false);
   const assistantRoute = aiEnabled && pathname === "/assistant";
   const showPanel = aiEnabled && (assistantRoute || panelOpen);
 
   useSingleActionGuard();
 
-  function openAssistant() {
-    if (showPanel) document.querySelector<HTMLTextAreaElement>("#assistant-panel textarea")?.focus();
+  useEffect(() => {
+    const wasOpen = panelWasOpen.current;
+    panelWasOpen.current = showPanel;
+    if (showPanel && (!wasOpen || assistantRoute)) {
+      assistantInput.current?.focus({ preventScroll: !assistantRoute });
+    }
+    if (showPanel || !restoreFocus.current) return;
+    restoreFocus.current = false;
+    const target = opener.current?.getClientRects().length
+      ? opener.current
+      : document.getElementById("assistant-panel-toggle");
+    target?.focus({ preventScroll: true });
+    opener.current = null;
+  }, [assistantRoute, showPanel]);
+
+  function openAssistant(event: MouseEvent<HTMLButtonElement>) {
+    opener.current = event.currentTarget;
+    if (showPanel) {
+      assistantInput.current?.focus({ preventScroll: true });
+      return;
+    }
     setPanelOpen(true);
   }
 
   function closeAssistant() {
+    restoreFocus.current = true;
     if (assistantRoute) router.replace("/");
     setPanelOpen(false);
-    document.getElementById("assistant-panel-toggle")?.focus();
   }
 
   return (
-    <AssistantPanelContext.Provider value={{ aiEnabled, openAssistant }}>
+    <AssistantPanelContext.Provider value={{ panelOpen: showPanel, openAssistant: aiEnabled ? openAssistant : undefined }}>
       <div className={`sp-app${showPanel ? " sp-app--with-assistant" : ""}${assistantRoute ? " sp-app--assistant-route" : ""}`}>
         <header className="sp-app-header">
           <Link className="sp-wordmark" href="/">ShelfPilot</Link>
@@ -60,7 +83,7 @@ export function AppShell({ aiEnabled, children }: { aiEnabled: boolean; children
               <span>ผู้ช่วย</span>
               <Button variant="ghost" size="sm" aria-label="ปิดผู้ช่วย" onClick={closeAssistant}><Icon name="close" size={18} /></Button>
             </div>
-            <AssistantScreen {...chat} />
+            <AssistantScreen {...chat} inputRef={assistantInput} />
           </section>
         )}
         <BottomNav pathname={pathname} aiEnabled={aiEnabled} />

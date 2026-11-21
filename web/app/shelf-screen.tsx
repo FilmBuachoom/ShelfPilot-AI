@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AskBar } from "@/components/AskBar/AskBar";
+import { AssistantIcon } from "@/components/AssistantIcon/AssistantIcon";
 import { editionLabels } from "@/components/Badge/Badge";
 import { Button } from "@/components/Button/Button";
 import { Dialog } from "@/components/Dialog";
@@ -25,7 +25,7 @@ function matchesFilter(row: ShelfSeries, filter: Filter) {
 
 export function ShelfScreen() {
   const { collection: { series, stats }, searchCatalog } = useCatalog();
-  const { aiEnabled, openAssistant } = useAssistantPanel();
+  const { panelOpen, openAssistant } = useAssistantPanel();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [addOpen, setAddOpen] = useState(false);
@@ -63,7 +63,12 @@ export function ShelfScreen() {
             : "ลองเปลี่ยนตัวกรองหรือค้นหาด้วยชื่ออื่น"}</p>
         </div>
       )}
-      {aiEnabled && <div className="sp-ask-footer"><AskBar /><AskBar onOpen={openAssistant} /></div>}
+      {openAssistant && (
+        <Button className="sp-assistant-launcher" hidden={panelOpen}
+          aria-label="เปิดแชทผู้ช่วย" title="เปิดแชทผู้ช่วย" onClick={openAssistant}>
+          <AssistantIcon imageSize={76} />
+        </Button>
+      )}
       {addOpen && <AddSeriesForm onClose={() => setAddOpen(false)} onAdded={() => { setQuery(""); setFilter("all"); }} />}
     </div>
   );

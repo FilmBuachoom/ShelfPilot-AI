@@ -1,11 +1,11 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, type MouseEventHandler } from "react";
 
 export const AssistantPanelContext = createContext<{
-  aiEnabled: boolean;
-  openAssistant?: () => void;
-}>({ aiEnabled: false });
+  panelOpen: boolean;
+  openAssistant?: MouseEventHandler<HTMLButtonElement>;
+}>({ panelOpen: false });
 
 export function useAssistantPanel() {
   return useContext(AssistantPanelContext);

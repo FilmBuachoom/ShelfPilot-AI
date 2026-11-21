@@ -185,9 +185,3 @@ button.sp-vol--upcoming { border: 1.5px solid var(--accent); }
 button.sp-vol:hover { outline: 2px solid var(--line-strong); outline-offset: 1px; }
 button.sp-vol:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .sp-vols--lg .sp-vol { width: 40px; height: 44px; font-size: 14px; border-radius: var(--radius-sm); }
-
-/* AskBar — AI entry from the shelf (add-on) */
-.sp-askbar { display: flex; align-items: center; gap: var(--space-2); max-width: 420px; height: 48px; padding: 0 6px 0 16px; border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--surface-raised); box-shadow: var(--shadow-card); color: var(--ink-muted); font-size: 14px; cursor: text; }
-.sp-askbar__mark { color: var(--ink); font-size: 14px; }
-.sp-askbar__text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sp-askbar__btn { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--surface); cursor: pointer; }

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Inter, Noto_Sans_Thai } from "next/font/google";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
@@ -17,6 +17,11 @@ const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variabl
 export const metadata: Metadata = {
   title: "ShelfPilot AI",
   description: "ผู้ช่วยค้นหาหนังสือเล่มและจัดการหนังสือสะสม",
+};
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
