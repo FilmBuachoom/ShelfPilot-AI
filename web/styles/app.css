@@ -291,3 +291,5 @@ button.sp-stat:hover { background: var(--line); }
 .sp-series-empty { padding: var(--space-2); }
 .sp-series-options li { padding: var(--space-2); cursor: pointer; border-radius: var(--radius-sm); }
 .sp-series-options li:is(:hover, [data-active="true"]) { background: var(--surface-subtle); }
+
+.sp-chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); }

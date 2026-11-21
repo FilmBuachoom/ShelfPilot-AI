@@ -8,9 +8,10 @@ import { QuickChip } from "@/components/QuickChip/QuickChip";
 import { MAX_MESSAGE_LENGTH } from "@/lib/chat/shared";
 import type { ShelfProposal } from "@/types/generated/chat-answer";
 import type { QuickAction } from "@/lib/chat/quick";
-import { AddSeriesForm } from "../add-series-form";
 
 type Message = ComponentProps<typeof ChatMessage> & { id: number; proposal?: ShelfProposal };
+
+const addRequestPrefix = "เพิ่มหนังสือเข้าคลัง: ";
 
 const quickChips: { label: string; action: QuickAction }[] = [
   { label: "เล่มที่ขาด", action: "missing" },
@@ -28,7 +29,7 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
   onRevealComplete?: (id: number) => void;
 }) {
   const reviewing = Boolean(messages.at(-1)?.proposal);
-  const [addOpen, setAddOpen] = useState(false);
+  const [addingBooks, setAddingBooks] = useState(false);
   const [draft, setDraft] = useState("");
   const input = useRef<HTMLTextAreaElement>(null);
   const log = useRef<HTMLDivElement>(null);
@@ -55,7 +56,9 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
                 onConfirm={() => finishProposal("confirmed")}
                 onCancel={() => finishProposal("cancelled")}
                 onEdit={() => {
-                  setDraft(proposal.user_text);
+                  const addRequest = proposal.user_text.startsWith(addRequestPrefix);
+                  setAddingBooks(addRequest);
+                  setDraft(addRequest ? proposal.user_text.slice(addRequestPrefix.length) : proposal.user_text);
                   finishProposal("editing");
                   requestAnimationFrame(() => input.current?.focus());
                 }} />}
@@ -75,14 +78,27 @@ export function AssistantScreen({ messages = [], finishProposal, pending = false
             <QuickChip key={label} label={label}
               onClick={onQuick && !pending && !reviewing ? () => onQuick(label, action) : undefined} />
           ))}
-          <QuickChip label="เพิ่มหนังสือ" onClick={pending || reviewing ? undefined : () => setAddOpen(true)} />
+          <button type="button" className="sp-chip" aria-pressed={addingBooks} disabled={!onSend || pending || reviewing}
+            onClick={() => {
+              setAddingBooks(!addingBooks);
+              input.current?.focus();
+            }}>เพิ่มหนังสือ</button>
         </div>
-        <Composer disabled={pending || reviewing} maxLength={MAX_MESSAGE_LENGTH} inputRef={input} value={draft} onChange={setDraft} onSend={onSend && ((message) => {
-          onSend(message);
-          setDraft("");
-        })} />
+        <Composer
+          disabled={pending || reviewing}
+          placeholder={addingBooks ? "เช่น เพิ่งซื้อ OVER LORD เล่ม 18" : undefined}
+          hint={addingBooks ? "พิมพ์ชื่อเรื่องและเลขเล่ม แล้วตรวจรายการก่อนยืนยันเข้าคลัง" : undefined}
+          maxLength={MAX_MESSAGE_LENGTH - (addingBooks ? addRequestPrefix.length : 0)}
+          inputRef={input}
+          value={draft}
+          onChange={setDraft}
+          onSend={onSend && ((message) => {
+            onSend(addingBooks ? addRequestPrefix + message : message);
+            setAddingBooks(false);
+            setDraft("");
+          })}
+        />
       </div>
-      {addOpen && <AddSeriesForm onClose={() => setAddOpen(false)} />}
     </div>
   );
 }
