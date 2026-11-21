@@ -1,5 +1,6 @@
 import { beforeEach, expect, test, vi } from "vitest";
 import Ajv from "ajv";
+import OpenAI from "openai";
 import chatSchema from "../../schemas/chat_answer.schema.json";
 import proposalSchema from "../../schemas/shelf_proposal.schema.json";
 import commonSchema from "../../schemas/common.schema.json";
@@ -87,6 +88,23 @@ test("handles empty catalogs without calling OpenAI and falls back when the mode
 
   call.mockRejectedValueOnce(new Error("Timed out"));
   expect(await (await POST(request())).json()).toEqual(CHAT_UNAVAILABLE);
+});
+
+test("retries one transient OpenAI connection failure within the turn", async () => {
+  const cause = new OpenAI.APIConnectionError({ message: "connection interrupted" });
+  call.mockRejectedValueOnce(new Error("AI unavailable", { cause })).mockResolvedValueOnce({
+    data: { text: "ต้องการฉบับใด", book_ids: [], source_ids: [], not_found: false, needs_clarification: true },
+    message: { role: "assistant", content: null },
+  });
+  expect(await (await POST(request())).json()).toMatchObject({ text: "ต้องการฉบับใด", needs_clarification: true });
+  expect(call).toHaveBeenCalledTimes(2);
+});
+
+test("does not retry permanent OpenAI errors", async () => {
+  const cause = new OpenAI.APIError(401, undefined, "unauthorized", undefined);
+  call.mockRejectedValueOnce(new Error("AI unavailable", { cause }));
+  expect(await (await POST(request())).json()).toEqual(CHAT_UNAVAILABLE);
+  expect(call).toHaveBeenCalledTimes(1);
 });
 
 test("stops accepting tool calls after three rounds", async () => {

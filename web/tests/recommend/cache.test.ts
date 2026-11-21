@@ -75,6 +75,7 @@ test("returns a cited reason using the structured model output", async () => {
   expect(await (await GET()).json()).toMatchObject({ fallback: false, continue: [item] });
   const [input] = model.mock.lastCall!;
   expect(input.schema).toMatchObject({ name: "recommendation" });
+  expect(input).toMatchObject({ timeoutMs: 30_000, maxRetries: 0, maxCompletionTokens: 2_000 });
   expect(JSON.parse(input.messages[1].content as string)).toMatchObject({
     shelf: [{ owned_count: 1 }],
     continue: [{ book_id: "next", status: "upcoming", source_ids: ["verified"] }],

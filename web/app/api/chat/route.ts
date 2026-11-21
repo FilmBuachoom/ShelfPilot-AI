@@ -6,6 +6,8 @@ import {
 import { readCatalog, readShelf } from "@/lib/data/store";
 import { AI_ENABLED } from "@/lib/feature-flags";
 
+export const maxDuration = 60;
+
 function parseMessages(body: unknown): ChatMessageInput[] | null {
   if (!body || typeof body !== "object" || !("messages" in body) || !Array.isArray(body.messages)) return null;
 

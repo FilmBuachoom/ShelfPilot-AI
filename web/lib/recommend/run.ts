@@ -57,7 +57,10 @@ async function generate(catalog: Catalog, shelf: UserShelf, version: string): Pr
     const { data } = await callStructured<Recommendation>({
       model: chatModel,
       schema: { name: "recommendation", schema },
-      timeoutMs: 5_000,
+      timeoutMs: 30_000,
+      maxRetries: 0,
+      maxCompletionTokens: 2_000,
+      reasoningEffort: /^gpt-6-luna(?:-|$)/.test(chatModel) ? "none" : undefined,
       messages: [
         { role: "system", content: prompt },
         {

@@ -2,6 +2,8 @@ import { readCatalog, readShelf } from "@/lib/data/store";
 import { AI_ENABLED } from "@/lib/feature-flags";
 import { getRecommendations } from "@/lib/recommend/run";
 
+export const maxDuration = 60;
+
 async function respond(refresh: boolean) {
   if (!AI_ENABLED) return new Response(null, { status: 404 });
   const [catalog, shelf] = await Promise.all([readCatalog(), readShelf()]);
