@@ -38,6 +38,44 @@ test("a persisted source skips extraction entirely", async () => {
   expect(extract).not.toHaveBeenCalled();
 });
 
+test("reuses a seeded source ID for the same evidence but previews updated text at the same URL", async () => {
+  const seededSource = {
+    source_id: "demo-existing-source", source_url: input.source_url,
+    raw_text: `\n${input.raw_text}\n`, publisher: "Fixture publisher", imported_at: now().toISOString(),
+  };
+  const extract = vi.fn().mockResolvedValue(extraction);
+  const deps = { readCatalog: async () => ({ ...catalog, sources: [seededSource] }), extract };
+
+  expect(await runPipeline(input, deps)).toMatchObject({ status: "already_imported", source: seededSource });
+  expect(extract).not.toHaveBeenCalled();
+
+  const revised = await runPipeline({ ...input, raw_text: `${input.raw_text}\nอัปเดต` }, deps);
+  expect(revised.status).toBe("dry_run");
+  expect(revised.source.source_id).toMatch(/^src_/);
+  expect(extract).toHaveBeenCalledTimes(1);
+});
+
+test("repeating a dry-run returns the same source ID and previews again", async () => {
+  const extract = vi.fn().mockResolvedValue(extraction);
+  const deps = { extract, readCatalog: async () => catalog, now };
+  const first = await runPipeline(input, deps);
+  const second = await runPipeline(input, deps);
+
+  expect(first.status).toBe("dry_run");
+  expect(second.status).toBe("dry_run");
+  expect(second.source.source_id).toBe(first.source.source_id);
+  expect(extract).toHaveBeenCalledTimes(2);
+});
+
+test("uses the extracted publisher as source evidence ahead of the hint", async () => {
+  const result = await runPipeline({ ...input, publisher_hint: "Publisher hint" }, {
+    readCatalog: async () => catalog,
+    extract: async () => ({ items: [{ ...extraction.items[0], publisher: "Source publisher" }] }),
+    now,
+  });
+  expect(result.source.publisher).toBe("Source publisher");
+});
+
 test("partial pipeline stages cannot write", async () => {
   const write = vi.fn();
   const result = await runPipeline(input, { readCatalog: async () => catalog, extract: async () => extraction, stages: { write } });

@@ -52,11 +52,16 @@ test("declares explicit types for enums sent to strict Structured Outputs", asyn
   });
 });
 
-test("month-only dates stay at month precision without an invented day", () => {
-  expect(normalizeItem({ ...item, release_date: null, release_date_precision: "month" }, input.raw_text))
-    .toMatchObject({ release_date: null, release_date_precision: "month" });
-  expect(normalizeItem({ ...item, release_date: "2026-10-01", release_date_precision: "month" }, input.raw_text))
-    .toMatchObject({ release_date: null, release_date_precision: "month" });
+test.each([null, "2026-10", "2026-10-01", "2026-10-19"])(
+  "month precision drops any supplied day from %s", (release_date) => {
+    expect(normalizeItem({ ...item, release_date, release_date_precision: "month" }, input.raw_text))
+      .toMatchObject({ release_date: null, release_date_precision: "month" });
+  },
+);
+
+test("invalid month-precision dates remain unknown", () => {
+  expect(normalizeItem({ ...item, release_date: "2026-11-31", release_date_precision: "month" }, input.raw_text))
+    .toMatchObject({ release_date: null, release_date_precision: "unknown" });
 });
 
 test.each(["2026-02-29", "2026-13-01", "tomorrow"])("invalid date %s becomes unknown", (release_date) => {
@@ -69,6 +74,11 @@ test("absent or fabricated edition evidence never produces an edition", () => {
     expect(normalizeItem({ ...item, edition_evidence }, input.raw_text))
       .toMatchObject({ edition: null, edition_evidence: null, edition_confidence: null });
   }
+});
+
+test("an unknown edition clears stray evidence and confidence", () => {
+  expect(normalizeItem({ ...item, edition: null }, input.raw_text))
+    .toMatchObject({ edition: null, edition_evidence: null, edition_confidence: null });
 });
 
 test("a refusal is surfaced as an unavailable extractor", async () => {

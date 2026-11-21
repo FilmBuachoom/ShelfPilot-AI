@@ -5,12 +5,17 @@ import { ImportExtractForm } from "@/components/ImportExtractForm/ImportExtractF
 import { ReviewQueueItem } from "@/components/ReviewQueueItem/ReviewQueueItem";
 import type { BookId, ReviewQueue } from "@/types/generated";
 
-export function AdminScreen({ items }: { items: ReviewQueue["items"] }) {
+export function AdminScreen({ items, canExtract }: { items: ReviewQueue["items"]; canExtract: boolean }) {
   const [selected, setSelected] = useState<Record<string, BookId>>({});
   return (
     <div className="sp-screen sp-admin">
       <header className="sp-screen-head"><h1>แอดมิน</h1></header>
-      <ImportExtractForm />
+      {canExtract ? <ImportExtractForm /> : (
+        <section className="sp-section">
+          <h2>นำเข้าประกาศหนังสือ</h2>
+          <p className="sp-muted">Import / Extract ใช้งานได้ผ่านเซิร์ฟเวอร์ทดลองในเครื่อง</p>
+        </section>
+      )}
       <section className="sp-section">
         <h2>คิวตรวจสอบ</h2>
         {items.length === 0 && <p className="sp-muted">ไม่มีประกาศที่ต้องตรวจสอบ</p>}

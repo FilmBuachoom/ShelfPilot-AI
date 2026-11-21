@@ -20,14 +20,16 @@ function validDate(value: string): boolean {
 
 export function normalizeItem(item: ExtractedItem, rawText: string): NormalizedItem {
   const precision = item.release_date_precision;
+  const date = item.release_date;
+  const monthOnly = date === null || /^\d{4}-(?:0[1-9]|1[0-2])$/.test(date) || validDate(date);
   // A month has no day in this contract. Preserve its precision and source text.
-  const release = precision === "day" && item.release_date && validDate(item.release_date)
-    ? { release_date: item.release_date, release_date_precision: "day" as const }
-    : precision === "month" && (item.release_date === null || /^\d{4}-(?:0[1-9]|1[0-2])(?:-01)?$/.test(item.release_date))
+  const release = precision === "day" && date && validDate(date)
+    ? { release_date: date, release_date_precision: "day" as const }
+    : precision === "month" && monthOnly
       ? { release_date: null, release_date_precision: "month" as const }
       : { release_date: null, release_date_precision: "unknown" as const };
   const evidence = item.edition_evidence?.trim();
-  const hasEvidence = evidence && rawText.normalize("NFC").includes(evidence.normalize("NFC"));
+  const hasEvidence = item.edition !== null && evidence && rawText.normalize("NFC").includes(evidence.normalize("NFC"));
   return {
     ...item,
     title: item.title?.trim() || null,

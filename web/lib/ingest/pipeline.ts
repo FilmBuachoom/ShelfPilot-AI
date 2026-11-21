@@ -23,9 +23,12 @@ export async function runPipeline<Matched = unknown, Decided = unknown>(
   input: IngestInput,
   dependencies: PipelineDependencies<Matched, Decided> = {},
 ): Promise<PipelineResult> {
-  const sourceId = createSourceId(input.raw_text, input.source_url);
+  const sourceUrl = input.source_url.trim();
+  const sourceId = createSourceId(input.raw_text, sourceUrl);
   const catalog = await (dependencies.readCatalog ?? readCatalog)();
-  const existing = catalog.sources.find((source) => source.source_id === sourceId);
+  const existing = catalog.sources.find((source) => source.source_id === sourceId)
+    ?? catalog.sources.find((source) => source.source_url.trim() === sourceUrl
+      && createSourceId(source.raw_text, source.source_url) === sourceId);
   if (existing) {
     return { status: "already_imported", message: "นำเข้าแล้ว", source: existing, extraction: { items: [] } };
   }
@@ -33,9 +36,9 @@ export async function runPipeline<Matched = unknown, Decided = unknown>(
   const context: IngestContext = {
     source: {
       source_id: sourceId,
-      source_url: input.source_url.trim(),
+      source_url: sourceUrl,
       raw_text: input.raw_text,
-      publisher: input.publisher_hint?.trim() || extraction.items.find((item) => item.publisher)?.publisher || "",
+      publisher: extraction.items.find((item) => item.publisher)?.publisher || input.publisher_hint?.trim() || "",
       imported_at: (dependencies.now ?? (() => new Date()))().toISOString(),
     },
     extraction,

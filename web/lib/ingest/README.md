@@ -14,12 +14,15 @@ returns `dry_run` and writes nothing. #11/#12 inject these stages into
 `runPipeline(input, { stages })` and own atomic catalog/review persistence. The
 source audit record is returned intact so the eventual write can store it with
 its decisions. A source already persisted in `catalog.sources` returns
-`already_imported` before any LLM call. A repeated **dry-run** is not a persisted
-import and therefore extracts again. There is no process-memory import ledger.
+`already_imported` before any LLM call. Exact replays of seeded evidence keep
+the stored `demo-*` ID so existing citations still resolve. Updated text at the
+same URL gets a new preview. A repeated **dry-run** also extracts again because
+it has no stored source record.
 
-The URL is provenance only; the server does not fetch it. Missing publishers are
-represented as an empty string in the source audit record and as null in extracted
-items. Unknown editions or unsupported edition evidence remain null for review.
+The URL is provenance only. The server does not fetch it. The source audit record
+uses the extracted publisher when available, then the optional publisher hint,
+then an empty string. Unknown editions or unsupported edition evidence remain
+null for review.
 Fractional volumes such as 7.5 are preserved. A month-only release has
 `release_date: null` and `release_date_precision: "month"`; its exact wording stays
 in `source.raw_text`. The catalog's full-day date contract is unchanged. #11/#12
@@ -45,11 +48,14 @@ No PR #16 fixtures are copied into the runtime catalog by this change.
 From `web/`, run `npm ci`, `npm run gen:types`, `npm test`, `npm run lint`,
 `npm run typecheck`, and `npm run build`. Unit tests use synthetic mocked outputs
 and make no paid LLM calls. For a manual real-model check, configure OpenAI as in
-`web/README.md`, run `npm run dev`, and open `/admin` with an authorized publisher
+`web/README.md`, run `npm run dev`, and open
+[local Admin](http://127.0.0.1:3000/admin) with an authorized publisher
 announcement. Confirm multiple extracted rows, edition unknown when unstated,
 and the dry-run notice; verify `git diff -- data` is empty. A real-model check
 requires a key and authorized source text; automated tests do not claim it ran.
 
-The current MVP has no authentication layer; `/admin` is a local development
-screen. Review access controls and storage with the team before deploying paid
-import functionality publicly. No database selection or catalog writes are added.
+The MVP has no Admin authentication. `npm run dev` binds the development server
+to `127.0.0.1`. Keep that bind address when testing Import / Extract.
+`/api/ingest` rejects deployed requests and browser submissions from other
+origins before calling OpenAI. Enable hosted extraction only after adding
+access control for Admin users.
