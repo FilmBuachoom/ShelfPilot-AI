@@ -49,7 +49,7 @@ export async function runChat(
     ];
     const registry = createChatToolRegistry(context);
     const userText = history.at(-1)?.content ?? "";
-    const editionClarifier = createEditionClarifier(context.catalog, userText);
+    const editionClarifier = createEditionClarifier(context.catalog, history);
     const deadline = Date.now() + turnTimeout;
 
     for (let round = 0; round <= maxToolRounds; round++) {

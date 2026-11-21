@@ -212,3 +212,50 @@ test("never accepts a proposal authored in the model's final answer", async () =
   });
   expect(await (await POST(request())).json()).toEqual(CHAT_UNAVAILABLE);
 });
+
+function useMixedTitleProposal(betaEdition?: "light_novel" | "manga") {
+  readCatalog.mockResolvedValue(catalog(
+    book("alpha-m", 1, { title: "Alpha", aliases: ["อัลฟา"], series_id: "alpha" }),
+    book("alpha-n", 1, { title: "Alpha", aliases: ["อัลฟา"], series_id: "alpha", edition: "light_novel" }),
+    book("beta-m", 2, { title: "Beta", aliases: ["เบต้า"], series_id: "beta" }),
+    book("beta-n", 2, { title: "Beta", aliases: ["เบต้า"], series_id: "beta", edition: "light_novel" }),
+  ));
+  call.mockResolvedValueOnce({ data: null, message: { tool_calls: [
+    toolCall("propose_shelf_update", { items: [
+      { title_query: "Alpha", action: "add", edition: "manga", volumes: "1" },
+      { title_query: "Beta", action: "add", edition: betaEdition, volumes: "2" },
+    ] }, "proposal"),
+  ] } });
+}
+
+test.each([
+  "I bought Alpha manga vol 1 and Beta vol 2",
+  "I bought Beta vol 2 and Alpha manga vol 1",
+  "เพิ่มมังงะอัลฟาเล่ม 1 กับเบต้าเล่ม 2",
+  "I bought Alpha manga vol 1 and Beta light novel vol 2",
+])("requires the chosen edition to match the reader's evidence for Beta: %s", async (content) => {
+  useMixedTitleProposal("manga");
+  const answer = await (await POST(request([{ role: "user", content }]))).json();
+  expect(answer.needs_clarification).toBe(true);
+  expect(answer.text).toContain("Beta");
+  expect(answer.proposal).toBeUndefined();
+});
+
+test.each(["manga" as const, undefined])("applies a short clarification only to the named title (initial tool edition %s)", async (edition) => {
+  const first = { role: "user", content: "I bought Alpha manga vol 1 and Beta vol 2" };
+  useMixedTitleProposal(edition);
+  const question = await (await POST(request([first]))).json();
+  expect(question.needs_clarification).toBe(true);
+
+  useMixedTitleProposal("light_novel");
+  const answer = await (await POST(request([
+    first, { role: "assistant", content: question.text }, { role: "user", content: "light novel" },
+  ]))).json();
+  expect(answer.proposal.items.map((item: { add: string[] }) => item.add)).toEqual([["alpha-m"], ["beta-n"]]);
+});
+
+test("accepts separately scoped editions for both titles in one message", async () => {
+  useMixedTitleProposal("light_novel");
+  const answer = await (await POST(request([{ role: "user", content: "มังงะอัลฟาเล่ม 1 กับไลต์โนเวลเบต้าเล่ม 2" }]))).json();
+  expect(answer.proposal.items.map((item: { add: string[] }) => item.add)).toEqual([["alpha-m"], ["beta-n"]]);
+});

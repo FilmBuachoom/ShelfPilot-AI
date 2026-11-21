@@ -5,6 +5,7 @@ import type { ChatCompletionFunctionTool } from "openai/resources/chat/completio
 import common from "../../../schemas/common.schema.json";
 import type { ChatAnswer } from "@/types/generated/chat-answer";
 import { editionLabels, type createEditionClarifier } from "./edition-clarification";
+import { shelfEditionQuestion } from "./shelf-edition";
 import type { createChatToolRegistry } from "./tools/registry";
 
 type Registry = ReturnType<typeof createChatToolRegistry>["tools"];
@@ -112,11 +113,18 @@ export function dispatchChatTool(
           ambiguous_volume: "พบหลายรายการสำหรับเลขเล่มนี้ ช่วยระบุฉบับอีกครั้งได้ไหม?",
           conflicting_actions: "ต้องการเพิ่มหรือนำเล่มนี้ออกจากคลัง?",
         };
+        const candidates = preview.options ?? [];
+        if (preview.reason === "ambiguous_title" && candidates.length > 1 && preview.title_query
+          && candidates.every((c) => c.series_id === candidates[0].series_id || c.title === candidates[0].title)
+          && new Set(candidates.map((c) => c.edition)).size === candidates.length) {
+          const text = shelfEditionQuestion(preview.title_query, candidates.map((c) => editionLabels[c.edition]).join(" / "));
+          return { answer: { ...base, text, needs_clarification: true } };
+        }
         const text = [preview.title_query, questions[preview.reason], options].filter(Boolean).join(" ");
         return { answer: { ...base, text, needs_clarification: true } };
       }
       for (const item of preview.items) {
-        const clarification = editions.forSeries(item.series_id, item.edition);
+        const clarification = editions.forShelfItem(item.series_id, item.edition);
         if (clarification) return { answer: clarification };
       }
       const { items, user_text, total } = preview;
