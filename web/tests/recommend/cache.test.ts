@@ -102,3 +102,17 @@ test("replaces invented model reasons with verified shelf facts", async () => {
   const payload = JSON.parse(vi.mocked(callStructured).mock.lastCall![0].messages[1].content as string);
   expect(payload.similar.map((entry: { book_id: string }) => entry.book_id)).toEqual(["same-edition"]);
 });
+
+test("matches both edition and publisher to the same owned book", async () => {
+  const source = { source_id: "verified-3", source_url: "https://example.test", raw_text: "fixture", publisher: "Phoenix", imported_at: timestamp };
+  const owned = book("owned-manga", 1, { title: "หนังสือในคลัง", publisher: "Phoenix" });
+  const candidate = book("candidate", 1, { title: "เรื่องอื่น", series_id: "other-3", publisher: "Phoenix", sources: [source.source_id] });
+  vi.mocked(readShelf).mockResolvedValue(shelf(owned.book_id));
+  vi.mocked(readCatalog).mockResolvedValue({ ...catalog(owned, candidate), sources: [source] });
+  vi.mocked(callStructured).mockResolvedValue({
+    data: { continue: [], similar: [{ book_id: candidate.book_id, reason: "untrusted", source_ids: [source.source_id] }] },
+    message: { role: "assistant", content: null, refusal: null },
+  });
+  const result = await (await refresh({ refresh: true })).json();
+  expect(result.similar[0].reason).toBe("ฉบับมังงะและสำนักพิมพ์ Phoenix เช่นเดียวกับ หนังสือในคลัง ในคลังของคุณ");
+});
