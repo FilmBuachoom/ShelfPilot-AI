@@ -27,7 +27,6 @@ beforeEach(async () => {
   vi.stubEnv("SHELFPILOT_DATA_DIR", dir);
   vi.stubEnv("NODE_ENV", "development");
   vi.stubEnv("VERCEL", undefined);
-  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "json");
 });
 afterEach(async () => {
   vi.unstubAllEnvs();

@@ -1,25 +1,39 @@
 import { mkdir, mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, expect, test } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { readCatalog, readReviewQueue, readShelf, writeJsonAtomic } from "@/lib/data/store";
 
 let dir: string;
 
 beforeEach(async () => {
   dir = await mkdtemp(path.join(tmpdir(), "shelfpilot-store-"));
+  vi.stubEnv("VERCEL", undefined);
+  vi.stubEnv("SHELFPILOT_DATA_DIR", undefined);
 });
 
 afterEach(async () => {
+  vi.unstubAllEnvs();
   await rm(dir, { recursive: true, force: true });
 });
 
-test.each([
+const readers = [
   ["catalog.json", readCatalog],
   ["user_shelf.json", readShelf],
   ["review_queue.json", readReviewQueue],
-] as const)("reads the repository's %s", async (file, read) => {
+] as const;
+
+test.each(readers)("reads the repository's %s", async (file, read) => {
   const expected = JSON.parse(await readFile(new URL(`../../data/${file}`, import.meta.url), "utf8"));
+
+  await expect(read()).resolves.toEqual(expected);
+});
+
+test.each(readers)("reads the bundled demo %s on Vercel", async (file, read) => {
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("SHELFPILOT_DATA_DIR", path.join(dir, "local-only"));
+  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase"); // Older deployments may still have this set.
+  const expected = JSON.parse(await readFile(new URL(`../../fixtures/demo/database/${file}`, import.meta.url), "utf8"));
 
   await expect(read()).resolves.toEqual(expected);
 });

@@ -39,18 +39,22 @@ On Vercel, the app allows six requests per minute per client IP and 30 per minut
 
 JSON Schema ใน `../schemas/` เป็นสัญญาของไฟล์ใน `../data/` รัน `npm run gen:types` หลังแก้ schema แล้ว commit ไฟล์ TypeScript ที่สร้างพร้อมกัน
 
-แอปใช้ข้อมูล JSON ตั้งต้นเมื่อเว้น `SHELFPILOT_DATA_BACKEND` ว่าง โหมด JSON รองรับการบันทึกคลังและการนับคลิกร้านค้าในเครื่อง ตั้ง `SHELFPILOT_DATA_DIR` เป็น path ของชุดไฟล์สำหรับทดสอบเมื่อต้องการแยกข้อมูลทดสอบจาก `../data/`
+### ในเครื่อง
 
-### Local Supabase demo
+แอปอ่านและบันทึกข้อมูลใน `../data/` โดยค่าเริ่มต้น รองรับการแก้คลังหลังยืนยัน บันทึกคลิกร้านค้า และนำเข้าประกาศผ่าน `/admin` เมื่อรันด้วย `npm run dev` บน loopback
 
-Apply the migrations in `supabase/migrations/` to the development database and provision a dedicated Supabase Auth fixture account with `app_metadata.shelfpilot_fixture` set to `true` and an existing shelf tied to its user ID. Supply the five `SHELFPILOT_*` connection settings listed in `.env.example` to the server process. Set `SHELFPILOT_DATA_BACKEND=supabase`. Keep the fixture password out of Git and use the project's publishable key.
+หากต้องการใช้ข้อมูลเดโมในเครื่อง ให้คัดลอกไฟล์ไปยังโฟลเดอร์ชั่วคราว แล้วชี้แอปไปยังสำเนานั้น
 
-Run `npm run dev -- --hostname 127.0.0.1` from `web/`. The app reads the catalog, shelf, and review queue directly from Supabase and sends confirmed shelf changes and store clicks to the database. This mode is for local development with a shared fixture shelf. The regular mode uses JSON when the backend selector is unset.
+```sh
+demo_dir="$(mktemp -d)"
+cp ../fixtures/demo/database/*.json "$demo_dir/"
+SHELFPILOT_DATA_DIR="$demo_dir" npm run dev
+```
 
-### Shared Supabase demo on Vercel
+### Vercel
 
-1. Apply the Supabase migrations and provision the fixture account and shelf as described above. Use a Supabase project and fixture account dedicated to team demo data.
-2. In Project Settings → Environment Variables, set the same five `SHELFPILOT_*` connection settings for Production. Set `SHELFPILOT_TEAM_PASSWORD` to a separate, randomly generated team password. Set Preview variables too if the team uses Preview deployments.
-3. Deploy the updated commit. Open the HTTPS production URL and sign in with username `shelfpilot` and the team password. The browser uses this sign-in for pages and API requests. Each signed-in teammate uses the same fixture shelf.
+1. ตั้ง Root Directory เป็น `web` เปิด **Include source files outside of the Root Directory in the Build Step** และเปิด **Automatically expose System Environment Variables** เพื่อให้แอปใช้ค่า `VERCEL` ของแพลตฟอร์ม
+2. Deploy สาขาที่ต้องการ แอปจะรวมแค็ตตาล็อก คลังตัวอย่าง และคิวตรวจจาก `fixtures/demo/database/` ใน server bundle ใช้การ deploy ใหม่เพื่ออัปเดต snapshot
+3. หากต้องการให้เฉพาะทีมเข้าได้ ให้ตั้ง `SHELFPILOT_TEAM_PASSWORD` สำหรับ environment ที่ใช้งาน แล้วลงชื่อเข้าใช้ด้วยชื่อผู้ใช้ `shelfpilot`
 
-The catalog, shelf, and review queue load from Supabase. Confirmed shelf changes and store clicks persist in Supabase. Announcement import is available in local JSON mode.
+ข้อมูลบน Vercel เป็นแบบอ่านอย่างเดียว การบันทึกคลังและสถิติคลิกร้านค้าตอบ HTTP 503 การนำเข้าประกาศและจัดการคิวตรวจใช้ได้ในเครื่อง การเปิดลิงก์ร้านค้าผ่านหน้าต่างยืนยันยังใช้งานได้

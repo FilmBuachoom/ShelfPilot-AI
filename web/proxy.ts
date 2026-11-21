@@ -1,22 +1,32 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
-import { hasDemoAccess, isDemoWriteAllowed, isHostedDemo, usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
+
+function hasDemoAccess(authorization: string | null, password: string) {
+  const supplied = authorization?.match(/^Basic (\S+)$/i)?.[1];
+  if (!supplied) return false;
+  const expected = Buffer.from(`shelfpilot:${password}`).toString("base64");
+  const digest = (value: string) => createHash("sha256").update(value).digest();
+  return timingSafeEqual(digest(supplied), digest(expected));
+}
 
 export function proxy(request: NextRequest) {
-  if (!usesSupabaseDemo() || !isHostedDemo()) return NextResponse.next();
+  const password = process.env.SHELFPILOT_TEAM_PASSWORD;
+  const onVercel = process.env.VERCEL === "1";
+  if (!password || (!onVercel && process.env.NODE_ENV !== "production")) return NextResponse.next();
 
   const headers = { "Cache-Control": "private, no-store" };
-  const password = process.env.SHELFPILOT_TEAM_PASSWORD;
-  if (!password) {
-    return new NextResponse("Team demo access is not configured.", { status: 503, headers });
-  }
   if (!hasDemoAccess(request.headers.get("authorization"), password)) {
     return new NextResponse("Team demo sign-in required.", {
       status: 401,
       headers: { ...headers, "WWW-Authenticate": 'Basic realm="ShelfPilot Team", charset="UTF-8"' },
     });
   }
-  if (!["GET", "HEAD", "OPTIONS"].includes(request.method) && !isDemoWriteAllowed(request)) {
-    return new NextResponse("Same-origin request required.", { status: 403, headers });
+  if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+    const host = request.headers.get("host") ?? request.nextUrl.host;
+    const protocol = onVercel ? "https:" : request.nextUrl.protocol;
+    if (request.headers.get("origin") !== `${protocol}//${host.toLowerCase()}`) {
+      return new NextResponse("Same-origin request required.", { status: 403, headers });
+    }
   }
   return NextResponse.next({ headers });
 }

@@ -1,6 +1,4 @@
 import { readCatalog, readShelf, updateJsonAtomic } from "@/lib/data/store";
-import { updateSupabaseShelf } from "@/lib/data/supabase-demo";
-import { isDemoWriteAllowed, usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
 import type { BookId, UserShelf } from "@/types/generated";
 
 export async function GET() {
@@ -12,10 +10,6 @@ function isIdArray(value: unknown): value is BookId[] {
 }
 
 export async function POST(request: Request) {
-  const supabase = usesSupabaseDemo();
-  if (supabase && !isDemoWriteAllowed(request)) {
-    return Response.json({ error: "Supabase demo writes require a same-origin request" }, { status: 403 });
-  }
   const body: unknown = await request.json().catch(() => null);
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return Response.json({ error: "Invalid shelf update" }, { status: 400 });
@@ -31,7 +25,6 @@ export async function POST(request: Request) {
   if ([...add, ...remove].some((id) => !knownIds.has(id))) {
     return Response.json({ error: "Unknown book_id" }, { status: 400 });
   }
-  if (supabase) return Response.json(await updateSupabaseShelf(add, remove));
   if (process.env.VERCEL === "1") {
     return Response.json({ error: "Shelf writes require persistent storage" }, { status: 503 });
   }

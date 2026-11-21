@@ -24,7 +24,6 @@ test.skipIf(!fixturePath)("matches authorized title variants and merges two publ
 
   const dir = await mkdtemp(path.join(os.tmpdir(), "ingest-llm-"));
   vi.stubEnv("SHELFPILOT_DATA_DIR", dir);
-  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "json");
   try {
     await Promise.all([
       writeFile(path.join(dir, "catalog.json"), JSON.stringify(fixture.catalog)),

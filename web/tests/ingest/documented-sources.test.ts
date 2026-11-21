@@ -42,7 +42,6 @@ beforeEach(async () => {
   catalogFile = path.join(dir, "catalog.json");
   await writeFile(path.join(dir, "review_queue.json"), JSON.stringify({ items: [] }));
   vi.stubEnv("SHELFPILOT_DATA_DIR", dir);
-  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "json");
 });
 
 afterEach(async () => {

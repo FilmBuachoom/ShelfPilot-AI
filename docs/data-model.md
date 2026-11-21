@@ -24,9 +24,9 @@ Each book carries a list of source IDs. One publisher post can support several v
 
 The [demo source fixtures](demo-data-sources.md) are inputs to extraction and matching. Publisher release posts supply volume updates. Shop listings and retailer references can support matching and identification.
 
-## Supabase development schema
+## Previous Supabase demo schema
 
-The [initial migration](../supabase/migrations/20261121054050_create_shelfpilot_data_model.sql) defines persistent storage in the private `shelfpilot` Postgres schema. The JSON contracts above still describe the application's current data.
+The [initial migration](../supabase/migrations/20261121054050_create_shelfpilot_data_model.sql) defines persistent storage in the private `shelfpilot` Postgres schema. The app now runs on [JSON files](../web/README.md#ไฟล์ข้อมูล).
 
 | Tables | What they store |
 |---|---|
@@ -37,7 +37,7 @@ The [initial migration](../supabase/migrations/20261121054050_create_shelfpilot_
 
 Book and source IDs carry over from the JSON contracts. The database accepts fractional volume numbers and an optional, unique ISBN-13 stored as digits. Month-only dates use the first of the month with `release_date_precision = 'month'`. The day is a storage convention.
 
-All tables have row level security. The underlying schema stays outside the Data API. The [demo connection migration](../supabase/migrations/20261121060134_connect_demo_app.sql) exposes a small set of functions to authenticated fixture accounts. The database derives the shelf owner from the Auth token and applies shelf changes and the timestamp update in one transaction. The [local demo instructions](../web/README.md#local-supabase-demo) describe how to enable the Supabase backend.
+All tables have row level security. The underlying schema stays outside the Data API. The [demo connection migration](../supabase/migrations/20261121060134_connect_demo_app.sql) exposes a small set of functions to authenticated fixture accounts. The database derives the shelf owner from the Auth token and applies shelf changes and the timestamp update in one transaction.
 
 ## Future extensions
 

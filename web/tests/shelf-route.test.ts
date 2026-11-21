@@ -2,6 +2,8 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import demoCatalog from "../../fixtures/demo/database/catalog.json";
+import demoShelf from "../../fixtures/demo/database/user_shelf.json";
 import { POST as STORE_CLICK } from "@/app/api/metrics/store-click/route";
 import { GET, POST } from "@/app/api/shelf/route";
 import { book, catalog, shelf } from "./shelf-fixture";
@@ -75,4 +77,15 @@ test("records valid store clicks without overwriting earlier clicks", async () =
     { book_id: "fixture-1", clicked_at: expect.any(String) },
     { book_id: "fixture-1", clicked_at: expect.any(String) },
   ]);
+});
+
+test("serves the sample shelf and rejects writes on Vercel", async () => {
+  vi.stubEnv("VERCEL", "1");
+  const bookWithStoreLink = demoCatalog.books.find(({ store_url }) => store_url)!;
+
+  expect(await (await GET()).json()).toEqual(demoShelf);
+  expect((await POST(request({ add: [bookWithStoreLink.book_id] }))).status).toBe(503);
+  expect((await STORE_CLICK(request({ book_id: bookWithStoreLink.book_id }))).status).toBe(503);
+  expect(JSON.parse(await readFile(path.join(directory, "user_shelf.json"), "utf8"))).toEqual(shelf());
+  expect(JSON.parse(await readFile(path.join(directory, "store_clicks.json"), "utf8"))).toEqual({ events: [] });
 });
