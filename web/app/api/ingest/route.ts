@@ -23,7 +23,7 @@ function validInput(value: unknown): value is IngestInput {
 
 export async function POST(request: Request): Promise<Response> {
   if (!allowsIngestPost(request)) {
-    return Response.json({ error: "Import / Extract ใช้งานได้บน localhost หรือ Vercel Preview ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว" }, { status: 404 });
+    return Response.json({ error: "Import / Extract ใช้งานได้บน localhost หรือ Vercel ที่ตั้งค่าสิทธิ์แอดมิน Supabase ให้บัญชีทีมแล้ว" }, { status: 404 });
   }
   const contentType = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
   if (contentType !== "application/json") {
