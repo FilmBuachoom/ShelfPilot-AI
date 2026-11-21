@@ -37,3 +37,10 @@ await writeFile(new URL("extraction.ts", outputDir), await compile(extraction, "
   cwd: fileURLToPath(schemasDir),
   bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
 }));
+
+const recommendation = JSON.parse(await readFile(new URL("recommendation.schema.json", schemasDir), "utf8"));
+const recommendationTypes = await compile(recommendation, "Recommendation", {
+  cwd: fileURLToPath(schemasDir),
+  bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
+});
+await writeFile(new URL("recommendation.ts", outputDir), recommendationTypes);

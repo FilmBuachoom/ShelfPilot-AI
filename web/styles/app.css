@@ -85,10 +85,20 @@ button.sp-stat:hover { background: var(--line); }
 .sp-item__thumb { display: grid; place-items: center; color: var(--ink-muted); }
 .sp-book__title a:focus-visible { outline-offset: -1px; }
 .sp-book__why { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sp-book__why-button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-family: inherit;
+  text-align: start;
+  text-decoration: underline;
+  cursor: pointer;
+}
 .sp-book__sub .sp-badge { margin-bottom: 4px; }
 
 .sp-feed { padding: var(--space-5) 0 var(--space-7); }
 .sp-feed-head { padding: 0 var(--space-4) var(--space-4); }
+.sp-recommend-head { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
 .sp-feed-section { border-top: 1px solid var(--line); padding-top: var(--space-4); }
 .sp-feed-empty { margin: 0; padding: var(--space-3) var(--space-4) var(--space-5); color: var(--ink-muted); font-size: var(--text-body-sm-size); }
 
