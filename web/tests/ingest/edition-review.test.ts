@@ -89,6 +89,17 @@ test("accepts an explicit special set with a parenthetical base format", () => {
     .toMatchObject({ status: "needs_review" });
 });
 
+test("accepts a space-separated Special Set label without promoting its base format", () => {
+  const fullLabel = "Special Set ไลท์โนเวล";
+  const rawText = `รายละเอียด ${fullLabel} “รายการทดสอบ เล่ม 16”`;
+  expect(getEditionReview({
+    ...statedEdition, edition: "special_set", edition_evidence: fullLabel,
+  }, rawText)).toBeNull();
+  expect(getEditionReview({
+    ...statedEdition, edition: "light_novel", edition_evidence: "ไลท์โนเวล",
+  }, rawText)).toMatchObject({ status: "needs_review" });
+});
+
 test("requires evidence on the right source row even when the model only extracted one volume", () => {
   const rawText = "fixture-a · มังงะ · เล่ม ๑๒\nfixture-a · เล่ม ๑๓";
   const only = normalizeItem(item, rawText);

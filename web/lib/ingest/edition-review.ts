@@ -9,11 +9,16 @@ type EditionSignals = Pick<NormalizedItem, "edition" | "edition_evidence" | "edi
 export type EditionReview = { status: "needs_review"; reason: string };
 
 // Only direct format labels qualify. Unrecognized or mixed labels need a human.
+const mangaLabel = /มังงะ|manga|漫画/u.source;
+const novelLabel = /นิยาย|ไล(?:ต์|ท์)\s*โนเวล|light[\s-]+novel|ライトノベル/u.source;
+const specialSetLabel = /ชุดพิเศษ|บ็อกซ์\s*เซ(?:็ต|ต)|box[\s-]*set|special[\s-]+set/u.source;
+const bigBookLabel = /บิ๊กบุ๊ก|บิ๊กบุ๊ค|big[\s-]*book/u.source;
+const baseFormat = `(?:${mangaLabel}|${novelLabel})`;
 const editionLabels: Record<Edition, RegExp> = {
-  manga: /^(?:มังงะ|manga|漫画)$/iu,
-  light_novel: /^(?:นิยาย|ไล(?:ต์|ท์)\s*โนเวล|light[\s-]+novel|ライトノベル)$/iu,
-  special_set: /^(?:ชุดพิเศษ|บ็อกซ์\s*เซ(?:็ต|ต)|box[\s-]*set|special[\s-]+set)(?:\s*\((?:มังงะ|นิยาย|ไล(?:ต์|ท์)\s*โนเวล|manga|light[\s-]+novel)\))?$/iu,
-  big_book: /^(?:บิ๊กบุ๊ก|บิ๊กบุ๊ค|big[\s-]*book)$/iu,
+  manga: new RegExp(`^(?:${mangaLabel})$`, "iu"),
+  light_novel: new RegExp(`^(?:${novelLabel})$`, "iu"),
+  special_set: new RegExp(`^(?:${specialSetLabel})(?:\\s*\\(${baseFormat}\\)|\\s+${baseFormat})?$`, "iu"),
+  big_book: new RegExp(`^(?:${bigBookLabel})$`, "iu"),
 };
 
 // A quote such as "มังงะ" can be a substring of "ไม่ใช่มังงะ".
@@ -22,7 +27,10 @@ const attachedWordStart = /^[\p{L}\p{M}\p{N}]/u;
 const attachedWordEnd = /[\p{L}\p{M}\p{N}]$/u;
 const editionPrefix = /(?:^|[^\p{L}\p{M}\p{N}])(?:ฉบับ(?:พิมพ์)?|ประเภท)$/u;
 const volumeMarker = /(?:เล่ม(?:ที่)?\s*|\bvol(?:ume)?\.?\s*|#\s*)(\d+(?:\.\d+)?)(?![\d.])/giu;
-const compoundPrefix = /(?:ชุดพิเศษ|บ็อกซ์\s*เซ(?:็ต|ต)|box[\s-]*set|special[\s-]+set|บิ๊กบุ๊ก|บิ๊กบุ๊ค|big[\s-]*book)\s*[(（[:：–—-]\s*(?:ฉบับ(?:พิมพ์)?\s*)?$/iu;
+// A base format quoted on its own can still be part of a compound edition label.
+const compoundPrefix = new RegExp(
+  `(?:${specialSetLabel}|${bigBookLabel})(?:\\s*[(（[:：–—-]\\s*|\\s+)(?:ฉบับ(?:พิมพ์)?\\s*)?$`, "iu",
+);
 
 function hasAffirmativeOccurrence(text: string, quote: string, firstOffset: number, title?: string | null): boolean {
   const titleText = title ? normalizeSourceText(title) : "";
