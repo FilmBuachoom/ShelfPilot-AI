@@ -14,7 +14,7 @@ import { buildCandidates, type Candidate } from "./candidates";
 import { catalogVersion, type RecommendationResponse } from "./contracts";
 import { guardRecommendations } from "./guard";
 
-const PROMPT_VERSION = 1;
+const PROMPT_VERSION = 2;
 const CACHE_LIMIT = 32;
 const cache = new Map<string, Promise<RecommendationResponse>>();
 
