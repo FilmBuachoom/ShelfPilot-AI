@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "chat_answer.schema.json",
+  "title": "ChatAnswer",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["text", "book_ids", "source_ids", "not_found", "needs_clarification"],
+  "properties": {
+    "text": { "type": "string" },
+    "book_ids": { "type": "array", "items": { "type": "string" } },
+    "source_ids": { "type": "array", "items": { "type": "string" } },
+    "not_found": { "type": "boolean" },
+    "needs_clarification": { "type": "boolean" }
+  }
+}

@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { AssistantIcon } from "../AssistantIcon/AssistantIcon";
 import { Icon } from "../icons";
 
 export function AskBar({ onOpen }: { onOpen?: () => void }) {
   const content = <>
-    <span className="sp-askbar__mark" aria-hidden="true">✦</span>
-    <span className="sp-askbar__text">ถามผู้ช่วย หรือบอกว่าเพิ่งซื้ออะไรมา</span>
+    <AssistantIcon />
+    <span className="sp-askbar__text">ถามผู้ช่วยว่าเล่มไหนออกใหม่</span>
     <span className="sp-askbar__btn"><Icon name="send" size={18} /></span>
   </>;
 

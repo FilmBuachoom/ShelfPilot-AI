@@ -44,3 +44,10 @@ const recommendationTypes = await compile(recommendation, "Recommendation", {
   bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
 });
 await writeFile(new URL("recommendation.ts", outputDir), recommendationTypes);
+
+const chatAnswer = JSON.parse(await readFile(new URL("chat_answer.schema.json", schemasDir), "utf8"));
+const chatTypes = await compile(chatAnswer, "ChatAnswer", {
+  cwd: fileURLToPath(schemasDir),
+  bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
+});
+await writeFile(new URL("chat-answer.ts", outputDir), chatTypes);
