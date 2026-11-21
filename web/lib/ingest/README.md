@@ -1,32 +1,32 @@
-# Announcement ingestion (#10)
+# Announcement ingestion (#10 and #11)
 
 `POST /api/ingest` accepts `{ raw_text, source_url, publisher_hint? }`. The server
-extracts with the schema in `schemas/extraction.schema.json`, normalizes volumes
-and dates, and returns `{ status, message, source, extraction }`. On `/admin`,
-`ImportExtractForm` uses the shared ShelfPilot form, button and badge styles and
-appears above the review queue. The extractor prompt is bundled with the app
-and loads independently of `SHELFPILOT_DATA_DIR`.
+extracts and normalizes the announcement, checks a Fuse.js shortlist of up to
+five books per item with Structured Outputs, and decides the catalog action in
+code. Candidates include catalog aliases and favor the extracted volume. An
+empty shortlist skips the match model.
 
-## Persistence and integration
+On `/admin`, the import form displays each item's `match_status`, candidate ID,
+matched alias, and reason. Duplicate announcements add provenance to the same
+book, retain the most precise date, and can advance the sale status. Distinct
+editions get stable IDs. A single atomic write records any accepted books and
+their source. A source already stored in `catalog.sources` skips extraction
+when submitted again. This includes exact replays of seeded evidence with an
+existing `demo-*` source ID. Edited text at the same URL gets a new source ID.
+Review-only results and posts with no books leave the
+catalog intact. Review decisions are returned to the form until #12 persists
+the review queue.
 
-Without all three `PipelineStages` (`match`, `disambiguate`, `write`), the pipeline
-returns `dry_run` and writes nothing. #11/#12 inject these stages into
-`runPipeline(input, { stages })` and own atomic catalog/review persistence. The
-source audit record is returned intact so the eventual write can store it with
-its decisions. A source already persisted in `catalog.sources` returns
-`already_imported` before any LLM call. Exact replays of seeded evidence keep
-the stored `demo-*` ID so existing citations still resolve. Updated text at the
-same URL gets a new preview. A repeated **dry-run** also extracts again because
-it has no stored source record.
+The URL is provenance supplied by the admin. Ingestion keeps fractional volumes
+and preserves a month-only window as written in `source.raw_text`. A book's
+optional `release_date` stays absent if no day is known. New books require a
+title, volume, stated edition, and publisher. The audit source uses the extracted
+publisher when available, then the optional user-supplied hint.
 
-The URL is provenance only. The server does not fetch it. The source audit record
-uses the extracted publisher when available, then the optional publisher hint,
-then an empty string. Unknown editions or unsupported edition evidence remain
-null for review.
-Fractional volumes such as 7.5 are preserved. A month-only release has
-`release_date: null` and `release_date_precision: "month"`; its exact wording stays
-in `source.raw_text`. The catalog's full-day date contract is unchanged. #11/#12
-must review incomplete items before turning them into catalog records.
+Import runs through the loopback-bound development server (`npm run dev`) with a
+writable data directory. The Admin page and API limit ingestion to local
+development with the JSON backend; the API also checks the browser origin
+before processing a POST. The Supabase demo backend leaves import disabled.
 
 ## Relationship to PR #16
 
@@ -45,17 +45,24 @@ No PR #16 fixtures are copied into the runtime catalog by this change.
 
 ## Verification
 
-From `web/`, run `npm ci`, `npm run gen:types`, `npm test`, `npm run lint`,
-`npm run typecheck`, and `npm run build`. Unit tests use synthetic mocked outputs
-and make no paid LLM calls. For a manual real-model check, configure OpenAI as in
-`web/README.md`, run `npm run dev`, and open
-[local Admin](http://127.0.0.1:3000/admin) with an authorized publisher
-announcement. Confirm multiple extracted rows, edition unknown when unstated,
-and the dry-run notice; verify `git diff -- data` is empty. A real-model check
-requires a key and authorized source text; automated tests do not claim it ran.
+From `web/`, run `npm test -- tests/ingest`. These tests exercise the API and
+atomic apply logic with synthetic inputs, mocked model responses, and a
+temporary catalog.
 
-The MVP has no Admin authentication. `npm run dev` binds the development server
-to `127.0.0.1`. Keep that bind address when testing Import / Extract.
-`/api/ingest` rejects deployed requests and browser submissions from other
-origins before calling OpenAI. Enable hosted extraction only after adding
-access control for Admin users.
+For the opt-in real-model test, set `OPENAI_API_KEY` and point
+`SHELFPILOT_MATCH_FIXTURE` to a JSON file containing:
+
+- `catalog` with the existing book and its lookup aliases
+- `book_id` for that book
+- `queries` with three title variants, such as Thai, romaji, and a short name
+- `announcements` with two authorized `{ raw_text, source_url, publisher_hint? }`
+  inputs for the same book on different channels, pre-order first and release
+  second
+
+Run `npm test -- tests/ingest/match.llm.test.ts`. The test writes to a temporary
+catalog. For a manual UI replay, run `npm run dev` with `SHELFPILOT_DATA_DIR`
+pointing to a copy of the catalog files, then submit the same posts on
+`/admin`. Confirm that the second post shows the original book ID and
+`duplicate_merged`, with one new source and no new book. Public demo fixtures
+described in [demo-data-sources.md](../../../docs/demo-data-sources.md) require
+publisher authorization before replaying them into ingestion.

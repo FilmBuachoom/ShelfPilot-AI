@@ -11,5 +11,7 @@
 .sp-import caption { text-align: start; color: var(--ink-muted); }
 .sp-import :is(th, td) { padding: var(--space-2) var(--space-3) var(--space-2) 0; border-bottom: 1px solid var(--line); vertical-align: top; }
 .sp-import th { text-align: start; white-space: nowrap; }
+.sp-import__match { display: grid; justify-items: start; gap: var(--space-1); min-width: 13rem; }
+.sp-import__match code { font-family: var(--font-mono); }
 .sp-import__error { padding: var(--space-3); border: 1px dashed var(--review-line); color: var(--review-ink); background: var(--review-soft); }
 @media (max-width: 640px) { .sp-import__fields { grid-template-columns: 1fr; } }

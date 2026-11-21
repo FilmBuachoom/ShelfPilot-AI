@@ -1,11 +1,14 @@
 import "server-only";
 
+import { usesSupabaseDemo } from "@/lib/data/supabase-demo";
+
 const loopbackHost = /^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d{1,5})?$/i;
 
 export function isLocalIngestAvailable(headers: Pick<Headers, "get">): boolean {
   return process.env.NODE_ENV === "development"
     && !process.env.VERCEL
-    && loopbackHost.test(headers.get("host") ?? "");
+    && loopbackHost.test(headers.get("host") ?? "")
+    && !usesSupabaseDemo();
 }
 
 export function allowsLocalIngestPost(request: Request): boolean {

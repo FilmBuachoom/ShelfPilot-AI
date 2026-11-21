@@ -1,54 +1,59 @@
 import "server-only";
 
-import { readCatalog } from "@/lib/data/store";
+import { readCatalog, updateJsonAtomic } from "@/lib/data/store";
+import type { Source } from "@/types/generated";
+import { applyMatches } from "./apply";
 import { extractAnnouncement } from "./extract";
+import { matchAnnouncement } from "./match";
 import { createSourceId } from "./source-id";
-import type { Catalog } from "@/types/generated";
-import type { IngestContext, IngestInput, NormalizedExtraction, PipelineResult } from "./contracts";
+import type { IngestContext, IngestInput, PipelineResult } from "./contracts";
 
-export interface PipelineStages<Matched, Decided> {
-  match: (context: IngestContext) => Promise<Matched>;
-  disambiguate: (context: IngestContext, matches: Matched) => Promise<Decided>;
-  // #11/#12 own catalog and review-queue persistence and their atomic writes.
-  write: (context: IngestContext, decisions: Decided) => Promise<void>;
-}
-interface PipelineDependencies<Matched, Decided> {
-  readCatalog?: () => Promise<Catalog>;
-  extract?: (input: IngestInput) => Promise<NormalizedExtraction>;
-  now?: () => Date;
-  stages?: Partial<PipelineStages<Matched, Decided>>;
+function alreadyImported(source: Source): PipelineResult {
+  return { status: "already_imported", message: "นำเข้าแล้ว", source, extraction: { items: [] }, decisions: [] };
 }
 
-export async function runPipeline<Matched = unknown, Decided = unknown>(
-  input: IngestInput,
-  dependencies: PipelineDependencies<Matched, Decided> = {},
-): Promise<PipelineResult> {
+function findImportedSource(sources: readonly Source[], sourceUrl: string, sourceId: string) {
+  return sources.find((source) => source.source_id === sourceId)
+    ?? sources.find((source) => source.source_url.trim() === sourceUrl
+      && createSourceId(source.raw_text, source.source_url) === sourceId);
+}
+
+export async function runPipeline(input: IngestInput): Promise<PipelineResult> {
   const sourceUrl = input.source_url.trim();
   const sourceId = createSourceId(input.raw_text, sourceUrl);
-  const catalog = await (dependencies.readCatalog ?? readCatalog)();
-  const existing = catalog.sources.find((source) => source.source_id === sourceId)
-    ?? catalog.sources.find((source) => source.source_url.trim() === sourceUrl
-      && createSourceId(source.raw_text, source.source_url) === sourceId);
-  if (existing) {
-    return { status: "already_imported", message: "นำเข้าแล้ว", source: existing, extraction: { items: [] } };
-  }
-  const extraction = await (dependencies.extract ?? extractAnnouncement)(input);
+  const snapshot = await readCatalog();
+  const existing = findImportedSource(snapshot.sources, sourceUrl, sourceId);
+  if (existing) return alreadyImported(existing);
+
+  const extraction = await extractAnnouncement(input);
   const context: IngestContext = {
     source: {
       source_id: sourceId,
       source_url: sourceUrl,
       raw_text: input.raw_text,
       publisher: extraction.items.find((item) => item.publisher)?.publisher || input.publisher_hint?.trim() || "",
-      imported_at: (dependencies.now ?? (() => new Date()))().toISOString(),
+      imported_at: new Date().toISOString(),
     },
     extraction,
   };
-  const stages = dependencies.stages;
-  if (!stages?.match || !stages.disambiguate || !stages.write) {
-    return { ...context, status: "dry_run", message: "สกัดข้อมูลแล้ว ยังไม่ได้บันทึกในแค็ตตาล็อก" };
-  }
-  const matched = await stages.match(context);
-  const decided = await stages.disambiguate(context, matched);
-  await stages.write(context, decided);
-  return { ...context, status: "imported", message: "นำเข้าแล้ว" };
+  const matches = await Promise.all(extraction.items.map((item) => matchAnnouncement(item, snapshot.books)));
+  let result = alreadyImported(context.source);
+  await updateJsonAtomic("catalog.json", (current) => {
+    const existing = findImportedSource(current.sources, sourceUrl, sourceId);
+    if (existing) {
+      result = alreadyImported(existing);
+      return current;
+    }
+
+    const applied = applyMatches(current, context, matches);
+    const imported = applied.catalog !== current;
+    result = {
+      ...context,
+      decisions: applied.decisions,
+      status: imported ? "imported" : "not_imported",
+      message: imported ? "บันทึกรายการที่จับคู่ได้แล้ว" : "ไม่มีรายการที่บันทึกในแค็ตตาล็อก",
+    };
+    return applied.catalog;
+  });
+  return result;
 }
