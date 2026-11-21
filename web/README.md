@@ -58,3 +58,5 @@ To enable `/admin` writes in local Supabase mode, apply the [ingestion admin mig
 The catalog, shelf, and review queue load from Supabase. Confirmed shelf changes and store clicks persist in Supabase.
 
 On Vercel Preview, the team can import announcements and resolve reviews through `/admin` after signing in as `shelfpilot`. Enable **Automatically expose System Environment Variables** in the Vercel project and apply the ingestion admin migration and grant to the Supabase account configured for Preview. Preview changes write to the Supabase project configured in the Preview environment. The production admin page displays the review queue in read-only mode.
+
+For judging, keep Vercel Deployment Protection enabled and set `SHELFPILOT_PREVIEW_JUDGE_ACCESS=true` on the judging branch's Preview environment. Redeploy Preview and create a Vercel Shareable Link for that deployment. Anyone with the link can use the demo, including imports and reviews, and writes go to the shared Supabase demo data. Revoke the link after judging and remove the branch variable before deploying another protected team preview.

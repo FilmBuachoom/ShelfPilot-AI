@@ -8,6 +8,7 @@ beforeEach(() => {
   vi.stubEnv("NODE_ENV", "development");
   vi.stubEnv("VERCEL", undefined);
   vi.stubEnv("VERCEL_ENV", undefined);
+  vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", undefined);
   vi.stubEnv("SHELFPILOT_DATA_BACKEND", undefined);
 });
 afterEach(() => {
@@ -60,6 +61,12 @@ test("allows import on Vercel Preview with Supabase, team sign-in and a same-ori
   });
   expect((await POST(request(input, sameOrigin))).status).toBe(200);
   expect(runPipeline).toHaveBeenCalledExactlyOnceWith(input);
+
+  vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", "true");
+  const judge = { Host: host, Origin: `https://${host}` };
+  expect((await POST(request(input, { ...judge, Origin: "https://other.example.test" }))).status).toBe(404);
+  expect((await POST(request(input, judge))).status).toBe(200);
+  expect(runPipeline).toHaveBeenCalledTimes(2);
 });
 
 test.each<Record<string, string>>([

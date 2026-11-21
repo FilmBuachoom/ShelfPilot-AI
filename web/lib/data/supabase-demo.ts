@@ -2,7 +2,7 @@ import "server-only";
 
 import { headers } from "next/headers";
 import type { BookId, Catalog, ReviewQueue, UserShelf } from "@/types/generated";
-import { hasDemoAccess, isHostedDemo, isSupabasePreview } from "./supabase-demo-access";
+import { allowsPreviewJudges, hasDemoAccess, isHostedDemo, isSupabasePreview } from "./supabase-demo-access";
 
 interface AuthSession {
   access_token: string;
@@ -60,10 +60,12 @@ async function rpc<T>(name: string, args: Record<string, unknown> = {}, scope: "
     if (scope === "admin" && !isSupabasePreview()) {
       throw new Error("Hosted Supabase admin access requires Vercel Preview.");
     }
-    const authorization = (await headers()).get("authorization");
-    const password = process.env.SHELFPILOT_TEAM_PASSWORD;
-    if (!password || !hasDemoAccess(authorization, password)) {
-      throw new Error("Team demo sign-in required.");
+    if (!allowsPreviewJudges()) {
+      const authorization = (await headers()).get("authorization");
+      const password = process.env.SHELFPILOT_TEAM_PASSWORD;
+      if (!password || !hasDemoAccess(authorization, password)) {
+        throw new Error("Team demo sign-in required.");
+      }
     }
   }
   const settings = config();

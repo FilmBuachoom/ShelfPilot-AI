@@ -1,11 +1,12 @@
 import "server-only";
 
-import { hasDemoAccess, isDemoWriteAllowed, isSupabasePreview, usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
+import { allowsPreviewJudges, hasDemoAccess, isDemoWriteAllowed, isSupabasePreview, usesSupabaseDemo } from "@/lib/data/supabase-demo-access";
 
 const loopbackHost = /^(?:localhost|127\.0\.0\.1|\[::1\])(?::\d{1,5})?$/i;
 
 export function isIngestAvailable(headers: Pick<Headers, "get">): boolean {
   if (isSupabasePreview()) {
+    if (allowsPreviewJudges()) return true;
     const password = process.env.SHELFPILOT_TEAM_PASSWORD;
     return Boolean(password && hasDemoAccess(headers.get("authorization"), password));
   }

@@ -9,6 +9,7 @@ beforeEach(() => {
   vi.resetModules();
   vi.stubEnv("NODE_ENV", "development");
   vi.stubEnv("VERCEL", undefined);
+  vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", undefined);
   vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase");
   vi.stubEnv("SHELFPILOT_SUPABASE_URL", "https://demo.example.test");
   vi.stubEnv("SHELFPILOT_SUPABASE_PUBLISHABLE_KEY", "fixture-publishable-key");
@@ -157,16 +158,45 @@ test("authorizes a hosted shelf write before calling the Supabase RPC", async ()
   expect(fetchMock.mock.calls[2][0].pathname).toBe("/rest/v1/rpc/shelfpilot_demo_update_shelf");
 });
 
-test("lets the signed-in Preview team load and resolve the Supabase review queue", async () => {
+test("admits judges to the enabled Preview while requiring team sign-in in production", async () => {
+  vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("VERCEL_ENV", "preview");
+  vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
+  vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", "true");
+  requestHeaders.mockResolvedValue(new Headers());
+  const data = catalog();
+  const fetchMock = vi.fn()
+    .mockResolvedValueOnce(Response.json({ access_token: "fixture-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(Response.json(data));
+  vi.stubGlobal("fetch", fetchMock);
+
+  const { proxy } = await import("@/proxy");
+  const { readSupabaseCatalog } = await import("@/lib/data/supabase-demo");
+  const site = "https://preview.example.test";
+  expect(proxy(new NextRequest(site)).headers.get("x-middleware-next")).toBe("1");
+  expect(proxy(new NextRequest(`${site}/api/shelf`, { method: "POST", headers: { origin: "https://other.example.test" } })).status).toBe(403);
+  await expect(readSupabaseCatalog()).resolves.toEqual(data);
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+
+  vi.stubEnv("VERCEL_ENV", "production");
+  expect(proxy(new NextRequest(site)).status).toBe(401);
+  await expect(readSupabaseCatalog()).rejects.toThrow("Team demo sign-in required");
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+
+test.each(["team", "judges"])("lets Preview %s load and resolve the Supabase review queue", async (access) => {
   vi.stubEnv("NODE_ENV", "production");
   vi.stubEnv("VERCEL", "1");
   vi.stubEnv("VERCEL_ENV", "preview");
   vi.stubEnv("SHELFPILOT_TEAM_PASSWORD", "test-team-password");
   const authorization = "Basic " + Buffer.from("shelfpilot:test-team-password").toString("base64");
   const site = "https://preview.example.test";
+  const inboundHeaders = new Headers({ origin: site, host: new URL(site).host, "Content-Type": "application/json" });
+  if (access === "team") inboundHeaders.set("authorization", authorization);
   const request = new Request("http://localhost/api/review/resolve", {
     method: "POST",
-    headers: { authorization, origin: site, host: new URL(site).host, "Content-Type": "application/json" },
+    headers: inboundHeaders,
     body: JSON.stringify({ review_id: "review-test", action: "skip" }),
   });
   const review = {
@@ -187,6 +217,7 @@ test("lets the signed-in Preview team load and resolve the Supabase review queue
   await expect(readSupabaseIngest()).rejects.toThrow("Team demo sign-in required");
   expect(fetchMock).not.toHaveBeenCalled();
 
+  if (access === "judges") vi.stubEnv("SHELFPILOT_PREVIEW_JUDGE_ACCESS", "true");
   requestHeaders.mockResolvedValue(request.headers);
   await expect(readSupabaseIngest()).resolves.toEqual(snapshot);
   expect(await (await POST(request)).json()).toEqual({ review_id: "review-test", status: "resolved" });
