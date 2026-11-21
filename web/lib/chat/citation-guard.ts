@@ -1,6 +1,6 @@
 import "server-only";
 
-import { logUnknownId } from "@/lib/data/hydrate";
+import { logUnknownId } from "@/lib/data/unknown-id";
 import type { BookId, Catalog, SourceId } from "@/types/generated";
 
 export interface CitationIds {

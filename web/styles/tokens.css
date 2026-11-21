@@ -1,0 +1,129 @@
+/* Generated from design/shelfpilot-ds/tokens.json by npm run gen:tokens. */
+
+:root {
+  color-scheme: light;
+  --font-sans: var(--font-inter, "Inter"), var(--font-noto-thai, "Noto Sans Thai"), system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono, "IBM Plex Mono"), ui-monospace, monospace;
+  --surface: #ffffff;
+  --surface-subtle: #f7f7f8;
+  --surface-raised: #ffffff;
+  --ink: #0d0d0d;
+  --ink-muted: #5d5d6b;
+  --line: #e5e5e5;
+  --line-strong: #c7c7cc;
+  --accent: #f05a28;
+  --accent-soft: #fff1ec;
+  --accent-ink: #b33a12;
+  --action: #cf4419;
+  --action-hover: #b83c15;
+  --on-action: #ffffff;
+  --verified-soft: #e8f5f3;
+  --verified-ink: #0f6b62;
+  --review-soft: #fff6e0;
+  --review-ink: #8a5a00;
+  --review-line: #b07d00;
+  --info-soft: #eaf1ff;
+  --info-ink: #1f56c2;
+  --scrim: rgba(0,0,0,0.4);
+  --focus: var(--ink);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sheet: 0 -8px 32px rgba(0,0,0,0.12);
+  --shadow-modal: 0 16px 48px rgba(0,0,0,0.18);
+  --content-max: 720px;
+  --panel-width: 400px;
+  --bp-desktop: 1024px;
+  --book-card-width: 168px;
+  --text-display-size: 32px;
+  --text-display-leading: 40px;
+  --text-display-weight: 700;
+  --text-title-size: 22px;
+  --text-title-leading: 30px;
+  --text-title-weight: 700;
+  --text-heading-size: 17px;
+  --text-heading-leading: 24px;
+  --text-heading-weight: 600;
+  --text-body-size: 16px;
+  --text-body-leading: 26px;
+  --text-body-weight: 400;
+  --text-body-sm-size: 14px;
+  --text-body-sm-leading: 22px;
+  --text-body-sm-weight: 400;
+  --text-label-size: 14px;
+  --text-label-leading: 20px;
+  --text-label-weight: 600;
+  --text-caption-size: 12px;
+  --text-caption-leading: 18px;
+  --text-caption-weight: 500;
+  --text-mono-size: 13px;
+  --text-mono-leading: 20px;
+  --text-mono-weight: 400;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface: #212121;
+    --surface-subtle: #2f2f2f;
+    --surface-raised: #2a2a2a;
+    --ink: #ececec;
+    --ink-muted: #a8a8b3;
+    --line: #3a3a3a;
+    --line-strong: #55555c;
+    --accent: #ff7a50;
+    --accent-soft: #4a2416;
+    --accent-ink: #ffb59c;
+    --action: #ff6a3d;
+    --action-hover: #ff8459;
+    --on-action: #1a0a04;
+    --verified-soft: #143430;
+    --verified-ink: #7fd6c8;
+    --review-soft: #3a2c0b;
+    --review-ink: #f5c451;
+    --review-line: #c99a2e;
+    --info-soft: #172540;
+    --info-ink: #9dbcff;
+    --scrim: rgba(0,0,0,0.6);
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.5);
+    --shadow-sheet: 0 -8px 32px rgba(0,0,0,0.6);
+    --shadow-modal: 0 16px 48px rgba(0,0,0,0.6);
+  }
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #212121;
+  --surface-subtle: #2f2f2f;
+  --surface-raised: #2a2a2a;
+  --ink: #ececec;
+  --ink-muted: #a8a8b3;
+  --line: #3a3a3a;
+  --line-strong: #55555c;
+  --accent: #ff7a50;
+  --accent-soft: #4a2416;
+  --accent-ink: #ffb59c;
+  --action: #ff6a3d;
+  --action-hover: #ff8459;
+  --on-action: #1a0a04;
+  --verified-soft: #143430;
+  --verified-ink: #7fd6c8;
+  --review-soft: #3a2c0b;
+  --review-ink: #f5c451;
+  --review-line: #c99a2e;
+  --info-soft: #172540;
+  --info-ink: #9dbcff;
+  --scrim: rgba(0,0,0,0.6);
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.5);
+  --shadow-sheet: 0 -8px 32px rgba(0,0,0,0.6);
+  --shadow-modal: 0 16px 48px rgba(0,0,0,0.6);
+}
