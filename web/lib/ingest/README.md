@@ -11,15 +11,21 @@ matched alias, and reason. Duplicate announcements add provenance to the same
 book, retain the most precise date, and can advance the sale status. Distinct
 editions get stable IDs. A single atomic write records any accepted books and
 their source. A source already stored in `catalog.sources` skips extraction
-when submitted again. Review-only results and posts with no books leave the
+when submitted again. This includes exact replays of seeded evidence with an
+existing `demo-*` source ID. Edited text at the same URL gets a new source ID.
+Review-only results and posts with no books leave the
 catalog intact. Review decisions are returned to the form until #12 persists
 the review queue.
 
 The URL is provenance supplied by the admin. Ingestion keeps fractional volumes
 and preserves a month-only window as written in `source.raw_text`. A book's
 optional `release_date` stays absent if no day is known. New books require a
-title, volume, stated edition, and publisher. Catalog writes require a writable
-data directory, such as a local development copy.
+title, volume, stated edition, and publisher. The audit source uses the extracted
+publisher when available, then the optional user-supplied hint.
+
+Import runs through the loopback-bound development server (`npm run dev`) with a
+writable data directory. The Admin page and API limit ingestion to local
+development; the API also checks the browser origin before processing a POST.
 
 ## Relationship to PR #16
 

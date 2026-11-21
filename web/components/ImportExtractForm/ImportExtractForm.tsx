@@ -44,11 +44,16 @@ export function ImportExtractForm() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ raw_text: rawText, source_url: sourceUrl, publisher_hint: publisher || undefined }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "นำเข้าไม่สำเร็จ กรุณาลองอีกครั้ง");
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !Array.isArray(data?.extraction?.items)
+        || !Array.isArray(data.decisions) || data.decisions.length !== data.extraction.items.length
+        || typeof data?.source?.source_id !== "string") {
+        setError(typeof data?.error === "string" ? data.error : "นำเข้าไม่สำเร็จ กรุณาลองอีกครั้ง");
+        return;
+      }
       setResult(data);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "เชื่อมต่อไม่สำเร็จ กรุณาลองอีกครั้ง");
+    } catch {
+      setError("เชื่อมต่อไม่สำเร็จ กรุณาลองอีกครั้ง");
     } finally {
       inFlight.current = false;
       setPending(false);

@@ -1,4 +1,5 @@
 import { LlmUnavailableError } from "@/lib/llm/client";
+import { allowsLocalIngestPost } from "@/lib/ingest/access";
 import { runPipeline } from "@/lib/ingest/pipeline";
 import type { IngestInput } from "@/lib/ingest/contracts";
 
@@ -19,6 +20,14 @@ function validInput(value: unknown): value is IngestInput {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  if (!allowsLocalIngestPost(request)) {
+    return Response.json({ error: "Import / Extract ใช้งานได้ผ่านเซิร์ฟเวอร์ทดลองในเครื่อง" }, { status: 404 });
+  }
+  const contentType = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
+  if (contentType !== "application/json") {
+    return Response.json({ error: "คำขอต้องส่งข้อมูลแบบ JSON" }, { status: 415 });
+  }
+
   // This route never fetches the URL: it is provenance supplied by the admin.
   let input: unknown;
   try {

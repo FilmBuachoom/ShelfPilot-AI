@@ -12,19 +12,26 @@ function alreadyImported(source: Source): PipelineResult {
   return { status: "already_imported", message: "นำเข้าแล้ว", source, extraction: { items: [] }, decisions: [] };
 }
 
+function findImportedSource(sources: readonly Source[], sourceUrl: string, sourceId: string) {
+  return sources.find((source) => source.source_id === sourceId)
+    ?? sources.find((source) => source.source_url.trim() === sourceUrl
+      && createSourceId(source.raw_text, source.source_url) === sourceId);
+}
+
 export async function runPipeline(input: IngestInput): Promise<PipelineResult> {
-  const sourceId = createSourceId(input.raw_text, input.source_url);
+  const sourceUrl = input.source_url.trim();
+  const sourceId = createSourceId(input.raw_text, sourceUrl);
   const snapshot = await readCatalog();
-  const existing = snapshot.sources.find((source) => source.source_id === sourceId);
+  const existing = findImportedSource(snapshot.sources, sourceUrl, sourceId);
   if (existing) return alreadyImported(existing);
 
   const extraction = await extractAnnouncement(input);
   const context: IngestContext = {
     source: {
       source_id: sourceId,
-      source_url: input.source_url.trim(),
+      source_url: sourceUrl,
       raw_text: input.raw_text,
-      publisher: input.publisher_hint?.trim() || extraction.items.find((item) => item.publisher)?.publisher || "",
+      publisher: extraction.items.find((item) => item.publisher)?.publisher || input.publisher_hint?.trim() || "",
       imported_at: new Date().toISOString(),
     },
     extraction,
@@ -32,7 +39,7 @@ export async function runPipeline(input: IngestInput): Promise<PipelineResult> {
   const matches = await Promise.all(extraction.items.map((item) => matchAnnouncement(item, snapshot.books)));
   let result = alreadyImported(context.source);
   await updateJsonAtomic("catalog.json", (current) => {
-    const existing = current.sources.find((source) => source.source_id === sourceId);
+    const existing = findImportedSource(current.sources, sourceUrl, sourceId);
     if (existing) {
       result = alreadyImported(existing);
       return current;
