@@ -31,3 +31,9 @@ const types = await compile(
 
 await mkdir(outputDir, { recursive: true });
 await writeFile(new URL("index.ts", outputDir), types);
+
+const extraction = JSON.parse(await readFile(new URL("extraction.schema.json", schemasDir), "utf8"));
+await writeFile(new URL("extraction.ts", outputDir), await compile(extraction, "Extraction", {
+  cwd: fileURLToPath(schemasDir),
+  bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
+}));

@@ -1,0 +1,77 @@
+/* Scoped tokens and unchanged Button/Badge rules from the design snapshot. */
+.sp-import {
+  --surface: #ffffff;
+  --surface-subtle: #f7f7f8;
+  --surface-raised: #ffffff;
+  --ink: #0d0d0d;
+  --ink-muted: #5d5d6b;
+  --line: #e5e5e5;
+  --line-strong: #c7c7cc;
+  --accent: #f05a28;
+  --accent-soft: #fff1ec;
+  --accent-ink: #b33a12;
+  --action: #cf4419;
+  --action-hover: #b83c15;
+  --on-action: #ffffff;
+  --verified-soft: #e8f5f3;
+  --verified-ink: #0f6b62;
+  --review-soft: #fff6e0;
+  --review-ink: #8a5a00;
+  --review-line: #b07d00;
+  --info-soft: #eaf1ff;
+  --info-ink: #1f56c2;
+  --scrim: rgba(0,0,0,0.4);
+  --focus: var(--ink);
+  --font-sans: Inter, "Noto Sans Thai", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --space-2: 8px; --space-3: 12px; --space-4: 16px; --radius-pill: 999px; --radius-sm: 6px;
+}
+@media (prefers-color-scheme: dark) { .sp-import {
+  --surface: #212121;
+  --surface-subtle: #2f2f2f;
+  --surface-raised: #2a2a2a;
+  --ink: #ececec;
+  --ink-muted: #a8a8b3;
+  --line: #3a3a3a;
+  --line-strong: #55555c;
+  --accent: #ff7a50;
+  --accent-soft: #4a2416;
+  --accent-ink: #ffb59c;
+  --action: #ff6a3d;
+  --action-hover: #ff8459;
+  --on-action: #1a0a04;
+  --verified-soft: #143430;
+  --verified-ink: #7fd6c8;
+  --review-soft: #3a2c0b;
+  --review-ink: #f5c451;
+  --review-line: #c99a2e;
+  --info-soft: #172540;
+  --info-ink: #9dbcff;
+  --scrim: rgba(0,0,0,0.6);
+  --focus: var(--ink);
+  --font-sans: Inter, "Noto Sans Thai", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --space-2: 8px; --space-3: 12px; --space-4: 16px; --radius-pill: 999px; --radius-sm: 6px;
+}
+}
+
+.sp-import .sp-btn { font: inherit; font-size: 14px; font-weight: 600; line-height: 20px; height: 40px; padding: 0 var(--space-4); border-radius: var(--radius-pill); border: 1px solid var(--line-strong); background: var(--surface-raised); color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); white-space: nowrap; transition: background .15s ease-out; }
+.sp-import .sp-btn:hover { background: var(--surface-subtle); }
+.sp-import .sp-btn:focus-visible, .sp-import .sp-chip:focus-visible, .sp-import .sp-cite:focus-visible, .sp-import .sp-option:focus-visible, .sp-import .sp-nav__item:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.sp-import .sp-btn--action { background: var(--action); border-color: var(--action); color: var(--on-action); }
+.sp-import .sp-btn--action:hover { background: var(--action-hover); border-color: var(--action-hover); }
+.sp-import .sp-btn--ghost { background: transparent; border-color: transparent; color: var(--ink-muted); }
+.sp-import .sp-btn--ghost:hover { color: var(--ink); }
+.sp-import .sp-btn--sm { height: 32px; font-size: 13px; padding: 0 var(--space-3); }
+.sp-import .sp-btn--block { width: 100%; height: 48px; font-size: 16px; }
+.sp-import .sp-btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+
+.sp-import .sp-badge { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: var(--radius-sm); border: 1px solid transparent; font-size: 12px; font-weight: 600; line-height: 20px; white-space: nowrap; }
+.sp-import .sp-badge--edition { border-color: var(--line-strong); color: var(--ink); background: var(--surface-raised); }
+.sp-import .sp-badge--new { background: var(--accent-soft); color: var(--accent-ink); }
+.sp-import .sp-badge--missing { border: 1px dashed var(--ink-muted); color: var(--ink); }
+.sp-import .sp-badge--verified { background: var(--verified-soft); color: var(--verified-ink); }
+.sp-import .sp-badge--review { background: var(--review-soft); color: var(--review-ink); border: 1px dashed var(--review-line); }
+.sp-import .sp-badge--info { background: var(--info-soft); color: var(--info-ink); }
+.sp-import .sp-badge--muted { background: var(--surface-subtle); color: var(--ink-muted); }
