@@ -11,6 +11,16 @@ The files contain curated Thai market titles, edition labels, and volume facts f
 3. Match candidates against the local catalog and resolve editions in code using the existing review rules. Record each candidate's provenance. A `publisher_listing` or `retailer_reference` can seed a series, identify a volume, or corroborate an ISBN. Creating a release announcement requires a release source. Leave series only entries without book records until volume evidence is available.
 4. To add live collection later, use fetchers for authorized sites, retain the original URL and capture timestamp, and convert each page into the same per source text input. Some sites use dynamic listings or publish schedules as images, so they may need their own extraction method.
 
+## Local database seed
+
+The [database fixtures](../fixtures/demo/database/) are a snapshot shaped by the JSON Schemas in [schemas/](../schemas/). They contain 137 book records and 23 sources, a sample shelf with five owned books, nine open review items, and one sample store click. For example, the shelf owns volumes 5 and 7 of แกล้งนักรัก (แล้ว) นะรู้ยัง? and leaves volume 6 missing. The regular and special sets for สืบคดีปริศนา หมอยาตำรับโคมแดง volume 16 have separate book IDs. Repeated listings of the same edition and volume share a book ID and retain both sources.
+
+Use the seed files directly in local tooling, or copy the four JSON files into `data/` in a disposable demo checkout to run the app. The copy replaces the checkout's local catalog, shelf, review queue, and click history.
+
+The seed uses Thai market titles as `title` and keeps distinct Japanese and English lookup titles in `aliases`. ISBN remains in the source text when present because the Book schema has no ISBN field. Month only dates use the first day with `release_date_precision: "month"` so the app can display only the month. Series entries without volume evidence appear in the review queue.
+
+Sale statuses simulate a historical demo as of November 21, 2026. Volume listings and schedules with an exact date before the snapshot are marked released for the demo. Month only announcements remain announced unless a listing corroborates the volume. Ownership, review records, and the click event are mock data.
+
 ## Websites for later collection
 
 | Publisher | Website to evaluate | Evidence used in the demo |
