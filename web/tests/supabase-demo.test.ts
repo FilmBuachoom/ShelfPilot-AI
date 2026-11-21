@@ -51,6 +51,50 @@ test("uses Supabase for catalog reads and the shelf write and subsequent read", 
   });
 });
 
+test("shares a replacement session across reads when a cached token is rejected", async () => {
+  const lateUnauthorized = Promise.withResolvers<Response>();
+  const shelfResponse = shelf();
+  const queueResponse = { items: [] };
+  const fetchMock = vi.fn<typeof fetch>()
+    .mockResolvedValueOnce(Response.json({ access_token: "old-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(Response.json(catalog()))
+    .mockReturnValueOnce(lateUnauthorized.promise)
+    .mockResolvedValueOnce(new Response(null, { status: 401 }))
+    .mockResolvedValueOnce(Response.json({ access_token: "new-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(Response.json(shelfResponse))
+    .mockResolvedValueOnce(Response.json(queueResponse));
+  vi.stubGlobal("fetch", fetchMock);
+
+  const { readSupabaseCatalog, readSupabaseShelf, readSupabaseReviewQueue } = await import("@/lib/data/supabase-demo");
+  await readSupabaseCatalog();
+  const queue = readSupabaseReviewQueue();
+  await expect(readSupabaseShelf()).resolves.toEqual(shelfResponse);
+  lateUnauthorized.resolve(new Response(null, { status: 401 }));
+  await expect(queue).resolves.toEqual(queueResponse);
+
+  expect(fetchMock.mock.calls.map(([url]) => new URL(String(url)).pathname)).toEqual([
+    "/auth/v1/token", "/rest/v1/rpc/shelfpilot_demo_catalog",
+    "/rest/v1/rpc/shelfpilot_demo_review_queue", "/rest/v1/rpc/shelfpilot_demo_shelf",
+    "/auth/v1/token", "/rest/v1/rpc/shelfpilot_demo_shelf", "/rest/v1/rpc/shelfpilot_demo_review_queue",
+  ]);
+  for (const [, options] of fetchMock.mock.calls.slice(-2)) {
+    expect(new Headers(options?.headers).get("Authorization")).toBe("Bearer new-token");
+  }
+});
+
+test("reports a second unauthorized response without replaying the request again", async () => {
+  const fetchMock = vi.fn()
+    .mockResolvedValueOnce(Response.json({ access_token: "old-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(new Response(null, { status: 401 }))
+    .mockResolvedValueOnce(Response.json({ access_token: "new-token", expires_in: 3600 }))
+    .mockResolvedValueOnce(new Response(null, { status: 401 }));
+  vi.stubGlobal("fetch", fetchMock);
+
+  const { readSupabaseShelf } = await import("@/lib/data/supabase-demo");
+  await expect(readSupabaseShelf()).rejects.toThrow("Supabase demo shelf failed (401).");
+  expect(fetchMock).toHaveBeenCalledTimes(4);
+});
+
 test("rejects cross-origin shelf writes without contacting Supabase", async () => {
   const fetchMock = vi.fn();
   vi.stubGlobal("fetch", fetchMock);

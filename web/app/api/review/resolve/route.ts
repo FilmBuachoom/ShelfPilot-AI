@@ -1,12 +1,14 @@
 import { allowsLocalIngestPost } from "@/lib/ingest/access";
+import { SupabaseIngestAccessError } from "@/lib/data/supabase-demo";
 import { resolveReview, ReviewResolutionError } from "@/lib/ingest/resolve-review";
 import { parseReviewResolution } from "@/lib/ingest/review-record";
+import { IngestConflictError } from "@/lib/ingest/storage";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request): Promise<Response> {
   if (!allowsLocalIngestPost(request)) {
-    return Response.json({ error: "การอนุมัติใช้งานได้ผ่านเซิร์ฟเวอร์ JSON ในเครื่อง" }, { status: 404 });
+    return Response.json({ error: "การอนุมัติใช้งานได้บน localhost ด้วยแค็ตตาล็อกแบบไฟล์หรือบัญชีแอดมิน Supabase ที่ตั้งค่าไว้" }, { status: 404 });
   }
   if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
     return Response.json({ error: "คำขอต้องส่งข้อมูลแบบ JSON" }, { status: 415 });
@@ -21,6 +23,8 @@ export async function POST(request: Request): Promise<Response> {
     if (error instanceof ReviewResolutionError) {
       return Response.json({ error: error.message }, { status: error.status });
     }
+    if (error instanceof IngestConflictError) return Response.json({ error: error.message }, { status: 409 });
+    if (error instanceof SupabaseIngestAccessError) return Response.json({ error: error.message }, { status: 403 });
     return Response.json({ error: "บันทึกผลการตรวจสอบไม่สำเร็จ กรุณาลองอีกครั้ง" }, { status: 500 });
   }
 }

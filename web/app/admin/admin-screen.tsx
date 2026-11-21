@@ -58,7 +58,7 @@ export function AdminScreen({ items, canManageIngest }: {
       {canManageIngest ? <ImportExtractForm onImported={() => router.refresh()} /> : (
         <section className="sp-section">
           <h2>นำเข้าประกาศหนังสือ</h2>
-          <p className="sp-muted">Import / Extract ใช้งานได้บนเซิร์ฟเวอร์ทดลองในเครื่องที่ใช้แค็ตตาล็อกแบบไฟล์</p>
+          <p className="sp-muted">Import / Extract ใช้งานได้บน localhost ด้วยแค็ตตาล็อกแบบไฟล์หรือบัญชีแอดมิน Supabase ที่ตั้งค่าไว้</p>
         </section>
       )}
       <section className="sp-section">

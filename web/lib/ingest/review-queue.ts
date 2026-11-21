@@ -1,20 +1,11 @@
 import "server-only";
 
-import { updateJsonAtomic } from "@/lib/data/store";
 import type { Book, Catalog } from "@/types/generated";
 import type { IngestContext, MatchDecision, NormalizedItem } from "./contracts";
 import type { CatalogMatch } from "./match";
 import { createReviewId } from "./review-id";
 import { matchingPublicationBooks, reviewSource, type ReviewItem } from "./review-record";
-
-let pendingWrite: Promise<unknown> = Promise.resolve();
-
-export function withReviewWrite<T>(write: () => Promise<T>): Promise<T> {
-  // Serialize the catalog and queue operations across local imports and approvals.
-  const next = pendingWrite.catch(() => undefined).then(write);
-  pendingWrite = next;
-  return next;
-}
+import type { UpdateReviewQueue } from "./storage";
 
 export function findCompletedReviewSource(entries: readonly ReviewItem[]) {
   const first = entries[0];
@@ -35,6 +26,7 @@ export function queueReviews(
   context: IngestContext,
   matches: readonly (CatalogMatch | null)[],
   decisions: readonly MatchDecision[],
+  updateReviewQueue: UpdateReviewQueue,
 ) {
   const { source, extraction } = context;
   const pending: ReviewItem[] = [];
@@ -55,7 +47,7 @@ export function queueReviews(
     });
   });
   if (!pending.length) return;
-  return updateJsonAtomic("review_queue.json", (queue) => {
+  return updateReviewQueue((queue) => {
     const existing = new Set(queue.items.map(({ review_id }) => review_id));
     const added = pending.filter(({ review_id }) => !existing.has(review_id));
     return added.length ? { items: [...queue.items, ...added] } : queue;

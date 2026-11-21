@@ -1,11 +1,11 @@
 import "server-only";
 
-import { readCatalog, readReviewQueue, updateJsonAtomic } from "@/lib/data/store";
 import type { Source } from "@/types/generated";
 import { applyMatches } from "./apply";
 import { extractAnnouncement } from "./extract";
 import { matchAnnouncement } from "./match";
-import { findCompletedReviewSource, queueReviews, withReviewWrite } from "./review-queue";
+import { findCompletedReviewSource, queueReviews } from "./review-queue";
+import { readIngestSnapshot, withIngestWrite } from "./storage";
 import { createSourceId } from "./source-id";
 import type { IngestContext, IngestInput, MatchDecision, PipelineResult } from "./contracts";
 
@@ -22,10 +22,10 @@ function findImportedSource(sources: readonly Source[], sourceUrl: string, sourc
 export async function runPipeline(input: IngestInput): Promise<PipelineResult> {
   const sourceUrl = input.source_url.trim();
   const sourceId = createSourceId(input.raw_text, sourceUrl);
-  const snapshot = await readCatalog();
+  const { catalog: snapshot, queue } = await readIngestSnapshot();
   const existing = findImportedSource(snapshot.sources, sourceUrl, sourceId);
   if (existing) return alreadyImported(existing);
-  const reviewed = findCompletedReviewSource((await readReviewQueue()).items.filter(({ source_id }) => source_id === sourceId));
+  const reviewed = findCompletedReviewSource(queue.items.filter(({ source_id }) => source_id === sourceId));
   if (reviewed) return { ...alreadyImported(reviewed), message: "ประกาศนี้เคยส่งเข้าคิวตรวจสอบแล้ว" };
 
   const extraction = await extractAnnouncement(input);
@@ -40,7 +40,7 @@ export async function runPipeline(input: IngestInput): Promise<PipelineResult> {
     extraction,
   };
   const matches = await Promise.all(extraction.items.map((item) => matchAnnouncement(item, snapshot.books)));
-  return withReviewWrite(async () => {
+  return withIngestWrite(async ({ readCatalog, readReviewQueue, writeCatalog, updateReviewQueue }) => {
     const current = await readCatalog();
     const existing = findImportedSource(current.sources, sourceUrl, sourceId);
     if (existing) return alreadyImported(existing);
@@ -60,9 +60,9 @@ export async function runPipeline(input: IngestInput): Promise<PipelineResult> {
     }
     const applied = applyMatches(current, context, matches, previouslyQueued);
     // Persist review rows first so a successful catalog write cannot hide an incomplete queue on retry.
-    await queueReviews(current, context, matches, applied.decisions);
+    await queueReviews(current, context, matches, applied.decisions, updateReviewQueue);
     const imported = applied.catalog !== current;
-    if (imported) await updateJsonAtomic("catalog.json", () => applied.catalog);
+    if (imported) await writeCatalog(applied.catalog);
     const hasReview = applied.decisions.some(({ match_status }) => match_status === "needs_review");
     return {
       ...context,

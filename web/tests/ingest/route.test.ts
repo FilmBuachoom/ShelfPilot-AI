@@ -42,7 +42,7 @@ test.each<Record<string, string>>([
   expect(runPipeline).not.toHaveBeenCalled();
 });
 
-test("Supabase demo mode rejects imports before calling the pipeline", async () => {
+test("Supabase mode requires an explicit same-origin request before calling the pipeline", async () => {
   vi.stubEnv("SHELFPILOT_DATA_BACKEND", "supabase");
   expect((await POST(request(input))).status).toBe(404);
   expect(runPipeline).not.toHaveBeenCalled();

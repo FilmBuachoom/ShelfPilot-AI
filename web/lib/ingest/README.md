@@ -38,10 +38,12 @@ optional `release_date` stays absent if no day is known. New books require a
 title, volume, stated edition, and publisher. The audit source uses the extracted
 publisher when available, then the optional user-supplied hint.
 
-Import runs through the loopback-bound development server (`npm run dev`) with a
-writable data directory. The Admin page and API limit ingestion to local
-development with the JSON backend; the API also checks the browser origin
-before processing a POST. The Supabase demo backend leaves import disabled.
+Import runs through the loopback-bound development server (`npm run dev`). The
+JSON backend needs a writable data directory. The Supabase backend needs an
+explicit admin grant as described in the [web README](../../README.md).
+Supabase checks the admin role on each call and commits catalog and review
+changes together. If another write changes the snapshot first, retry from the
+updated catalog. The API checks the browser origin before processing a POST.
 
 ## Relationship to PR #16
 
