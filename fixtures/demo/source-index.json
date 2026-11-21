@@ -1,0 +1,203 @@
+{
+  "fixture_set": "shelfpilot-demo-volume-sources",
+  "publishers": [
+    {
+      "publisher_id": "phoenix",
+      "name": "Phoenix Next",
+      "website_url": "https://www.phoenixnext.com/",
+      "file": "sources/phoenix.html",
+      "sources": [
+        {
+          "source_id": "demo-phoenix-sep",
+          "source_type": "volume_announcement",
+          "source_url": "https://www.phoenixnext.com/guild/new-release-sep-26",
+          "published_at": "2026-08-21",
+          "release_window": "2026-09",
+          "entry_count": 20
+        },
+        {
+          "source_id": "demo-phoenix-standard",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.phoenixnext.com/ln0837-01.html",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-phoenix-special",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.phoenixnext.com/ln0837-02p.html",
+          "entry_count": 1
+        }
+      ]
+    },
+    {
+      "publisher_id": "bongkoch",
+      "name": "Bongkoch Comics",
+      "website_url": "https://www.bongkoch.com/shop/",
+      "file": "sources/bongkoch.html",
+      "sources": [
+        {
+          "source_id": "demo-bongkoch-aug",
+          "source_type": "volume_announcement",
+          "source_url": "https://www.bongkoch.com/shop/index.php?route=simple_blog/article/view&simple_blog_article_id=826",
+          "release_window": "2026-08",
+          "entry_count": 22
+        }
+      ]
+    },
+    {
+      "publisher_id": "luckpim",
+      "name": "Luckpim",
+      "website_url": "https://www.luckpimshop.com/",
+      "file": "sources/luckpim.html",
+      "sources": [
+        {
+          "source_id": "demo-luckpim-oct",
+          "source_type": "volume_announcement",
+          "source_url": "https://www.luckpimshop.com/blog/%E0%B8%95%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%87%E0%B8%AB%E0%B8%99%E0%B8%B1%E0%B8%87%E0%B8%AA%E0%B8%B7%E0%B8%AD%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%88%E0%B8%B3%E0%B9%80%E0%B8%94%E0%B8%B7%E0%B8%AD%E0%B8%99-%E0%B8%95%E0%B8%B8%E0%B8%A5%E0%B8%B2%E0%B8%84%E0%B8%A1-2026/12",
+          "release_window": "2026-10",
+          "entry_count": 19
+        },
+        {
+          "source_id": "demo-luckpim-uzaki",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.luckpim.com/product/detail/1359",
+          "entry_count": 1
+        }
+      ]
+    },
+    {
+      "publisher_id": "animag",
+      "name": "Animag",
+      "website_url": "https://www.animagshop.com/",
+      "file": "sources/animag.html",
+      "sources": [
+        {
+          "source_id": "demo-animag-shop",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.animagshop.com/category",
+          "entry_count": 20
+        }
+      ]
+    },
+    {
+      "publisher_id": "dexpress",
+      "name": "DEXpress",
+      "website_url": "https://www.dexpress-shop.com/",
+      "file": "sources/dexpress.html",
+      "sources": [
+        {
+          "source_id": "demo-dexpress-shop",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.dexpress-shop.com/category",
+          "entry_count": 15
+        },
+        {
+          "source_id": "demo-dexpress-new",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.dexpress-shop.com/showroom/new",
+          "entry_count": 9
+        }
+      ]
+    },
+    {
+      "publisher_id": "siam-inter-comics",
+      "name": "Siam Inter Comics",
+      "website_url": "https://www.siaminterbook.com/",
+      "file": "sources/siam-inter-comics.html",
+      "sources": [
+        {
+          "source_id": "demo-siam-inter-comics-store",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.yaakz.com/",
+          "entry_count": 7
+        },
+        {
+          "source_id": "demo-siam-inter-comics-soma",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.yaakz.com/product/%E0%B9%81%E0%B8%A2%E0%B8%81%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-%E0%B8%A2%E0%B8%AD%E0%B8%94%E0%B8%99%E0%B8%B1%E0%B8%81%E0%B8%9B%E0%B8%A3%E0%B8%B8%E0%B8%87%E0%B9%82%E0%B8%8B%E0%B8%A1%E0%B8%B0-%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%A1-1-36-%E0%B8%88%E0%B8%9A/11000408800002941",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-siam-inter-comics-post",
+          "source_type": "volume_announcement",
+          "source_url": "https://www.siaminterbook.com/blog/blog/1936",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-siam-inter-comics-jjk",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.yaakz.com/product/11000408800013627",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-siam-inter-comics-piece",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.yaakz.com/product/11000408800018243",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-siam-inter-comics-demon",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.yaakz.com/product/11000408800008537",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-siam-inter-comics-retail",
+          "source_type": "retailer_reference",
+          "source_url": "https://www.phanpha.com/publisher/siam-inter-comics-%E0%B8%AA%E0%B8%A2%E0%B8%B2%E0%B8%A1",
+          "entry_count": 4
+        },
+        {
+          "source_id": "demo-siam-inter-comics-haikyu",
+          "source_type": "retailer_reference",
+          "source_url": "https://www.phanpha.com/cartoon/Siam-Inter-Comics---%E0%B8%AA%E0%B8%A2%E0%B8%B2%E0%B8%A1/all?destination=cartoon%2FSiam-Inter-Comics---%E0%B8%AA%E0%B8%A2%E0%B8%B2%E0%B8%A1%2Fall%3Fpage%3D70&page=7",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-siam-inter-comics-bblist",
+          "source_type": "retailer_reference",
+          "source_url": "https://www.bbcomiccenter.com/siam-inter-comics-sic-comic-list/",
+          "entry_count": 3
+        }
+      ]
+    },
+    {
+      "publisher_id": "vibulkij",
+      "name": "Vibulkij",
+      "website_url": "https://www.vibulkijshop.com/",
+      "file": "sources/vibulkij.html",
+      "sources": [
+        {
+          "source_id": "demo-vibulkij-conan",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.vibulkijshop.com/category/60/%E0%B8%AA%E0%B8%B7%E0%B8%9A%E0%B8%AA%E0%B8%A7%E0%B8%99-%E0%B8%9B%E0%B8%A3%E0%B8%B4%E0%B8%A8%E0%B8%99%E0%B8%B2-detective-mystery/%E0%B8%A2%E0%B8%AD%E0%B8%94%E0%B8%99%E0%B8%B1%E0%B8%81%E0%B8%AA%E0%B8%B7%E0%B8%9A%E0%B8%88%E0%B8%B4%E0%B9%8B%E0%B8%A7-%E0%B9%82%E0%B8%84%E0%B8%99%E0%B8%B1%E0%B8%99",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-vibulkij-blue",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.vibulkijshop.com/category?tskp=181",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-vibulkij-ippo",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.vibulkijshop.com/product/5979/%E0%B8%81%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B9%81%E0%B8%A3%E0%B8%81%E0%B8%AA%E0%B8%B9%E0%B9%88%E0%B8%AA%E0%B8%B1%E0%B8%87%E0%B9%80%E0%B8%A7%E0%B8%B5%E0%B8%A2%E0%B8%99-1-2",
+          "entry_count": 1
+        },
+        {
+          "source_id": "demo-vibulkij-manga",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.vibulkijshop.com/product/tag/manga",
+          "entry_count": 16
+        },
+        {
+          "source_id": "demo-vibulkij-catalog",
+          "source_type": "publisher_listing",
+          "source_url": "https://www.vibulkijshop.com/category",
+          "entry_count": 1
+        }
+      ]
+    }
+  ]
+}
