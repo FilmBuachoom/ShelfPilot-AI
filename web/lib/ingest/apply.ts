@@ -2,9 +2,10 @@ import "server-only";
 
 import { createHash } from "node:crypto";
 import { normalizeTitle } from "@/lib/search/normalize";
-import type { Book, Catalog, Edition } from "@/types/generated";
+import type { Book, Catalog, Edition, Source } from "@/types/generated";
 import type { IngestContext, MatchDecision, NormalizedItem } from "./contracts";
 import { decideMatchStatus } from "./decide";
+import { getItemEditionReview } from "./edition-review";
 import type { CatalogMatch } from "./match";
 
 const saleOrder: Record<Book["sale_status"], number> = { announced: 0, preorder: 1, released: 2 };
@@ -58,7 +59,51 @@ function newBook(
   };
 }
 
-export function applyMatches(catalog: Catalog, context: IngestContext, matches: readonly (CatalogMatch | null)[]) {
+function withSource(catalog: Catalog, books: Book[], source: Source, updatedAt = source.imported_at): Catalog {
+  return {
+    books,
+    sources: catalog.sources.some(({ source_id }) => source_id === source.source_id)
+      ? catalog.sources : [...catalog.sources, source],
+    updated_at: updatedAt,
+  };
+}
+
+export function mergeReviewedBook(catalog: Catalog, source: Source, item: NormalizedItem, target: Book): Catalog {
+  if (target.sources.includes(source.source_id)) return catalog;
+  const books = catalog.books.map((book) => book === target ? mergeBook(book, item, source.source_id) : book);
+  return withSource(catalog, books, source, new Date().toISOString());
+}
+
+export function createReviewedBook(
+  catalog: Catalog,
+  source: Source,
+  item: NormalizedItem & { title: string; volume: number; edition: Edition },
+  publisher: string,
+  { reference, relatedBooks, resuming }: { reference?: Book; relatedBooks: readonly Book[]; resuming: boolean },
+): Catalog | null {
+  const seriesId = reference?.series_id ?? `sr_${hash([normalizeTitle(item.title)])}`;
+  const sameVolumeAndEdition = (book: Book) => book.volume === item.volume && book.edition === item.edition;
+  const existing = catalog.books.find((book) => book.series_id === seriesId && sameVolumeAndEdition(book));
+  if (existing?.sources.includes(source.source_id)) return catalog;
+
+  const publisherKey = (value: string) => value.normalize("NFKC").trim().replace(/\s+/gu, " ").toLowerCase();
+  const samePublisher = (book: Book) => publisherKey(book.publisher) === publisherKey(publisher);
+  if (existing) {
+    // A different import may fill the approved slot while a create is waiting to retry.
+    return resuming && samePublisher(existing) ? mergeReviewedBook(catalog, source, item, existing) : null;
+  }
+  if (relatedBooks.some((book) => sameVolumeAndEdition(book) && samePublisher(book))) return null;
+
+  const added = newBook(item, publisher, source.source_id, seriesId, reference);
+  return withSource(catalog, [...catalog.books, added], source, new Date().toISOString());
+}
+
+export function applyMatches(
+  catalog: Catalog,
+  context: IngestContext,
+  matches: readonly (CatalogMatch | null)[],
+  previouslyQueued: ReadonlyMap<number, MatchDecision> = new Map(),
+) {
   const { source, extraction } = context;
   if (catalog.sources.some(({ source_id }) => source_id === source.source_id)) {
     return { catalog, decisions: [] };
@@ -67,15 +112,20 @@ export function applyMatches(catalog: Catalog, context: IngestContext, matches: 
   const books = [...catalog.books];
   let changed = false;
   const decisions = extraction.items.map((item, index): MatchDecision => {
+    const queued = previouslyQueued.get(index);
+    if (queued) return queued;
     const match = matches[index] ?? null;
     const candidate = books.find(({ book_id }) => book_id === match?.candidate_book_id);
-    const status = decideMatchStatus(item, match, candidate);
     const { title, volume, edition } = item;
     const result = {
       candidate_book_id: candidate?.book_id ?? null,
       matched_alias: match?.matched_alias ?? null,
     };
 
+    const review = getItemEditionReview(item, extraction.items, source.raw_text, match?.edition_confidence);
+    if (review) return { ...result, match_status: review.status, reason: review.reason };
+
+    const status = decideMatchStatus(item, match, candidate);
     if (!title || volume === null || !edition) {
       return { ...result, match_status: "needs_review", reason: "ต้องยืนยันชื่อเรื่อง เลขเล่ม และฉบับพิมพ์จากประกาศ" };
     }
@@ -118,7 +168,7 @@ export function applyMatches(catalog: Catalog, context: IngestContext, matches: 
   return {
     decisions,
     catalog: changed
-      ? { books, sources: [...catalog.sources, source], updated_at: source.imported_at }
+      ? withSource(catalog, books, source)
       : catalog,
   };
 }

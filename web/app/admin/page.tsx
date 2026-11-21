@@ -5,6 +5,7 @@ import { AdminScreen } from "./admin-screen";
 
 export default async function AdminPage() {
   const [{ items }, requestHeaders] = await Promise.all([readReviewQueue(), headers()]);
+  const local = isLocalIngestAvailable(requestHeaders);
   return <AdminScreen items={items.filter(({ status }) => status === "open")}
-    canExtract={isLocalIngestAvailable(requestHeaders)} />;
+    canManageIngest={local} />;
 }

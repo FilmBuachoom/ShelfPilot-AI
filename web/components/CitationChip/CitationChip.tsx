@@ -19,8 +19,9 @@ function SourceEvidence({ source, id }: { source: Source; id?: string }) {
   );
 }
 
-export function CitationEvidence({ source_id }: { source_id: SourceId }) {
-  const source = useSource(source_id);
+export function CitationEvidence({ source_id, draftSource }: { source_id: SourceId; draftSource?: Source }) {
+  const catalogSource = useSource(source_id);
+  const source = draftSource ?? catalogSource;
   return source ? <SourceEvidence source={source} /> : null;
 }
 

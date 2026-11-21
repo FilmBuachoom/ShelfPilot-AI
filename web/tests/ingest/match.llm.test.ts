@@ -24,8 +24,12 @@ test.skipIf(!fixturePath)("matches authorized title variants and merges two publ
 
   const dir = await mkdtemp(path.join(os.tmpdir(), "ingest-llm-"));
   vi.stubEnv("SHELFPILOT_DATA_DIR", dir);
+  vi.stubEnv("SHELFPILOT_DATA_BACKEND", "json");
   try {
-    await writeFile(path.join(dir, "catalog.json"), JSON.stringify(fixture.catalog));
+    await Promise.all([
+      writeFile(path.join(dir, "catalog.json"), JSON.stringify(fixture.catalog)),
+      writeFile(path.join(dir, "review_queue.json"), JSON.stringify({ items: [] })),
+    ]);
     for (const query of fixture.queries) {
       const result = await matchTitle(query);
       const candidate = fixture.catalog.books.find(({ book_id }) => book_id === result?.candidate_book_id);

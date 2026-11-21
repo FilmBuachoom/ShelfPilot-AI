@@ -1,0 +1,113 @@
+import type { Edition } from "@/types/generated";
+import { EDITION_CONFIDENCE_THRESHOLD } from "./constants";
+import type { NormalizedItem } from "./contracts";
+import { arabicDigits } from "./normalize";
+import { locateSourceQuote, normalizeSourceText } from "./source-id";
+
+type EditionSignals = Pick<NormalizedItem, "edition" | "edition_evidence" | "edition_confidence">
+  & Partial<Pick<NormalizedItem, "title">>;
+export type EditionReview = { status: "needs_review"; reason: string };
+
+// Only direct format labels qualify. Unrecognized or mixed labels need a human.
+const mangaLabel = /มังงะ|manga|漫画/u.source;
+const novelLabel = /นิยาย|ไล(?:ต์|ท์)\s*โนเวล|light[\s-]+novel|ライトノベル/u.source;
+const specialSetLabel = /ชุดพิเศษ|บ็อกซ์\s*เซ(?:็ต|ต)|box[\s-]*set|special[\s-]+set/u.source;
+const bigBookLabel = /บิ๊กบุ๊ก|บิ๊กบุ๊ค|big[\s-]*book/u.source;
+const baseFormat = `(?:${mangaLabel}|${novelLabel})`;
+const editionLabels: Record<Edition, RegExp> = {
+  manga: new RegExp(`^(?:${mangaLabel})$`, "iu"),
+  light_novel: new RegExp(`^(?:${novelLabel})$`, "iu"),
+  special_set: new RegExp(`^(?:${specialSetLabel})(?:\\s*\\(${baseFormat}\\)|\\s+${baseFormat})?$`, "iu"),
+  big_book: new RegExp(`^(?:${bigBookLabel})$`, "iu"),
+};
+
+// A quote such as "มังงะ" can be a substring of "ไม่ใช่มังงะ".
+const precedingNegation = /(?:ไม่ใช่|ไม่มี|\b(?:not|no)(?:\s+(?:a|an|the))?|\bnon[-‑])\s*(?:(?:ฉบับ(?:พิมพ์)?|ประเภท)\s*[:：]?\s*)?$/iu;
+const attachedWordStart = /^[\p{L}\p{M}\p{N}]/u;
+const attachedWordEnd = /[\p{L}\p{M}\p{N}]$/u;
+const editionPrefix = /(?:^|[^\p{L}\p{M}\p{N}])(?:ฉบับ(?:พิมพ์)?|ประเภท)$/u;
+const volumeMarker = /(?:เล่ม(?:ที่)?\s*|\bvol(?:ume)?\.?\s*|#\s*)(\d+(?:\.\d+)?)(?![\d.])/giu;
+// A base format quoted on its own can still be part of a compound edition label.
+const compoundPrefix = new RegExp(
+  `(?:${specialSetLabel}|${bigBookLabel})(?:\\s*[(（[:：–—-]\\s*|\\s+)(?:ฉบับ(?:พิมพ์)?\\s*)?$`, "iu",
+);
+
+function hasAffirmativeOccurrence(text: string, quote: string, firstOffset: number, title?: string | null): boolean {
+  const titleText = title ? normalizeSourceText(title) : "";
+  const lowerText = text.toLowerCase();
+  const lowerTitle = titleText.toLowerCase();
+  for (let offset = firstOffset; offset >= 0; offset = text.indexOf(quote, offset + quote.length)) {
+    const end = offset + quote.length;
+    const titleOffset = lowerTitle ? lowerText.lastIndexOf(lowerTitle, offset) : -1;
+    if (titleOffset >= 0 && titleOffset + lowerTitle.length >= end) continue;
+
+    const precedingText = text.slice(Math.max(0, offset - 40), offset);
+    if (precedingNegation.test(precedingText)) continue;
+    if (compoundPrefix.test(precedingText)) continue;
+    if (attachedWordEnd.test(precedingText) && !editionPrefix.test(precedingText)) continue;
+    const followingText = text.slice(end);
+    if (attachedWordStart.test(followingText) && !/^(?:เล่ม|巻)/u.test(followingText)) continue;
+    return true;
+  }
+  return false;
+}
+
+/** Check the edition evidence before delegating to the title and duplicate rules. */
+export function getEditionReview(item: EditionSignals, rawText: string): EditionReview | null {
+  const evidence = locateSourceQuote(rawText, item.edition_evidence ?? "");
+  if (item.edition === null || evidence === null) {
+    return { status: "needs_review", reason: "ประกาศไม่ระบุฉบับ" };
+  }
+
+  const label = evidence.quote
+    .replace(/^(?:ฉบับ(?:พิมพ์)?|ประเภท)\s*[:：]?\s*/u, "")
+    .replace(/\s+edition$/iu, "");
+  if (!editionLabels[item.edition].test(label)
+    || !hasAffirmativeOccurrence(evidence.text, evidence.quote, evidence.offset, item.title)) {
+    return { status: "needs_review", reason: "หลักฐานไม่ยืนยันฉบับที่ระบุ" };
+  }
+
+  const confidence = item.edition_confidence;
+  if (confidence === null || !Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+    return { status: "needs_review", reason: "ค่าความมั่นใจของฉบับไม่ถูกต้องหรือไม่ระบุ" };
+  }
+  if (confidence < EDITION_CONFIDENCE_THRESHOLD) {
+    return { status: "needs_review", reason: `ความมั่นใจ ${confidence} < ${EDITION_CONFIDENCE_THRESHOLD}` };
+  }
+
+  return null;
+}
+
+/** Scope quoted evidence using the source rows as well as the extracted items. */
+export function getItemEditionReview(item: NormalizedItem, items: readonly NormalizedItem[], rawText: string, matchConfidence?: number): EditionReview | null {
+  const title = normalizeSourceText(item.title ?? "").toLowerCase();
+  const rows = rawText.split(/\r?\n/).map((line) => ({
+    line, normalizedText: normalizeSourceText(line).toLowerCase(),
+    volumes: new Set(Array.from(arabicDigits(line).matchAll(volumeMarker), ([, number]) => Number(number))),
+  }));
+  const numberedRows = rows.filter(({ volumes }) => volumes.size > 0);
+  const repeatedTitle = !!title && rows.filter(({ normalizedText }) => normalizedText.includes(title)).length > 1;
+  const competingVolumes = repeatedTitle || numberedRows.length > 1 || numberedRows.some(({ volumes }) =>
+    volumes.size > 1 || (item.volume !== null && !volumes.has(item.volume)));
+  let evidenceText = rawText;
+  if (items.length > 1 || competingVolumes) {
+    const others = items.filter((other) => other !== item).map((other) => ({
+      title: normalizeSourceText(other.title ?? "").toLowerCase(), volume: other.volume,
+    }));
+    const lines = title && rows.filter(({ normalizedText, volumes }) => {
+      if (!normalizedText.includes(title)) return false;
+      const [volume] = volumes;
+      if (volumes.size > 1 || (competingVolumes && (item.volume === null || volume !== item.volume))) {
+        return false;
+      }
+      return !others.some((other) => other.title && normalizedText.includes(other.title)
+        && (volume === undefined || other.volume === null || other.volume === volume));
+    });
+    if (!lines || lines.length !== 1) {
+      return { status: "needs_review", reason: "ต้องยืนยันว่าหลักฐานฉบับเป็นของรายการนี้" };
+    }
+    evidenceText = lines[0].line;
+  }
+  return getEditionReview(item, evidenceText)
+    ?? (matchConfidence === undefined ? null : getEditionReview({ ...item, edition_confidence: matchConfidence }, evidenceText));
+}

@@ -15,7 +15,11 @@ identifies the series. Set matched_alias to an exact alias from
 the selected candidate when it supported the match, or null otherwise.
 
 Consider only edition and edition_evidence from extraction. Never infer the
-announcement's edition from a candidate, an alias, or the publisher. Without
-explicit evidence (including title-only queries), return edition null and
-edition_confidence 0. Do not invent catalog facts. Write a short reason in Thai
-with no URLs. Return it through the supplied JSON Schema.
+announcement's edition from a candidate, an alias, or the publisher. Score
+edition_confidence for the edition stated in the announcement evidence. Keep
+that confidence when the closest catalog book belongs to another edition.
+For example, “Special Set ไลท์โนเวล” explicitly identifies special_set, even
+when the same title and volume in the shortlist is light_novel.
+Without explicit evidence (including title-only queries), return edition null
+and edition_confidence 0. Do not invent catalog facts. Write a short reason in
+Thai with no URLs. Return it through the supplied JSON Schema.
