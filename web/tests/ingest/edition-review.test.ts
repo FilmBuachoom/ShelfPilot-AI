@@ -1,5 +1,7 @@
 import { expect, test } from "vitest";
 import { getEditionReview } from "@/lib/ingest/edition-review";
+import { normalizeItem } from "@/lib/ingest/normalize";
+import { item } from "./fixtures";
 
 const source = "รายการทดสอบ · ฉบับ มังงะ · เล่ม 12";
 const statedEdition = { edition: "manga" as const, edition_evidence: "ฉบับ มังงะ", edition_confidence: 0.95 };
@@ -21,8 +23,50 @@ test("checks evidence before the threshold and reports the first reason", () => 
   });
 });
 
-test("accepts the same stated phrase after normalizing whitespace", () => {
-  expect(getEditionReview(statedEdition, "รายการทดสอบ · ฉบับ\n  มังงะ · เล่ม 12")).toBeNull();
+test("preserves a whitespace-normalized quote from extraction through edition review", () => {
+  const rawText = "รายการทดสอบ · ฉบับ\n  มังงะ · เล่ม 12";
+  const extracted = normalizeItem({ ...item, ...statedEdition }, rawText);
+  expect(extracted).toMatchObject(statedEdition);
+  expect(getEditionReview(extracted, rawText)).toBeNull();
+});
+
+test.each(["ฉบับนิยาย", "เล่ม 12", "มังงะและไลต์โนเวล", "ไม่ใช่มังงะ"])(
+  "rejects a verbatim quote that does not affirm the claimed edition (%s)", (edition_evidence) => {
+    expect(getEditionReview({ ...statedEdition, edition_evidence }, `รายการทดสอบ · ${edition_evidence}`))
+      .toEqual({ status: "needs_review", reason: "หลักฐานไม่ยืนยันฉบับที่ระบุ" });
+  },
+);
+
+test.each([
+  ["รายการทดสอบ · ไม่ใช่มังงะ", "มังงะ"],
+  ["รายการทดสอบ · ไม่ใช่ฉบับมังงะ", "มังงะ"],
+  ["Test item · not a manga", "manga"],
+])("rejects an edition quote shortened from a negated source phrase (%s)", (rawText, edition_evidence) => {
+  expect(getEditionReview({ ...statedEdition, edition_evidence }, rawText))
+    .toEqual({ status: "needs_review", reason: "หลักฐานไม่ยืนยันฉบับที่ระบุ" });
+});
+
+test("looks for a positive occurrence if an earlier mention was negated", () => {
+  const rawText = "รายการทดสอบ · ไม่ใช่มังงะปกแข็ง · ฉบับมังงะ · เล่ม 12";
+  expect(getEditionReview({ ...statedEdition, edition_evidence: "มังงะ" }, rawText)).toBeNull();
+});
+
+test.each([
+  ["manga", "ฉบับ: มังงะ"],
+  ["light_novel", "Light novel edition"],
+  ["special_set", "บ็อกซ์เซ็ต"],
+  ["big_book", "Big Book"],
+] as const)("accepts the explicit label for %s (%s)", (edition, edition_evidence) => {
+  expect(getEditionReview({ ...statedEdition, edition, edition_evidence }, `รายการทดสอบ · ${edition_evidence}`))
+    .toBeNull();
+});
+
+test("accepts an explicit special set with a parenthetical base format", () => {
+  const edition_evidence = "ชุดพิเศษ (ไลต์โนเวล)";
+  const rawText = `รายการทดสอบ · ${edition_evidence} · เล่ม 12`;
+  expect(getEditionReview({ ...statedEdition, edition: "special_set", edition_evidence }, rawText)).toBeNull();
+  expect(getEditionReview({ ...statedEdition, edition: "light_novel", edition_evidence }, rawText))
+    .toMatchObject({ status: "needs_review" });
 });
 
 test("routes a score of 0.79 to human review with a reason", () => {

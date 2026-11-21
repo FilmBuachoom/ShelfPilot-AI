@@ -1,4 +1,5 @@
 import type { ExtractedItem, NormalizedItem } from "./contracts";
+import { locateSourceQuote } from "./source-id";
 
 export function arabicDigits(text: string): string {
   return text.replace(/[๐-๙]/g, (digit) => String(digit.charCodeAt(0) - 0x0e50));
@@ -29,7 +30,7 @@ export function normalizeItem(item: ExtractedItem, rawText: string): NormalizedI
       ? { release_date: null, release_date_precision: "month" as const }
       : { release_date: null, release_date_precision: "unknown" as const };
   const evidence = item.edition_evidence?.trim();
-  const hasEvidence = item.edition !== null && evidence && rawText.normalize("NFC").includes(evidence.normalize("NFC"));
+  const hasEvidence = item.edition !== null && evidence && locateSourceQuote(rawText, evidence) !== null;
   return {
     ...item,
     title: item.title?.trim() || null,
