@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "gen:types": "node scripts/gen-types.mjs"
+    "gen:types": "node scripts/gen-types.mjs",
+    "gen:tokens": "node scripts/gen-tokens.mjs"
   },
   "dependencies": {
     "fuse.js": "^7.5.0",
