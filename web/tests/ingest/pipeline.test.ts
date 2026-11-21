@@ -198,6 +198,40 @@ test("queues a missing edition with both candidates and changes only the approve
   expect(await readCatalog()).toEqual(approved);
 });
 
+test("offers manga and novel from separate publication lines when their aliases and volume match", async () => {
+  const novel = book("bk_novel", original.volume, {
+    series_id: "series-fixture-novel",
+    title: "นิยายชุดทดสอบ",
+    aliases: ["テスト"],
+    edition: "light_novel",
+  });
+  const otherVolume = { ...novel, book_id: "bk_novel_next", volume: original.volume + 1 };
+  const unrelated = book("bk_unrelated", original.volume, {
+    series_id: "series-unrelated", title: "อีกเรื่อง", aliases: [],
+  });
+  await writeFile(file, JSON.stringify(catalog(original, novel, otherVolume, unrelated)));
+  const before = await readFile(file, "utf8");
+  vi.mocked(callStructured)
+    .mockResolvedValueOnce(reply({ items: [{ ...item, title: original.title, edition: null }] }))
+    .mockResolvedValueOnce(reply({ ...matchResult, edition: null }));
+
+  const ambiguous = { ...input, raw_text: `${original.title} · เล่ม ๑๓` };
+  expect(await (await ingest(ambiguous)).json()).toMatchObject({
+    decisions: [{ match_status: "needs_review", candidate_book_id: original.book_id }],
+  });
+  const { items: [record] } = await readReviewQueue();
+  expect(record.candidates).toMatchObject([
+    { book_id: original.book_id, edition: "manga" },
+    { book_id: novel.book_id, edition: "light_novel" },
+  ]);
+  expect(await readFile(file, "utf8")).toBe(before);
+  expect((await approve({ review_id: record.review_id, action: "merge", book_id: novel.book_id })).status).toBe(200);
+  const approved = await readCatalog();
+  expect(approved.books.filter(({ sources }) => sources.includes(record.source_id)).map(({ book_id }) => book_id))
+    .toEqual([novel.book_id]);
+  expect((await readReviewQueue()).items[0].status).toBe("resolved");
+});
+
 test("honors the matcher score below 0.8 and accepts 0.8 exactly", async () => {
   const before = await readFile(file, "utf8");
   vi.mocked(callStructured)

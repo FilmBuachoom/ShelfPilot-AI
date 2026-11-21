@@ -25,12 +25,14 @@ export function findCompletedReviewSource(entries: readonly ReviewItem[]) {
 
 function candidatesFor(books: readonly Book[], item: NormalizedItem, match: CatalogMatch | null) {
   const primary = match?.same_series ? books.find(({ book_id }) => book_id === match.candidate_book_id) : undefined;
-  const title = normalizeTitle(item.title ?? "");
+  // Manga and light novel adaptations can share catalog names across publication lines.
+  const titles = [item.title ?? "", ...(primary ? [primary.title, ...primary.aliases] : [])];
+  const normalizedTitles = new Set(titles.map(normalizeTitle).filter(Boolean));
   const confidence = Math.min(item.edition_confidence ?? 0, match?.edition_confidence ?? 1);
   const score = Number.isFinite(confidence) && confidence >= 0 && confidence <= 1 ? confidence : 0;
   return books.filter((book) => (item.volume === null ? book === primary : book.volume === item.volume)
-    && (primary ? book.series_id === primary.series_id
-      : !!title && [book.title, ...book.aliases].some((name) => normalizeTitle(name) === title)))
+    && (book.series_id === primary?.series_id
+      || [book.title, ...book.aliases].some((name) => normalizedTitles.has(normalizeTitle(name)))))
     .map(({ book_id, edition }) => ({ book_id, edition, confidence: score }));
 }
 
