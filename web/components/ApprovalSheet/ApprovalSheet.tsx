@@ -1,13 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useCatalog } from "@/lib/data/catalog-provider";
 import { formatVolumeRange } from "@/lib/shelf/format";
 import type { ShelfProposal } from "@/types/generated/chat-answer";
 import { EditionBadge } from "../Badge/Badge";
 import { Button } from "../Button/Button";
 import { Cover } from "../Cover/Cover";
-import { Dialog } from "../Dialog";
 
 function formatDiff(values: number[]) {
   const ranges: { start: number; end: number }[] = [];
@@ -26,6 +25,7 @@ export function ApprovalSheet({ proposal, onConfirm, onCancel, onEdit }: {
   onEdit: () => void;
 }) {
   const { books, collection, updateShelf, saving, saveError } = useCatalog();
+  const titleId = useId();
   const submitting = useRef(false);
   const [failed, setFailed] = useState(false);
   const rows = proposal.items.map((item) => {
@@ -57,8 +57,10 @@ export function ApprovalSheet({ proposal, onConfirm, onCancel, onEdit }: {
     }
   }
   return (
-    <Dialog variant="sheet" title={count ? `${verb} ${count} เล่ม?` : "ไม่มีรายการที่ต้องปรับคลัง"}
-      onDismiss={() => { if (!submitting.current) onCancel(); }}>
+    <section className="sp-chat-proposal" aria-labelledby={titleId}>
+      <h3 className="sp-sheet__title" id={titleId}>
+        {count ? `${verb} ${count} เล่ม?` : "ไม่มีรายการที่ต้องปรับคลัง"}
+      </h3>
       <p className="sp-sheet__sub">“{proposal.user_text}”</p>
       <ul className="sp-items">
         {rows.map(({ item, book, add, remove }) => (
@@ -81,12 +83,12 @@ export function ApprovalSheet({ proposal, onConfirm, onCancel, onEdit }: {
       {!complete && <p role="alert">แค็ตตาล็อกเปลี่ยนแล้ว กรุณาแก้ไขคำขอและตรวจรายการอีกครั้ง</p>}
       {failed && <p role="alert">{saveError || "บันทึกไม่สำเร็จ ลองอีกครั้ง"}</p>}
       <div className="sp-sheet__actions">
-        <Button data-dialog-focus disabled={saving} onClick={onEdit}>แก้ไข</Button>
+        <Button disabled={saving} onClick={onEdit}>แก้ไข</Button>
         <Button variant="ghost" disabled={saving} onClick={onCancel}>ยกเลิก</Button>
-        {count > 0 && <Button variant="action" size="block" disabled={saving || !complete} onClick={confirm}>
+        {count > 0 && <Button variant="action" disabled={saving || !complete} onClick={confirm}>
           ยืนยัน {count} เล่ม
         </Button>}
       </div>
-    </Dialog>
+    </section>
   );
 }

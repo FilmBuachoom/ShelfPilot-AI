@@ -9,7 +9,7 @@ import { MAX_MESSAGE_LENGTH } from "@/lib/chat/shared";
 import type { ShelfProposal } from "@/types/generated/chat-answer";
 import type { QuickAction } from "@/lib/chat/quick";
 
-type Message = ComponentProps<typeof ChatMessage> & { id: number };
+type Message = ComponentProps<typeof ChatMessage> & { id: number; proposal?: ShelfProposal };
 
 const quickChips: { label: string; action?: QuickAction }[] = [
   { label: "เล่มที่ขาด", action: "missing" },
@@ -18,9 +18,8 @@ const quickChips: { label: string; action?: QuickAction }[] = [
   { label: "จัดงบ 500 บาท" },
 ];
 
-export function AssistantScreen({ messages = [], proposal, finishProposal, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
+export function AssistantScreen({ messages = [], finishProposal, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
   messages?: Message[];
-  proposal?: ShelfProposal;
   finishProposal?: (outcome: "confirmed" | "cancelled" | "editing") => void;
   onSend?: (message: string) => void;
   onQuick?: (label: string, action?: QuickAction) => void;
@@ -28,6 +27,7 @@ export function AssistantScreen({ messages = [], proposal, finishProposal, pendi
   revealId?: number;
   onRevealComplete?: (id: number) => void;
 }) {
+  const reviewing = Boolean(messages.at(-1)?.proposal);
   const [draft, setDraft] = useState("");
   const input = useRef<HTMLTextAreaElement>(null);
   const log = useRef<HTMLDivElement>(null);
@@ -41,15 +41,24 @@ export function AssistantScreen({ messages = [], proposal, finishProposal, pendi
     } else {
       container.scrollTop = container.scrollHeight;
     }
-  }, [messages.length, pending, revealId]);
+  }, [messages.length, pending, revealId, reviewing]);
 
   return (
     <div className="sp-assistant">
       {messages.length > 0 ? (
         <div ref={log} className="sp-chat" role="log" aria-label="บทสนทนา">
-          {messages.map(({ id, ...message }) => (
+          {messages.map(({ id, proposal, ...message }) => (
             <ChatMessage key={id} {...message}
-              reveal={id === revealId && onRevealComplete ? { id, onComplete: onRevealComplete } : undefined} />
+              reveal={id === revealId && onRevealComplete ? { id, onComplete: onRevealComplete } : undefined}>
+              {proposal && finishProposal && <ApprovalSheet proposal={proposal}
+                onConfirm={() => finishProposal("confirmed")}
+                onCancel={() => finishProposal("cancelled")}
+                onEdit={() => {
+                  setDraft(proposal.user_text);
+                  finishProposal("editing");
+                  requestAnimationFrame(() => input.current?.focus());
+                }} />}
+            </ChatMessage>
           ))}
           {pending && <p className="sp-muted" role="status">ผู้ช่วยกำลังค้นข้อมูล…</p>}
         </div>
@@ -63,22 +72,14 @@ export function AssistantScreen({ messages = [], proposal, finishProposal, pendi
         <div className="sp-chips">
           {quickChips.map(({ label, action }) => (
             <QuickChip key={label} label={label} zeroToken={Boolean(action)}
-              onClick={onQuick && !pending ? () => onQuick(label, action) : undefined} />
+              onClick={onQuick && !pending && !reviewing ? () => onQuick(label, action) : undefined} />
           ))}
         </div>
-        <Composer disabled={pending} maxLength={MAX_MESSAGE_LENGTH} inputRef={input} value={draft} onChange={setDraft} onSend={onSend && ((message) => {
+        <Composer disabled={pending || reviewing} maxLength={MAX_MESSAGE_LENGTH} inputRef={input} value={draft} onChange={setDraft} onSend={onSend && ((message) => {
           onSend(message);
           setDraft("");
         })} />
       </div>
-      {proposal && finishProposal && <ApprovalSheet proposal={proposal}
-        onConfirm={() => finishProposal("confirmed")}
-        onCancel={() => finishProposal("cancelled")}
-        onEdit={() => {
-          setDraft(proposal.user_text);
-          finishProposal("editing");
-          requestAnimationFrame(() => input.current?.focus());
-        }} />}
     </div>
   );
 }
