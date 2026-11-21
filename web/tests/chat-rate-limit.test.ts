@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { CHAT_RATE_LIMITED, CHAT_UNAVAILABLE } from "@/lib/chat/shared";
+import { CHAT_RATE_LIMITED } from "@/lib/chat/shared";
 
 const { readCatalog, readShelf, runChat } = vi.hoisted(() => ({
   readCatalog: vi.fn(),
@@ -105,12 +105,21 @@ test("uses atomic per-client and global limits with the trusted Vercel header", 
   expect(fetchMock.mock.calls[0][1]).toMatchObject({ cache: "no-store", redirect: "error" });
 });
 
-test("fails closed in production without configured Redis", async () => {
+test("uses the local limit on Vercel when Redis is not configured", async () => {
   vi.stubEnv("NODE_ENV", "production");
+  vi.stubEnv("VERCEL", "1");
   const { POST } = await import("@/app/api/chat/route");
-  const response = await POST(request());
-  expect(response.status).toBe(503);
-  expect(await response.json()).toEqual(CHAT_UNAVAILABLE);
+  const responses = await Promise.all(Array.from({ length: 7 }, () => POST(request())));
+  expect(responses.filter(({ status }) => status === 200)).toHaveLength(6);
+  expect(responses.filter(({ status }) => status === 429)).toHaveLength(1);
+  expect(runChat).toHaveBeenCalledTimes(6);
+});
+
+test("rejects partially configured Redis without calling the model", async () => {
+  configureRedis();
+  vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", undefined);
+  const { POST } = await import("@/app/api/chat/route");
+  expect((await POST(request())).status).toBe(503);
   expect(readCatalog).not.toHaveBeenCalled();
   expect(runChat).not.toHaveBeenCalled();
 });

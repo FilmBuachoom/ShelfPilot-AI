@@ -31,9 +31,9 @@ git diff --exit-code -- types/generated styles/tokens.css
 
 ### Chat rate limits
 
-Local development allows six chat requests per minute across the local process. Production and Vercel require a shared Upstash Redis instance. Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in the server environment. Use the standard write token and separate Redis instances if preview and production need independent limits.
+When no Upstash settings are present, each server process allows six chat requests per minute. On Vercel, instances have separate counters and cold starts reset them. To enforce a shared limit, set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in the server environment. Use the standard write token and separate Redis instances if preview and production need independent limits.
 
-On Vercel, the app allows six requests per minute per client IP and 30 per minute across the deployment using that Redis instance. It uses the IP provided by Vercel and sends a keyed hash to Redis. Other hosts, or requests without a trusted IP, share one six-request bucket. Chat returns HTTP 429 with `Retry-After` when limited and HTTP 503 if the shared counter is missing or unavailable. The browser's quick shortcuts still run locally.
+With Redis configured on Vercel, the app allows six requests per minute per client IP and 30 per minute across the deployment using that Redis instance. It uses the IP provided by Vercel and sends a keyed hash to Redis. Other hosts, or requests without a trusted IP, share one six-request bucket. Chat returns HTTP 429 with `Retry-After` when limited and HTTP 503 if Redis is partially configured or unavailable. The browser's quick shortcuts still run locally.
 
 ## ฟีเจอร์ AI และการเตรียมข้อมูลก่อนเข้า LLM
 

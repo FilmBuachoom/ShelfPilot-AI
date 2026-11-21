@@ -58,7 +58,7 @@ function clientKey(request: Request, token: string) {
 export async function checkChatRateLimit(request: Request): Promise<RateLimit> {
   const url = process.env.UPSTASH_REDIS_REST_URL?.trim();
   const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
-  if (!url && !token && process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1") {
+  if (!url && !token) {
     return checkLocal();
   }
   if (!url || !token) throw new Error("Chat rate limit store is not configured");
