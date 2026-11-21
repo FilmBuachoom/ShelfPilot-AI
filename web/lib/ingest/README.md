@@ -25,7 +25,8 @@ publisher when available, then the optional user-supplied hint.
 
 Import runs through the loopback-bound development server (`npm run dev`) with a
 writable data directory. The Admin page and API limit ingestion to local
-development; the API also checks the browser origin before processing a POST.
+development with the JSON backend; the API also checks the browser origin
+before processing a POST. The Supabase demo backend leaves import disabled.
 
 ## Relationship to PR #16
 

@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/*": ["../data/*.json"],
     "/api/ingest": ["./prompts/extract-system.md", "./prompts/match-system.md"],
+    "/api/chat": ["./prompts/chat-system.md"],
   },
 };
 

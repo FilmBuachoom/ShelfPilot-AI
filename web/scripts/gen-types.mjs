@@ -36,10 +36,11 @@ const standaloneSchemas = [
   ["extraction", "Extraction"],
   ["match_result", "MatchResult"],
   ["recommendation", "Recommendation"],
+  ["chat_answer", "ChatAnswer", "chat-answer"],
 ];
-for (const [name, title] of standaloneSchemas) {
+for (const [name, title, outputName = name] of standaloneSchemas) {
   const schema = JSON.parse(await readFile(new URL(`${name}.schema.json`, schemasDir), "utf8"));
-  await writeFile(new URL(`${name}.ts`, outputDir), await compile(schema, title, {
+  await writeFile(new URL(`${outputName}.ts`, outputDir), await compile(schema, title, {
     cwd: fileURLToPath(schemasDir),
     bannerComment: "// Generated from schemas/ by npm run gen:types. Do not edit.",
   }));

@@ -5,30 +5,51 @@ import { ApprovalSheet } from "@/components/ApprovalSheet/ApprovalSheet";
 import { ChatMessage } from "@/components/ChatMessage/ChatMessage";
 import { Composer } from "@/components/Composer/Composer";
 import { QuickChip } from "@/components/QuickChip/QuickChip";
+import { MAX_MESSAGE_LENGTH } from "@/lib/chat/shared";
+import type { QuickAction } from "@/lib/chat/quick";
 
-type Message = ComponentProps<typeof ChatMessage> & { id: string };
+type Message = ComponentProps<typeof ChatMessage> & { id: number };
 
-const quickChips = [
-  { label: "เล่มที่ขาด", zeroToken: true },
-  { label: "ออกใหม่เดือนนี้", zeroToken: true },
-  { label: "จัดงบ 500 บาท", zeroToken: false },
+const quickChips: { label: string; action?: QuickAction }[] = [
+  { label: "เล่มที่ขาด", action: "missing" },
+  { label: "ออกใหม่เดือนนี้", action: "this_month" },
+  { label: "ใกล้ออก", action: "upcoming" },
+  { label: "จัดงบ 500 บาท" },
 ];
 
-export function AssistantScreen({ messages = [], approval, onSend, onQuick }: {
+export function AssistantScreen({ messages = [], approval, pending = false, revealId, onRevealComplete, onSend, onQuick }: {
   messages?: Message[];
   approval?: ComponentProps<typeof ApprovalSheet>;
   onSend?: (message: string) => void;
-  onQuick?: (label: string, zeroToken: boolean) => void;
+  onQuick?: (label: string, action?: QuickAction) => void;
+  pending?: boolean;
+  revealId?: number;
+  onRevealComplete?: (id: number) => void;
 }) {
   const [draft, setDraft] = useState("");
   const input = useRef<HTMLTextAreaElement>(null);
+  const log = useRef<HTMLDivElement>(null);
   useEffect(() => { input.current?.focus(); }, []);
+  useEffect(() => {
+    const container = log.current;
+    if (!container) return;
+    const latest = container.lastElementChild;
+    if (latest && latest.clientHeight > container.clientHeight) {
+      container.scrollTop += latest.getBoundingClientRect().top - container.getBoundingClientRect().top;
+    } else {
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [messages.length, pending, revealId]);
 
   return (
     <div className="sp-assistant">
       {messages.length > 0 ? (
-        <div className="sp-chat" role="log" aria-label="บทสนทนา">
-          {messages.map(({ id, ...message }) => <ChatMessage key={id} {...message} />)}
+        <div ref={log} className="sp-chat" role="log" aria-label="บทสนทนา">
+          {messages.map(({ id, ...message }) => (
+            <ChatMessage key={id} {...message}
+              reveal={id === revealId && onRevealComplete ? { id, onComplete: onRevealComplete } : undefined} />
+          ))}
+          {pending && <p className="sp-muted" role="status">ผู้ช่วยกำลังค้นข้อมูล…</p>}
         </div>
       ) : (
         <div className="sp-assistant-empty">
@@ -38,12 +59,12 @@ export function AssistantScreen({ messages = [], approval, onSend, onQuick }: {
       )}
       <div className="sp-assistant-input">
         <div className="sp-chips">
-          {quickChips.map(({ label, zeroToken }) => (
-            <QuickChip key={label} label={label} zeroToken={zeroToken}
-              onClick={onQuick ? () => onQuick(label, zeroToken) : undefined} />
+          {quickChips.map(({ label, action }) => (
+            <QuickChip key={label} label={label} zeroToken={Boolean(action)}
+              onClick={onQuick && !pending ? () => onQuick(label, action) : undefined} />
           ))}
         </div>
-        <Composer inputRef={input} value={draft} onChange={setDraft} onSend={onSend && ((message) => {
+        <Composer disabled={pending} maxLength={MAX_MESSAGE_LENGTH} inputRef={input} value={draft} onChange={setDraft} onSend={onSend && ((message) => {
           onSend(message);
           setDraft("");
         })} />

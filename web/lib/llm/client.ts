@@ -5,6 +5,7 @@ import type {
   ChatCompletionMessage,
   ChatCompletionMessageParam,
   ChatCompletionTool,
+  ChatCompletionCreateParamsNonStreaming,
 } from "openai/resources/chat/completions";
 import type { ResponseFormatJSONSchema } from "openai/resources/shared";
 
@@ -14,6 +15,9 @@ interface StructuredCall {
   messages: ChatCompletionMessageParam[];
   tools?: ChatCompletionTool[];
   timeoutMs?: number;
+  maxRetries?: number;
+  maxCompletionTokens?: number;
+  reasoningEffort?: ChatCompletionCreateParamsNonStreaming["reasoning_effort"];
 }
 
 interface StructuredResult<T> {
@@ -37,6 +41,9 @@ export async function callStructured<T>({
   messages,
   tools,
   timeoutMs = 15_000,
+  maxRetries = 1,
+  maxCompletionTokens,
+  reasoningEffort,
 }: StructuredCall): Promise<StructuredResult<T>> {
   try {
     client ??= new OpenAI();
@@ -45,12 +52,14 @@ export async function callStructured<T>({
         model,
         messages,
         tools,
+        max_completion_tokens: maxCompletionTokens,
+        reasoning_effort: reasoningEffort,
         response_format: {
           type: "json_schema",
           json_schema: { ...schema, strict: true },
         },
       },
-      { timeout: timeoutMs, maxRetries: 1 },
+      { timeout: timeoutMs, maxRetries },
     );
 
     const choice = response.choices[0];

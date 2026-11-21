@@ -1,24 +1,35 @@
 import "server-only";
 
 import { readCatalog } from "@/lib/data/store";
-import type { Book } from "@/types/generated";
+import type { Book, Edition } from "@/types/generated";
 import { createCatalogSearch } from "./catalog-search";
 import { normalizeTitle } from "./normalize";
 
-export async function searchCatalog(
+interface SearchOptions {
+  limit?: number;
+  edition?: Edition;
+  volume?: number | null;
+}
+
+export async function searchCatalog(query: string, options?: SearchOptions): Promise<Book[]> {
+  if (!normalizeTitle(query) || (options?.limit ?? 5) <= 0) return [];
+  const { books } = await readCatalog();
+  return searchBooks(books, query, options);
+}
+
+export function searchBooks(
+  books: readonly Book[],
   query: string,
-  { limit = 5, volume, books }: { limit?: number; volume?: number | null; books?: readonly Book[] } = {},
-): Promise<Book[]> {
+  { limit = 5, edition, volume }: SearchOptions = {},
+): Book[] {
   const normalized = normalizeTitle(query);
   if (!normalized || limit <= 0) return [];
 
-  const entries = books ?? (await readCatalog()).books;
-  const byId = new Map(entries.map((book) => [book.book_id, book]));
-  const search = createCatalogSearch(entries);
-  const prioritizeVolume = volume != null;
-  const matches = search(normalized, prioritizeVolume ? undefined : limit).map((id) => byId.get(id)!);
-  if (prioritizeVolume) {
-    // Keep exact title and alias hits ahead of fuzzy hits for a different series.
+  const eligible = edition ? books.filter((book) => book.edition === edition) : books;
+  const byId = new Map(eligible.map((book) => [book.book_id, book]));
+  const search = createCatalogSearch(eligible);
+  const matches = search(normalized, volume == null ? limit : undefined).map((id) => byId.get(id)!);
+  if (volume != null) {
     const priority = (book: Book) =>
       Number([book.title, ...book.aliases].some((title) => normalizeTitle(title) === normalized)) * 2
       + Number(book.volume === volume);

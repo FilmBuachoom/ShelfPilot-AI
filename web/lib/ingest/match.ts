@@ -4,7 +4,7 @@ import contract from "../../../schemas/match_result.schema.json";
 import { callStructured, LlmUnavailableError } from "@/lib/llm/client";
 import { extractModel } from "@/lib/llm/models";
 import { pruneBook } from "@/lib/llm/prune";
-import { searchCatalog } from "@/lib/search/fuse";
+import { searchBooks, searchCatalog } from "@/lib/search/fuse";
 import type { Book } from "@/types/generated";
 import type { MatchResult } from "@/types/generated/match_result";
 import type { NormalizedItem } from "./contracts";
@@ -20,7 +20,9 @@ async function match(
   details?: { item: NormalizedItem; books: readonly Book[] },
 ): Promise<CatalogMatch | null> {
   const item = details?.item;
-  const candidates = await searchCatalog(title, { limit: 5, volume: item?.volume, books: details?.books });
+  const candidates = details
+    ? searchBooks(details.books, title, { volume: details.item.volume })
+    : await searchCatalog(title);
   if (!candidates.length) return null;
 
   const { data } = await callStructured<MatchResult>({
